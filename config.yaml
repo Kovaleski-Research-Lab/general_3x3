@@ -1,0 +1,116 @@
+#--------------------------------
+#       All paths
+#--------------------------------
+
+
+
+#------------------------
+#   Geometry Parameters
+#-------------------------
+
+geometry:
+  #Fused silica
+  loc_x_fused_silica: 
+  loc_y_fused_silica: 
+  loc_z_fused_silica: 
+
+  size_x_fused_silica: 
+  size_y_fused_silica: 
+  size_z_fused_silica: 0.78
+
+  material_index_fused_silica: 1.44
+
+  #PDMS
+  loc_x_pdms:
+  loc_y_pdms:
+  loc_z_pdms:
+  
+  size_x_pdms:
+  size_y_pdms:
+  size_z_pdms: 1.56
+
+  material_index_pdms: 1.4
+
+
+  #Metasurface
+  neighborhood_size: [3,3] #nx,ny
+
+  atom_type: 'cylinder'
+  material_index_meta_atom : 3.48 #amorphous silica
+  unit_cell_size: 0.68
+  height_pillar: 1.02
+  radius_pillar:
+  radius_min: 0.075
+  radius_max: 0.250
+
+
+  #Boundaries
+  thickness_pml: 0.78
+
+
+center_PDMS :
+center_fusedSilica :
+center_pillar :
+
+z_fusedSilica :
+z_PDMS :
+x_dim :
+y_dim :
+
+#-----------------------
+#   Source Parameters
+#-----------------------
+
+wavelengths : [2.881, 1.650, 1.550, 1.300, 1.060]
+cen_wavelength : 1.55
+cen :
+width :
+k_point :
+center_source :
+source_cmpt :
+source_type : "test"
+source :
+cell_x :
+cell_y :
+cell_z :
+decay_rate : 0.0001
+dt : 50
+
+#------------------------
+#   Simulation Parameters
+#-------------------------
+
+#resolution : 80
+resolution : 10
+lattice_size : 0.680
+grid_size : 3 
+
+cell_x :
+cell_y :
+cell_z :
+cell_size :
+
+pml_layers :
+k_point :
+pml_layers :
+symmetries :
+
+#------------------------
+#   DFT Object Params
+#------------------------
+
+freq :
+nfreq : 1 
+freq_list :
+df : 0 
+mon_center :
+near_pt :
+near_vol :
+cs :
+
+#-----------------------
+#  Animation Params
+#----------------------
+
+plot_plane :
+fps : 20
