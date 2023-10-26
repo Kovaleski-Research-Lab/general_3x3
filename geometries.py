@@ -91,7 +91,6 @@ def build_silica_pdms_substrate(params:dict) -> list:
     
     return [fused_silica, pdms]
 
-
 def build_andy_metasurface_neighborhood(params):
     '''
     This is basically the same code as the parameter manager's calculate_dependencies
@@ -121,6 +120,10 @@ def build_andy_metasurface_neighborhood(params):
     #Multiply the unit cell size by the numer of unit cells to get the x and y sizes
     size_x_cell = round(unit_cell_size * Nx, 3)
     size_y_cell = round(unit_cell_size * Ny, 3)
+    params['cell_x'] = size_x_cell
+    params['cell_y'] = size_y_cell
+    params['cell_z'] = size_z_cell
+
     logger.info("Size of total geometry cell : {} x {} x {} [um]".format(size_x_cell, size_y_cell, size_z_cell))
     cell_size = mp.Vector3(size_x_cell, size_y_cell, size_z_cell)
 
@@ -158,6 +161,9 @@ def build_andy_metasurface_neighborhood(params):
             'loc_z_pdms': loc_z_pdms,
             'material_index_pdms': material_index_pdms,
             }
+
+    params['substrate_params'] = substrate_params
+
     substrate = build_silica_pdms_substrate(substrate_params)
 
     metasurface = [i for i in substrate]
@@ -180,14 +186,15 @@ def build_andy_metasurface_neighborhood(params):
 
             count += 1
 
-    return metasurface
+    #Now for the pml layers
+    pml_layers = [mp.PML(thickness = thickness_pml, direction = mp.Z)]
+    
+    return metasurface, pml_layers
 
 if __name__ == "__main__":
     import yaml
     params = yaml.load(open('config.yaml'), Loader = yaml.FullLoader)
-    print(params['geometry'])
-
-    metasurface = build_andy_metasurface_neighborhood(params)
+    metasurface, pml = build_andy_metasurface_neighborhood(params)
     from IPython import embed; embed()
 
 

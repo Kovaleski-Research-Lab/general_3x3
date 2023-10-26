@@ -2,7 +2,13 @@
 #       All paths
 #--------------------------------
 
+#------------------------
+#   General Parameters
+#-------------------------
 
+cell_x :
+cell_y : 
+cell_z :
 
 #------------------------
 #   Geometry Parameters
@@ -47,32 +53,28 @@ geometry:
   #Boundaries
   thickness_pml: 0.78
 
-
-center_PDMS :
-center_fusedSilica :
-center_pillar :
-
-z_fusedSilica :
-z_PDMS :
-x_dim :
-y_dim :
-
 #-----------------------
 #   Source Parameters
 #-----------------------
 
+source:
+  #comment
+  type: 'gaussian'
+  frequency:
+  wavelength: 1.55
+  loc_x_source:
+  loc_y_source:
+  loc_z_source:
+  size_x_source: 
+  size_y_source:
+  size_z_source: 0 
+  fwidth: 
+  fcen:
+  component: mp.Ey
+
 wavelengths : [2.881, 1.650, 1.550, 1.300, 1.060]
 cen_wavelength : 1.55
-cen :
-width :
-k_point :
-center_source :
-source_cmpt :
-source_type : "test"
-source :
-cell_x :
-cell_y :
-cell_z :
+
 decay_rate : 0.0001
 dt : 50
 
