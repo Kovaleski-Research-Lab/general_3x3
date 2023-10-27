@@ -57,13 +57,22 @@ def build_silica_pdms_substrate(params:dict) -> list:
 
     logger.info("Building silica + PDMS substrate.")
     logger.info("Reading fused silica parameters")
-    size_x_fused_silica = params['size_x_fused_silica']
-    size_y_fused_silica = params['size_y_fused_silica']
-    size_z_fused_silica = params['size_z_fused_silica']
+
+    size_x_buffer = params['size_x_buffer']
+    size_y_buffer = params['size_y_buffer']
+    size_z_buffer = params['size_z_buffer']
+
+    offset_x_buffer = params['offset_x_buffer']
+    offset_y_buffer = params['offset_y_buffer']
+    offset_z_buffer = params['offset_z_buffer']
     
-    loc_x_fused_silica = params['loc_x_fused_silica']
-    loc_y_fused_silica = params['loc_y_fused_silica']
-    loc_z_fused_silica = params['loc_z_fused_silica']
+    size_x_fused_silica = params['size_x_fused_silica'] + size_x_buffer
+    size_y_fused_silica = params['size_y_fused_silica'] + size_y_buffer
+    size_z_fused_silica = params['size_z_fused_silica'] + size_z_buffer
+    
+    loc_x_fused_silica = params['loc_x_fused_silica'] + round(size_x_buffer / 2, 3)
+    loc_y_fused_silica = params['loc_y_fused_silica'] + round(size_y_buffer / 2, 3)
+    loc_z_fused_silica = params['loc_z_fused_silica'] + round(size_z_buffer / 2, 3)
     material_index_fused_silica = params['material_index_fused_silica']
 
     logger.info("Creating fused silica material. Index = {}".format(material_index_fused_silica))
@@ -73,13 +82,13 @@ def build_silica_pdms_substrate(params:dict) -> list:
                                 material_index = material_index_fused_silica)
 
     logger.info("Reading PDMS parameters")
-    loc_x_pdms = params['loc_x_pdms']
-    loc_y_pdms = params['loc_y_pdms']
-    loc_z_pdms = params['loc_z_pdms']
+    loc_x_pdms = params['loc_x_pdms'] + offset_x_buffer
+    loc_y_pdms = params['loc_y_pdms'] + offset_y_buffer
+    loc_z_pdms = params['loc_z_pdms'] + offset_z_buffer
     
-    size_x_pdms = params['size_x_pdms']
-    size_y_pdms = params['size_y_pdms']
-    size_z_pdms = params['size_z_pdms']
+    size_x_pdms = params['size_x_pdms'] + size_x_buffer
+    size_y_pdms = params['size_y_pdms'] + size_y_buffer
+    size_z_pdms = params['size_z_pdms'] + size_z_buffer
 
     material_index_pdms = params['material_index_pdms']
 
@@ -120,9 +129,28 @@ def build_andy_metasurface_neighborhood(params):
     #Multiply the unit cell size by the numer of unit cells to get the x and y sizes
     size_x_cell = round(unit_cell_size * Nx, 3)
     size_y_cell = round(unit_cell_size * Ny, 3)
-    params['cell_x'] = size_x_cell
-    params['cell_y'] = size_y_cell
-    params['cell_z'] = size_z_cell
+
+    if geometry_params['substrate_buffer']:
+        logger.info("Adding additional subtrate for buffer")
+        size_x_buffer = geometry_params['size_x_buffer']
+        size_y_buffer = geometry_params['size_y_buffer']
+        size_z_buffer = geometry_params['size_z_buffer']
+
+        offset_x_buffer = round(size_x_buffer / 2, 3)
+        offset_y_buffer = round(size_y_buffer / 2, 3)
+        offset_z_buffer = round(size_z_buffer / 2, 3)
+    
+    else:
+        size_x_buffer = 0
+        size_y_buffer = 0
+        size_z_buffer = 0
+        offset_x_buffer = 0
+        offset_y_buffer = 0
+        offset_z_buffer = 0
+    
+    params['cell_x'] = size_x_cell + size_x_buffer
+    params['cell_y'] = size_y_cell + size_y_buffer
+    params['cell_z'] = size_z_cell + size_z_buffer
 
     logger.info("Size of total geometry cell : {} x {} x {} [um]".format(size_x_cell, size_y_cell, size_z_cell))
     cell_size = mp.Vector3(size_x_cell, size_y_cell, size_z_cell)
@@ -142,8 +170,8 @@ def build_andy_metasurface_neighborhood(params):
 
     #Get the center of the simulation cell
     loc_z_center_cell = round(size_z_cell / 2, 3)
-    loc_x_center_cell = round(size_x_cell / 2, 3)
-    loc_y_center_cell = round(size_y_cell / 2, 3)
+    loc_x_center_cell = round(size_x_cell / 2, 3) + offset_x_buffer
+    loc_y_center_cell = round(size_y_cell / 2, 3) + offset_y_buffer
     center_sim_cell = mp.Vector3(loc_x_center_cell, loc_y_center_cell, loc_z_center_cell)
     logger.info("Center of the simulation cell : {}".format(center_sim_cell))
 
@@ -170,6 +198,13 @@ def build_andy_metasurface_neighborhood(params):
             'loc_y_pdms': size_y_cell/2,
             'loc_z_pdms': loc_z_pdms,
             'material_index_pdms': material_index_pdms,
+            'substrate_buffer': geometry_params['substrate_buffer'],
+            'size_x_buffer': size_x_buffer,
+            'size_y_buffer': size_y_buffer,
+            'size_z_buffer': size_z_buffer,
+            'offset_x_buffer': offset_x_buffer,
+            'offset_y_buffer': offset_y_buffer,
+            'offset_z_buffer': offset_z_buffer
             }
 
     params['substrate_params'] = substrate_params
@@ -186,8 +221,8 @@ def build_andy_metasurface_neighborhood(params):
     count = 0
     for nx in range(0,Nx):
         for ny in range(0,Ny):
-            loc_x_pillar = round((unit_cell_size * nx) + 0.5 * unit_cell_size, 3)
-            loc_y_pillar = round((unit_cell_size * ny) + 0.5 * unit_cell_size, 3)
+            loc_x_pillar = round((unit_cell_size * nx) + 0.5 * unit_cell_size, 3) + offset_x_buffer
+            loc_y_pillar = round((unit_cell_size * ny) + 0.5 * unit_cell_size, 3) + offset_y_buffer
             metasurface.append(build_cylinder(loc = mp.Vector3(loc_x_pillar, loc_y_pillar, loc_z_pillar),
                                               axis = mp.Vector3(0,0,1),
                                               height = height_pillar,

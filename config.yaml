@@ -37,9 +37,14 @@ geometry:
 
   material_index_pdms: 1.4
 
+  #Buffer
+  substrate_buffer: True
+  size_x_buffer: 5
+  size_y_buffer: 5
+  size_z_buffer: 0
 
   #Metasurface
-  neighborhood_size: [9,9] #nx,ny
+  neighborhood_size: [5,5] #nx,ny
 
   atom_type: 'cylinder'
   material_index_meta_atom : 3.48 #amorphous silica
@@ -87,7 +92,7 @@ monitor:
 #-------------------------
 simulation:
   #resolution : 80
-  resolution : 80
+  resolution : 10
   decay_rate : 0.0001
   dt : 50
   source_component: mp.Ey
