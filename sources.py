@@ -31,8 +31,8 @@ def continuous_source(params):
     size_y_source = params['size_y_source']
     size_z_source = params['size_z_source']
 
-    center = [loc_x_source, loc_y_source, loc_z_source]
-    size = [size_x_source, size_y_source, size_z_source]
+    center = mp.Vector3(loc_x_source, loc_y_source, loc_z_source)
+    size = mp.Vector3(size_x_source, size_y_source, size_z_source)
     if None in center:
         logger.error("Failed to specify center")
         exit()
@@ -52,8 +52,8 @@ def continuous_source(params):
 
     return mp.Source(mp.ContinuousSource(frequency=frequency),
                             component=component,
-                            center=mp.Vector3(center),
-                            size=mp.Vector3(size))
+                            center=center,
+                            size=size)
 
 
 
@@ -91,8 +91,8 @@ def gaussian_source(params):
     size_y_source = params['size_y_source']
     size_z_source = params['size_z_source']
 
-    center = [loc_x_source, loc_y_source, loc_z_source]
-    size = [size_x_source, size_y_source, size_z_source]
+    center = mp.Vector3(loc_x_source, loc_y_source, loc_z_source)
+    size = mp.Vector3(size_x_source, size_y_source, size_z_source)
     if None in center:
         logger.error("Failed to specify center")
         exit()
@@ -109,13 +109,12 @@ def gaussian_source(params):
             logger.error("Failed to specify default size")
             exit()
 
-
-    return mp.Source(mp.GaussianSource(fcen,
+    return [mp.Source(mp.GaussianSource(fcen,
                             fwidth=fwidth),
                             component = component,
-                            center=mp.Vector3(center),
-                            size=mp.Vector3(size))
-
+                            center=center,
+                            size=size)]
+   
 def build_source(params):
     logger.info("Building a source")
     source_params = params['source']
@@ -148,7 +147,8 @@ def build_andy_source(params):
     source_params['size_y_source'] = params['cell_y']
     source_params['size_z_source'] = 0
 
-    source_params['fwidth'] = 1.2
+    source_params['fcen'] = 1/source_params['wavelength']
+
     params['source_params'] = source_params
 
     return build_source(params)
@@ -157,7 +157,7 @@ def build_andy_source(params):
 if __name__ == "__main__":
 
     params = yaml.load(open('config.yaml'), Loader = yaml.FullLoader)
-    geo = geometries.build_andy_metasurface_neighborhood(params)
+    geo,pml,mon_vol = geometries.build_andy_metasurface_neighborhood(params)
     source = build_andy_source(params)
     from IPython import embed; embed();
 
