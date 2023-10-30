@@ -1,6 +1,4 @@
-import yaml
 import meep as mp
-
 import geometries, sources, boundaries, field_monitors
 
 
@@ -32,16 +30,19 @@ def build_sim(params):
                          resolution = resolution,
                          symmetries=None)
     
-    field_monitors.build_dft_monitor(params, sim, monitor_volume)
+    dft_obj = field_monitors.build_dft_monitor(params, sim, monitor_volume)
+    flux_obj = field_monitors.build_timedep_monitor(params, sim)
 
-    return sim
+    return sim, dft_obj, flux_obj
 
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt 
+    import pickle
+    import yaml
     params = yaml.load(open("config.yaml"), Loader = yaml.FullLoader)
     params_simulation = params['simulation']
-    sim = build_sim(params)
+    sim, dft_obj, flux_obj = build_sim(params)
 
 
     center_mon_z = round(params['cell_z'] / 2, 3)
@@ -65,7 +66,9 @@ if __name__ == "__main__":
     #                                                            decay_by = params_simulation['decay_rate']))
     
     sim.run(until=200)
-    fig,ax = plt.subplots(1,1,figsize=(15,15))
-    sim.plot2D(output_plane = plot_plane, ax=ax)
-    plt.show()
-    plt.savefig('test.png')
+    dft_fields, flux, eps_data = field_monitors.collect_fields(params, sim, flux_obj, dft_obj)
+
+
+    pickle.dump(dft_fields, open('test_dft_fields.pkl', 'wb'))
+    pickle.dump(flux, open('test_flux.pkl', 'wb'))
+    pickle.dump(eps_data, open('test_eps_data.pkl', 'wb'))

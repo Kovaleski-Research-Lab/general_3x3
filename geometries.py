@@ -168,6 +168,10 @@ def build_andy_metasurface_neighborhood(params):
     loc_top_pdms = round(thickness_pml + size_z_fused_silica + size_z_pdms, 3)
     logger.info("Top of the pdms : {} [um]".format(loc_top_pdms))
 
+    logger.info("Updating params with calculated locations")
+    geometry_params['loc_top_fused_silica'] = loc_top_fused_silica
+    geometry_params['loc_top_pdms'] = loc_top_pdms
+
     #Get the center of the simulation cell
     loc_z_center_cell = round(size_z_cell / 2, 3)
     loc_x_center_cell = round(size_x_cell / 2, 3) + offset_x_buffer
