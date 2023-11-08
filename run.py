@@ -22,12 +22,11 @@ if __name__ == "__main__":
     #         0.16552, 0.19670, 0.13635,
     #         0.20876, 0.10517, 0.09009]
 
-    radii = [0.20876, 0.10517, 0.09009,0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+    radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
     
     sim, dft_obj, flux_obj = simulation.build_sim(params, radii = radii)
-    sim.run(until=200)
-    #from IPython import embed; embed()
-    dft_fields, flux, eps_data = field_monitors.collect_fields(params, sim, flux_obj, dft_obj)
-    sim.dump_structure('sim_test.meep')
-    pickle.dump([dft_fields, flux, eps_data],open('../../results/gaussian_random.pkl', 'wb'))
 
+    sim.run(until=200)
+    dft_fields, flux, eps_data = field_monitors.collect_fields(params, sim, flux_obj, dft_obj)
+    pickle.dump([dft_fields, flux, eps_data],open('/develop/results/meep_variability_study/000.pkl', 'wb'))
+    sim.reset_meep()
