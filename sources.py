@@ -139,9 +139,11 @@ def build_andy_source(params):
 
     source_params['component'] = mp.Ey
 
-    source_params['loc_x_source'] = round(params['cell_x'] / 2, 3)
-    source_params['loc_y_source'] = round(params['cell_y'] / 2, 3)
-    source_params['loc_z_source'] = round(thickness_pml + (size_z_fused_silica * 0.2), 3)
+    #source_params['loc_x_source'] = round(params['cell_x'] / 2, 4)
+    #source_params['loc_y_source'] = round(params['cell_y'] / 2, 4)
+    source_params['loc_x_source'] = 0
+    source_params['loc_y_source'] = 0
+    source_params['loc_z_source'] = round(thickness_pml + ((size_z_fused_silica-thickness_pml) * 0.2) - params['cell_z'] / 2, 4)
 
     source_params['size_x_source'] = params['cell_x']
     source_params['size_y_source'] = params['cell_y']
