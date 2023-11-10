@@ -38,10 +38,10 @@ geometry:
   material_index_pdms: 1.4
 
   #Buffer
-  substrate_buffer: False
+  substrate_buffer: True
   size_x_buffer: 3
   size_y_buffer: 3
-  size_z_buffer: 5
+  size_z_buffer: 4
 
   #Metasurface
   neighborhood_size: [3,3] #nx,ny
@@ -63,7 +63,7 @@ geometry:
 #-----------------------
 
 source:
-  type: 'gaussian'
+  type: 'continuous'
   frequency:
   wavelength: 1.55
   loc_x_source:
@@ -86,6 +86,14 @@ monitor:
   freq_list:
   wavelenth_center: 1.55
   wavelength_list: [2.881, 1.650, 1.550, 1.300, 1.060]
+
+dft_slice_monitor:
+  components_dft_monitor: 'all'
+  fcen:
+  freq_list:
+  wavelenth_center: 1.55
+  wavelength_list: [2.881, 1.650, 1.550, 1.300, 1.060]
+  loc_z: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4.0]
 
 #------------------------
 #   Simulation Parameters

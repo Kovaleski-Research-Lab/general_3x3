@@ -27,6 +27,33 @@ def collect_fields(params, sim, flux_obj = None, dft_obj = None):
     eps_data = sim.get_epsilon()
     return dft_fields, flux, eps_data
 
+
+def build_dft_slice_monitor(params, sim):
+    monitor_params = params['dft_slice_monitor']
+    components = monitor_params['components_dft_monitor']
+    if components == 'all':
+        components = [mp.Ex, mp.Ey, mp.Ez]
+    else:
+        logger.error("Monitor component {} not supported".format(components))
+
+    freq_list = monitor_params['freq_list']
+    wavelength_list = monitor_params['wavelength_list']
+
+    if freq_list is None and wavelength_list is None:
+        logger.error("You need to specify either a frequency list or a wavelength list for the DFT monitor")
+        exit()
+
+    if freq_list is None:
+        freq_list = [round(1/wl,4) for wl in wavelength_list]
+        monitor_params['freq_list'] = freq_list
+    
+    where = monitor_volume
+    dft_obj = sim.add_dft_fields(components, freq_list, where = where)
+    return dft_obj
+
+
+    
+
 def build_dft_monitor(params, sim, monitor_volume):
 
     monitor_params = params['monitor']

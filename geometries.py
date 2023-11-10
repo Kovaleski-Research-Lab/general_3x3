@@ -267,6 +267,7 @@ def build_andy_metasurface_neighborhood(params, radii = None):
 
     #Now for the pml layers
     pml_layers = [mp.PML(thickness = thickness_pml, direction = mp.Z)]
+
     params['geometry']['pml_layers'] = pml_layers
     #pml_layers = []
 

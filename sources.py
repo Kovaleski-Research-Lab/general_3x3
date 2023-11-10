@@ -50,12 +50,10 @@ def continuous_source(params):
             exit()
 
 
-    return mp.Source(mp.ContinuousSource(frequency=frequency),
+    return [mp.Source(mp.ContinuousSource(frequency=frequency),
                             component=component,
                             center=center,
-                            size=size)
-
-
+                            size=size)]
 
 
 def gaussian_source(params):
