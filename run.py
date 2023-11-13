@@ -35,17 +35,22 @@ def create_folder(path):
 
 if __name__ == "__main__":
 
+    print("loading in params...")
     params = yaml.load(open("config.yaml", 'r'), Loader = yaml.FullLoader)
 
+    print("parsing args...")
     parser = argparse.ArgumentParser()
     parser.add_argument("-idx", help="An integer value used to grab a radii list from radii library")
 
     args = parser.parse_args()
 
-    path_results = "/develop/results/buffer_study"
+    #path_results = "/develop/results/buffer_study"
+    path_results = "/develop/results"
 
     idx = int(args.idx) 
+    print("loading in neighbors library...")
     neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
+    print("assigning neighborhood...")
     radii = list(neighbors_library[idx])
     #embed()
     #6 7 8
@@ -56,6 +61,7 @@ if __name__ == "__main__":
     #         0.16552, 0.19670, 0.13635,
     #         0.20876, 0.10517, 0.09009]
     #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+    print("building sim...")
     sim, dft_obj, flux_obj = simulation.build_sim(params, radii = radii)
 
     cell_x = params['cell_x']
