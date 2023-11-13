@@ -1,4 +1,4 @@
-
+from IPython import embed
 import os
 import yaml
 import pickle
@@ -24,6 +24,15 @@ def mod_axes(ax):
     ax.tick_params(axis='both', labelsize=14)
     return ax
 
+def create_folder(path):
+
+    try: 
+        os.makedirs(path)
+        print(f"\ncreated folder {path}\n")
+
+    except:
+        print(f"\nfolder {path} already exists.\n")
+
 if __name__ == "__main__":
 
     params = yaml.load(open("config.yaml", 'r'), Loader = yaml.FullLoader)
@@ -31,16 +40,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-lateral_buffer", help="Buffer for the x-y dimensions")
     parser.add_argument("-source", help="The type of source to use")
+    parser.add_argument("-idx", help="An integer value used to grab a radii list from radii library")
 
     args = parser.parse_args()
-    buffer = float(args.lateral_buffer)
-    params['geometry']['size_x_buffer'] = buffer
-    params['geometry']['size_y_buffer'] = buffer
+    _buffer = float(args.lateral_buffer)
+    params['geometry']['size_x_buffer'] = _buffer
+    params['geometry']['size_y_buffer'] = _buffer
 
     source = args.source
     params['source']['type'] = source
     path_results = "/develop/results/buffer_study"
 
+    idx = int(args.idx) 
+    neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
+    radii = list(neighbors_library[idx])
+    #embed()
     #6 7 8
     #3 4 5
     #0 1 2
@@ -48,7 +62,7 @@ if __name__ == "__main__":
     #radii = [0.18664, 0.09511, 0.13333,
     #         0.16552, 0.19670, 0.13635,
     #         0.20876, 0.10517, 0.09009]
-    radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+    #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
     sim, dft_obj, flux_obj = simulation.build_sim(params, radii = radii)
 
     cell_x = params['cell_x']
@@ -77,11 +91,27 @@ if __name__ == "__main__":
     meta_data = sim.get_array_metadata(dft_cell = dft_obj)
     eps_data = sim.get_epsilon()
 
-    sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}.pkl'.format(source,buffer)))
-    pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}.pkl'.format(source,buffer)), 'wb'))
-    pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}.pkl'.format(source,buffer)), 'wb'))
-    Animate.to_mp4(20, os.path.join(path_results, '{}_animation_with_buffer_{:.03f}.mp4'.format(source,buffer)))
+    folder_name = f"idx_{idx}"
+    create_folder(os.path.join(path_results, folder_name))
+    path_results = os.path.join(path_results, folder_name)
+    #sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
+    #pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
+    #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
+    #Animate.to_mp4(20, os.path.join(path_results, '{}_animation_with_buffer_{:.03f}_rad_idx_{}.mp4'.format(source,_buffer,idx)))
+     
+    print("outputting dfts...")
+    
+    sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
+    print("dumping metadata...")
+    pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
+    print("dumping eps data...")
+    pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
+    
+    print("saving animation...")
+    Animate.to_mp4(20, os.path.join(path_results, '{}_animation_with_buffer_{:.03f}_rad_idx_{}.mp4'.format(source,_buffer,idx)))
 
     fig,ax = plt.subplots(1,1,figsize = (5,5))
     sim.plot2D(output_plane = plot_plane, ax=ax)
-    fig.savefig(os.path.join(path_results, '{}_plot2D_with_buffer_{:.03f}.png'.format(source,buffer)))
+    #fig.savefig(os.path.join(path_results, '{}_plot2D_with_buffer_{:.03f}_rad_idx_{}.png'.format(source,_buffer,idx)))
+    fig.savefig(os.path.join(path_results, '{}_plot2D_with_buffer_{:.03f}_rad_idx_{}.png'.format(source,_buffer,idx)))
+    print("all done")

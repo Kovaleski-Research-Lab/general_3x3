@@ -245,7 +245,8 @@ def build_andy_metasurface_neighborhood(params, radii = None):
 
     #Now for the pillars
     material_index_pillars = geometry_params['material_index_meta_atom']
-
+    #from IPython import embed
+    #embed()
     if radii == None:
         radii = [0.2 for _ in range(0,Nx*Ny)]
 
