@@ -4,7 +4,7 @@ metadata:
   name: andy-monitor
 spec:
   containers:
-    - name: monitor
+    - name: andy-monitor
       #image: docker.io/kovaleskilab/meep_ml:s3_enabled
       image: docker.io/kovaleskilab/meep:v2_with_torch
       env:

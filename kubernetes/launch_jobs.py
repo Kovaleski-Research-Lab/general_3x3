@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
     args = parse_args(sys.argv)
 
-    params = load_config(args["kube_config"]) 
+    params = load_config(args["config"]) 
 
     #atexit.register(exit_handler)  # this is how we clean up jobs. 
     run_generation(params)
