@@ -10,7 +10,7 @@ spec:
         - name: {{job_name}}
           image: {{path_image}}
           command: ["/bin/sh", "-c"]
-          args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git .; echo 'test' > {{path_logs}}/'one'.log; cd /develop/code/general_3x3; echo 'testing2' > {{path_logs}}/'two'.log; test.py > {{path_logs}}/{{n_index}}.log"]
+          args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git .; echo 'test' > {{path_logs}}/'one'.log; git checkout andy_branch; echo 'checked out branch' > {{path_logs}}/'two'.log; cd /develop/code/general_3x3; echo 'changed dir' > {{path_logs}}/'three'.log; mpirun -np {{num_cpus}} python3 /develop/code/general_3x3/run.py -idx {{n_index}} > {{path_logs}}/{{n_index}}.log; echo 'end' > {{path_logs}}/'final'.log"]
                                                                                                                                                                                               
           resources:
             limits:
