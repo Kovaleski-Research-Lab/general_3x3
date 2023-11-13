@@ -38,17 +38,10 @@ if __name__ == "__main__":
     params = yaml.load(open("config.yaml", 'r'), Loader = yaml.FullLoader)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-lateral_buffer", help="Buffer for the x-y dimensions")
-    parser.add_argument("-source", help="The type of source to use")
     parser.add_argument("-idx", help="An integer value used to grab a radii list from radii library")
 
     args = parser.parse_args()
-    _buffer = float(args.lateral_buffer)
-    params['geometry']['size_x_buffer'] = _buffer
-    params['geometry']['size_y_buffer'] = _buffer
 
-    source = args.source
-    params['source']['type'] = source
     path_results = "/develop/results/buffer_study"
 
     idx = int(args.idx) 

@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: andy-monitor
+spec:
+  containers:
+    - name: monitor
+      #image: docker.io/kovaleskilab/meep_ml:s3_enabled
+      image: docker.io/kovaleskilab/meep:v2_with_torch
+      env:
+        - name: RCLONE_NAUTILUS_TYPE
+          value: s3
+        - name: RCLONE_CONFIG_NAUTILUS_ENDPOINT
+          value: http://rook-ceph-rgw-centrals3.rook-central
+        - name: RCLONE_CONFIG_NAUTILUS_PROVIDER
+          value: Other
+        - name: RCLONE_CONFIG_NAUTILUS_ACCESS_KEY_ID
+          value: JPKIHDAZY41Q5IPG1SPM
+        - name: RCLONE_CONFIG_NAUTILUS_SECRET_ACCESS_KEY
+          value: 2AZNOB1ivWEGKV1UYK6HDb5KuEJJ0s5dxDBxQPEE
+      stdin: True
+      tty: True
+      resources:
+        limits:
+          memory: 8G
+          cpu: 6
+        requests:
+          memory: 6G
+          cpu: 6
+      volumeMounts:
+        - name: buffer-study
+          mountPath: /develop/results
+  volumes:
+    - name: buffer-study
+      persistentVolumeClaim:
+        claimName: buffer-study
+
+  restartPolicy: Never
+

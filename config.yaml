@@ -39,8 +39,8 @@ geometry:
 
   #Buffer
   substrate_buffer: True
-  size_x_buffer: 3
-  size_y_buffer: 3
+  size_x_buffer: 5.0
+  size_y_buffer: 5.0
   size_z_buffer: 4
 
   #Metasurface
@@ -63,7 +63,7 @@ geometry:
 #-----------------------
 
 source:
-  type: 'continuous'
+  type: 'gaussian'
   frequency:
   wavelength: 1.55
   loc_x_source:

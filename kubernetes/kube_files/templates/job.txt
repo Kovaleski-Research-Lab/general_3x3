@@ -1,0 +1,30 @@
+{# kube_files/templates/job.txt #}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{job_name}}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{job_name}}
+          image: {{path_image}}
+          command: ["/bin/sh", "-c"]
+          args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git .; cd /develop/code/; mpirun -np {{num_cpus}} python3 /develop/code/run.py -index {{n_index}} -path_out_sims {{path_out_sims}} > {{path_logs}}/{{n_index}}.log"]
+          resources:
+            limits:
+              memory: {{num_mem_lim}}
+              cpu: {{num_cpus}}
+            requests:
+              memory: {{num_mem_req}}
+              cpu: {{num_cpus}}
+          volumeMounts:
+            - name: buffer-study
+              mountPath: /develop/results
+
+      volumes:
+        - name: buffer-study
+          persistentVolumeClaim:
+            claimName: buffer-study
+
+      restartPolicy: Never
