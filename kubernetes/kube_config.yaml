@@ -3,7 +3,7 @@ path_template: kube_files/templates/job.txt
 
 path_simulations: /develop/results
 path_logs: /develop/results/current_logs
-path_sim_job_files: /develop/code/general_3x3/kube_job_files
+path_sim_job_files: /develop/results/job_files
 path_out_sims: /develop/results # this is really a duplicate. can change 'path_simulations' in run_datagen.py (template) if you want to clean this up.
 
 num_mem_lim: 240G
