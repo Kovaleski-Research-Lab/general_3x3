@@ -71,7 +71,7 @@ def run_generation(params):
     # Load job template
 
     template = load_file(params["path_template"])
-
+    
     tag = params["path_template"].split("/")[-1]
     folder = params["path_template"].replace("/%s" % tag, "")
     environment = Environment(loader = FileSystemLoader(folder))
@@ -86,16 +86,16 @@ def run_generation(params):
     print("\nLaunching Jobs for Buffer Study\n")
 
     counter = params["start_group_id"]
-    print("counter = {counter}")
+    print(f"counter = {counter}, num sims = {params['num_sims']}")
     current_group = [] 
 
     while(counter < params["num_sims"]):
         # -- Launch jobs if there is room in processing group
-
+        print(f"counter = {counter}")
         if(len(current_group) < params["num_parallel_ops"]):
-
+            print(f"len current group {len(current_group)} < num parallel ops {params['num_parallel_ops']}")
             num_to_launch = params["num_parallel_ops"] - len(current_group)
-
+            print(f"num to launch = {num_to_launch}")
             for i in range(counter, counter + num_to_launch):
 
                 # --- Configure simulation job
@@ -126,7 +126,7 @@ def run_generation(params):
 
                 subprocess.run(["kubectl", "apply", "-f", path_job])
 
-            counter += 1
+                counter += 1
 
         # -- Wait for a processes to finish
 
