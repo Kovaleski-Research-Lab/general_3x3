@@ -86,7 +86,7 @@ def run_generation(params):
     print("\nLaunching Jobs for Buffer Study\n")
 
     counter = params["start_group_id"]
-
+    print("counter = {counter}")
     current_group = [] 
 
     while(counter < params["num_sims"]):
@@ -97,7 +97,6 @@ def run_generation(params):
             num_to_launch = params["num_parallel_ops"] - len(current_group)
 
             for i in range(counter, counter + num_to_launch):
-        
 
                 # --- Configure simulation job
 
