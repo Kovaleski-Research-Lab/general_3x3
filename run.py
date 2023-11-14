@@ -47,10 +47,13 @@ if __name__ == "__main__":
     idx = int(args.idx) 
     neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
     radii = list(neighbors_library[idx])
-    #embed()
-    #6 7 8
-    #3 4 5
-    #0 1 2
+    radii = np.array(radii).reshape(3,3)
+    radii = np.flip(radii,axis=0).flatten()
+    radii = list(radii)
+
+    #6 7 8  -->  0 1 2
+    #3 4 5       3 4 5
+    #0 1 2       6 7 8
 
     #radii = [0.18664, 0.09511, 0.13333,
     #         0.16552, 0.19670, 0.13635,
@@ -92,6 +95,8 @@ if __name__ == "__main__":
     #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
     #Animate.to_mp4(20, os.path.join(path_results, '{}_animation_with_buffer_{:.03f}_rad_idx_{}.mp4'.format(source,_buffer,idx)))
      
+    source = params['source']['type']
+    _buffer = params['geometry']['size_x_buffer']
     print("outputting dfts...")
     
     sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
