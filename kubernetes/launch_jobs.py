@@ -225,5 +225,5 @@ if __name__ == "__main__":
 
     params = load_config(args["config"]) 
 
-    #atexit.register(exit_handler)  # this is how we clean up jobs. 
+    atexit.register(exit_handler)  # this is how we clean up jobs. 
     run_generation(params)
