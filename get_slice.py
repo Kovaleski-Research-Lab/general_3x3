@@ -61,7 +61,8 @@ def get_cropped_im(image):
 if __name__=="__main__":
     slices = {}
     radii = pickle.load(open("buffer_study_library.pkl","rb"))
-
+    print(f"path_results: {path_results}")
+    print("beginning slicing...")
     for folder in os.listdir(path_results):
         print(folder, type(folder))
         if folder == "current_logs":
