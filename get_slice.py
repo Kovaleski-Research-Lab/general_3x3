@@ -10,7 +10,7 @@ print("imported re")
 
 #path_results = "/develop/results"
 path_results = "/develop/results/buffer_study"
-#dump_path = os.path.join(path_results, "slices")
+dump_path = os.path.join(path_results, "slices")
 
 def create_folder(path):
 
