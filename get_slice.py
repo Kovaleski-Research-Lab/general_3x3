@@ -10,7 +10,7 @@ print("imported re")
 
 #path_results = "/develop/results"
 path_results = "/develop/results/buffer_study"
-dump_path = os.path.join(path_results, "slices")
+#dump_path = os.path.join(path_results, "slices")
 
 def create_folder(path):
 
@@ -62,6 +62,8 @@ def get_cropped_im(image):
 
 
 if __name__=="__main__":
+
+    create_folder(dump_path)
     slices = {}
     radii = pickle.load(open("buffer_study_library.pkl","rb"))
     print(f"path_results: {path_results}")
@@ -70,7 +72,7 @@ if __name__=="__main__":
         print(folder, type(folder))
         if folder == "current_logs":
             continue
-        if folder == "slices":
+        if folder == "idx_0test":
             continue
         print(f"got {folder}, assigning index...")
         idx = get_index(folder) 
@@ -90,11 +92,10 @@ if __name__=="__main__":
         
         slices[f'index_{idx}']['radii'] = radii[idx]
     
-    create_folder(dump_path)
-    filename = os.path.join(dump_path, "dft_slices.pkl")
-    print(f"dumping to {filename}.")
-    with open(filename, "wb") as f:
-        pickle.dump(slices, f)
+        filename = os.path.join(dump_path, f"dft_slices_{idx}.pkl")
+        #print(f"dumping to {filename}.")
+        with open(filename, "wb") as f:
+            pickle.dump(slices, f)
   
     print("all done") 
     #filename = os.path.join(dump_path, "z_slice.pkl")
