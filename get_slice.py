@@ -72,6 +72,8 @@ if __name__=="__main__":
             continue
         if folder == "idx_0test":
             continue
+        if folder == "slices":
+            continue
         print(f"got {folder}, assigning index...")
         idx = get_index(folder) 
         print(f" folder index is {idx}")
