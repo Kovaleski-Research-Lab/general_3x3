@@ -2,14 +2,11 @@ import pickle
 import torch
 import numpy as np
 import os
-print("imported os successfully")
 import h5py
-print("imported h5py")
 import re
-print("imported re")
 
-#path_results = "/develop/results"
-path_results = "/develop/results/buffer_study"
+path_results = "/develop/results" #KUBE
+#path_results = "/develop/results/buffer_study" # MARGE TEST
 dump_path = os.path.join(path_results, "slices")
 
 def create_folder(path):
@@ -63,7 +60,6 @@ def get_cropped_im(image):
 
 if __name__=="__main__":
 
-    print("beginning process...")
     create_folder(dump_path)
     print(f"folder created: {dump_path}")
     slices = {}
