@@ -93,7 +93,7 @@ if __name__ == "__main__":
     meta_data = sim.get_array_metadata(dft_cell = dft_obj)
     eps_data = sim.get_epsilon()
 
-    folder_name = f"idx_{idx}"
+    folder_name = f"idx_{idx}test"
     create_folder(os.path.join(path_results, folder_name))
     path_results = os.path.join(path_results, folder_name)
     #sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
