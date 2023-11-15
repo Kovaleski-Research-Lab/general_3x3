@@ -12,11 +12,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git;
                 cd general_3x3;
-                pwd > {{path_logs}}/'zero'.log;
-                git status > {{path_logs}}/'one'.log;
                 git checkout andy_branch;
-                git status > {{path_logs}}/'two'.log;
-                python3 test.py > {{path_logs}}/'three'.log;
                 mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx {{n_index}} > {{path_logs}}/{{n_index}}.log"]
           resources:
             limits:

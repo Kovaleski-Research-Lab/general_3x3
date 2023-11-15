@@ -131,7 +131,7 @@ def run_generation(params):
         # -- Wait for a processes to finish
 
         else:
-
+            pass
             k = 0
             check_time_min = 2
             wait_time_sec = 60
@@ -224,5 +224,5 @@ if __name__ == "__main__":
 
     params = load_config(args["config"]) 
 
-    atexit.register(exit_handler)  # this is how we clean up jobs. 
+    #atexit.register(exit_handler)  # this is how we clean up jobs. 
     run_generation(params)
