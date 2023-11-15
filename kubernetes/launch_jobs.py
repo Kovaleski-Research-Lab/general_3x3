@@ -84,11 +84,37 @@ def run_generation(params):
     # - Begin data generation
 
     print("\nLaunching Jobs for Buffer Study\n")
+    counter = 0
+    job_name = "%s-%s" % (params["kill_tag"], str(counter).zfill(6))
 
-    counter = params["start_group_id"]
-    print(f"counter = {counter}, num sims = {params['num_sims']}")
-    current_group = [] 
+    #current_group.append(job_name)
 
+    template_info = {"job_name": job_name, 
+                     "n_index": str(counter),
+                     "num_cpus": str(params["num_cpus_per_op"]),
+                     "num_mem_lim": str(params["num_mem_lim"]),
+                     "num_mem_req": str(params["num_mem_req"]),
+                     "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
+
+    filled_template = template.render(template_info)
+
+    path_job = os.path.join(params["path_sim_job_files"], job_name + ".yaml") 
+
+    if(sys.platform == "win32"):
+        path_job = path_job.replace("\\", "/").replace("/", "\\")
+
+    # --- Save simulation job file
+
+    save_file(path_job, filled_template)
+
+    # --- Launch simulation job
+
+    subprocess.run(["kubectl", "apply", "-f", path_job])
+
+    #counter = params["start_group_id"]
+    #print(f"counter = {counter}, num sims = {params['num_sims']}")
+    #current_group = [] 
+"""
     while(counter < params["num_sims"]):
         # -- Launch jobs if there is room in processing group
         print(f"counter = {counter}")
@@ -131,7 +157,7 @@ def run_generation(params):
         # -- Wait for a processes to finish
 
         else:
-            pass
+            
             k = 0
             check_time_min = 2
             wait_time_sec = 60
@@ -177,8 +203,8 @@ def run_generation(params):
                         break                    
 
                 k += 1
-
-    print("\nData Generation Complete\n")
+"""
+    #print("\nData Generation Complete\n")
 
 # Validate: Configuration File
 
