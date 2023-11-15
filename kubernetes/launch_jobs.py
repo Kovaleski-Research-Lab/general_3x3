@@ -85,7 +85,7 @@ def run_generation(params):
 
     print("\nLaunching Jobs for Buffer Study\n")
     counter = 0
-    job_name = "%s-%s" % (params["kill_tag"], str(counter).zfill(6))
+    job_name = "%s-%s" % (params["kill_tag"], str(counter).zfill(2))
 
     #current_group.append(job_name)
 
@@ -106,7 +106,7 @@ def run_generation(params):
     # --- Save simulation job file
 
     save_file(path_job, filled_template)
-
+    print(f"job saved to {path_job}")
     # --- Launch simulation job
 
     subprocess.run(["kubectl", "apply", "-f", path_job])
