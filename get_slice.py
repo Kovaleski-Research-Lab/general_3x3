@@ -64,6 +64,7 @@ def get_cropped_im(image):
 if __name__=="__main__":
 
     create_folder(dump_path)
+    print(f"folder created: {dump_path}")
     slices = {}
     radii = pickle.load(open("buffer_study_library.pkl","rb"))
     print(f"path_results: {path_results}")

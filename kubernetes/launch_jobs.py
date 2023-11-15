@@ -85,7 +85,7 @@ def run_generation(params):
 
     print("\nLaunching Jobs for Buffer Study\n")
     counter = 0
-    job_name = "%s-%s" % (params["kill_tag"], str(counter).zfill(3))
+    job_name = "%s-%s" % (params["kill_tag"], str(counter).zfill(1))
 
     #current_group.append(job_name)
 
