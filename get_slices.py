@@ -45,6 +45,7 @@ def get_cropped_im(params, image):
     cropped = image[start_row:end_row, start_col:end_col]
     
     return cropped
+
 if __name__=="__main__":
 
     for 
