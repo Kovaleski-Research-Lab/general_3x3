@@ -8,7 +8,8 @@ print("imported h5py")
 import re
 print("imported re")
 
-path_results = "/develop/results"
+#path_results = "/develop/results"
+path_results = "/develop/results/buffer_study"
 dump_path = os.path.join(path_results, "slices")
 
 def create_folder(path):
@@ -69,9 +70,9 @@ if __name__=="__main__":
         print(folder, type(folder))
         if folder == "current_logs":
             continue
-        if folder == "current_logs":
+        if folder == "slices":
             continue
-        print(f" got {folder}, assigning index...")
+        print(f"got {folder}, assigning index...")
         idx = get_index(folder) 
         print(f" folder index is {idx}")
         slices[f'index_{idx}'] = {}
@@ -91,7 +92,7 @@ if __name__=="__main__":
     
     create_folder(dump_path)
     filename = os.path.join(dump_path, "dft_slices.pkl")
-    print(f"dumping to {filename}."
+    print(f"dumping to {filename}.")
     with open(filename, "wb") as f:
         pickle.dump(slices, f)
   
