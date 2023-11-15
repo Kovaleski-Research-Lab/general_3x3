@@ -13,8 +13,10 @@ spec:
           args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git;
                 cd general_3x3;
                 git checkout andy_branch;
+                echo 'checked out branch' > {{path_logs}}/'test'.log;
                 pip install h5py;
-                python3 get_slice.py > {{path_results}}/'slices_log'.log"]
+                echo 'installed h5py' > {{path_logs}}/'h5'.log;
+                python3 get_slice.py > {{path_logs}}/'slices_log'.log"]
           resources:
             limits:
               memory: {{num_mem_lim}}

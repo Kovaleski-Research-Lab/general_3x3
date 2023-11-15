@@ -17,7 +17,7 @@ num_parallel_ops: 10
 namespace: gpn-mizzou-muem
 kill_time_min: 30
 #kill_tag: preprocess
-kill_tag: buffer-sim
+kill_tag: slicing
 
 # Define Simulation
 

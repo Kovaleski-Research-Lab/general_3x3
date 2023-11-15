@@ -2,9 +2,11 @@ import pickle
 import torch
 import numpy as np
 import os
+print("imported os successfully")
 import h5py
-from IPython import embed
+print("imported h5py")
 import re
+print("imported re")
 
 path_results = "/develop/results"
 dump_path = os.path.join(path_results, "slices")
