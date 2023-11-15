@@ -1,4 +1,3 @@
-print("importing packages...")
 import os
 import yaml
 import pickle

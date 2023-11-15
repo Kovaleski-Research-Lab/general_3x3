@@ -6,8 +6,8 @@ path_logs: /develop/results/current_logs
 path_sim_job_files: /develop/results/job_files
 path_out_sims: /develop/results # this is really a duplicate. can change 'path_simulations' in run_datagen.py (template) if you want to clean this up.
 
-num_mem_lim: 240G
-num_mem_req: 200G
+num_mem_lim: 600G
+num_mem_req: 500G
 num_cpus_per_op: 48
 num_cpus: 48
 #num_cpus_total: 2048

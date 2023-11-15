@@ -13,16 +13,16 @@ spec:
           args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git;
                 cd general_3x3;
                 git checkout andy_branch;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 0 > {{path_logs}}/'0test2'.log & wait;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 1 > {{path_logs}}/'1test2'.log & wait;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 2 > {{path_logs}}/'2test2'.log & wait;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 3 > {{path_logs}}/'3test2'.log & wait;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 4 > {{path_logs}}/'4test2'.log & wait;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 5 > {{path_logs}}/'5test2'.log & wait;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 6 > {{path_logs}}/'6test2'.log & wait;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 7 > {{path_logs}}/'7test2'.log & wait;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 8 > {{path_logs}}/'8test2'.log & wait;
-                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 9 > {{path_logs}}/'9test2'.log & wait"]
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 0 > {{path_logs}}/'0'.log & wait;
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 1 > {{path_logs}}/'1'.log & wait;
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 2 > {{path_logs}}/'2'.log & wait;
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 3 > {{path_logs}}/'3'.log & wait;
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 4 > {{path_logs}}/'4'.log & wait;
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 5 > {{path_logs}}/'5'.log & wait;
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 6 > {{path_logs}}/'6'.log & wait;
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 7 > {{path_logs}}/'7'.log & wait;
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 8 > {{path_logs}}/'8'.log & wait;
+                mpirun --allow-run-as-root --np {{num_cpus}} python3 run.py -idx 9 > {{path_logs}}/'9'.log & wait"]
           resources:
             limits:
               memory: {{num_mem_lim}}
