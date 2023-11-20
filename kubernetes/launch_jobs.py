@@ -119,6 +119,7 @@ def run_generation(params):
 
                 save_file(path_job, filled_template)
                 print(f"job saved to {path_job}")
+
                 # --- Launch simulation job
 
                 subprocess.run(["kubectl", "apply", "-f", path_job])
@@ -221,7 +222,7 @@ if __name__ == "__main__":
 
     params = load_config(args["config"]) 
 
-    #atexit.register(exit_handler)  # this is how we clean up jobs. 
+    atexit.register(exit_handler)  # this is how we clean up jobs. 
     run_generation(params)
     
     ### buffer_study_random.pkl contains 300 radii lists ->> 10 neighborhoods for each sampling
