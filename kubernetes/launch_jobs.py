@@ -44,11 +44,17 @@ def create_folder(path):
 
 def save_file(path, data):
 
-    data_file = open(path, "w")
-   
-    data_file.write(data) 
+    try:
+        with open(path, "w") as data_file:
 
-    data_file.close()
+            data_file.write(data) 
+            data_file.close()
+            print(f"File saved at {path}.\n")
+
+    except IOError as e:
+        print(f"Error saving the file: {e}")
+    except Exception as e:
+        print(f"Unexpected error while saving file.")
 
 # Load: Template File
 
@@ -80,7 +86,7 @@ def run_generation(params):
 
     # Launch Simulation Jobs
 
-    create_folder(params["path_sim_job_files"])
+    #create_folder(params["path_sim_job_files"])
 
     # - Begin data generation
 
@@ -100,10 +106,10 @@ def run_generation(params):
                 job_name = "%s-%s" % (params['kill_tag'], str(counter).zfill(4))
 
                 current_group.append(job_name)
-
+                
                 template_info = {"job_name": job_name, 
                                  "n_index": str(counter),
-                                 "num_cpus": str(params["num_cpus_per_op"]),
+                                 "num_cpus": str(params["num_cpus"]),
                                  "num_mem_lim": str(params["num_mem_lim"]),
                                  "num_mem_req": str(params["num_mem_req"]),
                                  "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
@@ -118,7 +124,6 @@ def run_generation(params):
                 # --- Save simulation job file
 
                 save_file(path_job, filled_template)
-                print(f"job saved to {path_job}")
 
                 # --- Launch simulation job
 
@@ -222,6 +227,8 @@ if __name__ == "__main__":
 
     params = load_config(args["config"]) 
 
+    
+    #from IPython import embed; embed();exit()
     atexit.register(exit_handler)  # this is how we clean up jobs. 
     run_generation(params)
     
