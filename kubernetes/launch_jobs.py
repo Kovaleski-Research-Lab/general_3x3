@@ -6,6 +6,7 @@ import shutil
 import atexit
 import datetime
 import subprocess
+import pickle
 
 from dateutil.tz import tzutc
 from kubernetes import client, config
@@ -84,49 +85,19 @@ def run_generation(params):
     # - Begin data generation
 
     print("\nLaunching Jobs for Buffer Study\n")
-    counter = 0
-    job_name = "%s-%s" % (params["kill_tag"], str(counter).zfill(1))
+    counter = params['start_group_id']
+ 
+    current_group = []
 
-    #current_group.append(job_name)
+    while(counter < params['num_sims']):
 
-    template_info = {"job_name": job_name, 
-                     "n_index": str(counter),
-                     "num_cpus": str(params["num_cpus_per_op"]),
-                     "num_mem_lim": str(params["num_mem_lim"]),
-                     "num_mem_req": str(params["num_mem_req"]),
-                     "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
+        if(len(current_group) < params['num_parallel_ops']):
 
-    filled_template = template.render(template_info)
+            num_to_launch = params['num_parallel_ops'] - len(current_group)
 
-    path_job = os.path.join(params["path_sim_job_files"], job_name + ".yaml") 
-
-    if(sys.platform == "win32"):
-        path_job = path_job.replace("\\", "/").replace("/", "\\")
-
-    # --- Save simulation job file
-
-    save_file(path_job, filled_template)
-    print(f"job saved to {path_job}")
-    # --- Launch simulation job
-
-    subprocess.run(["kubectl", "apply", "-f", path_job])
-
-    #counter = params["start_group_id"]
-    #print(f"counter = {counter}, num sims = {params['num_sims']}")
-    #current_group = [] 
-"""
-    while(counter < params["num_sims"]):
-        # -- Launch jobs if there is room in processing group
-        print(f"counter = {counter}")
-        if(len(current_group) < params["num_parallel_ops"]):
-            print(f"len current group {len(current_group)} < num parallel ops {params['num_parallel_ops']}")
-            num_to_launch = params["num_parallel_ops"] - len(current_group)
-            print(f"num to launch = {num_to_launch}")
             for i in range(counter, counter + num_to_launch):
 
-                # --- Configure simulation job
-
-                job_name = "%s-%s" % (params["kill_tag"], str(counter).zfill(6))
+                job_name = "%s-%s" % (params['kill_tag'], str(counter).zfill(4))
 
                 current_group.append(job_name)
 
@@ -147,12 +118,12 @@ def run_generation(params):
                 # --- Save simulation job file
 
                 save_file(path_job, filled_template)
-
+                print(f"job saved to {path_job}")
                 # --- Launch simulation job
 
                 subprocess.run(["kubectl", "apply", "-f", path_job])
 
-                counter += 1
+                counter += 1 
 
         # -- Wait for a processes to finish
 
@@ -203,8 +174,8 @@ def run_generation(params):
                         break                    
 
                 k += 1
-"""
-    #print("\nData Generation Complete\n")
+    
+        print("\nData Generation Complete\n")
 
 # Validate: Configuration File
 
@@ -252,3 +223,11 @@ if __name__ == "__main__":
 
     #atexit.register(exit_handler)  # this is how we clean up jobs. 
     run_generation(params)
+    
+    ### buffer_study_random.pkl contains 300 radii lists ->> 10 neighborhoods for each sampling
+    ###     from distributions with increasing stdev from 0.125
+    #library = pickle.load(open("../buffer_study_random.pkl","rb"))
+    #radii = library['radii']
+
+    #radii = [item for sublist in radii for item in sublist]
+    #pickle.dump(radii, open("../buffer_study_random_radii_only.pkl","wb")) 

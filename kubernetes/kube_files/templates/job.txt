@@ -13,8 +13,7 @@ spec:
           args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git;
                 cd general_3x3;
                 git checkout andy_branch;
-                pip install h5py;
-                python3 get_slice.py > {{path_logs}}/'slices_log'.log"]
+                mpirun -np {{num_cpus}} python3 run_sim.py index {{n_index}}  > {{path_logs}}/'current_logs'.log"]
           resources:
             limits:
               memory: {{num_mem_lim}}

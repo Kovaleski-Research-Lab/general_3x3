@@ -48,13 +48,15 @@ if __name__ == "__main__":
 
     idx = int(args.idx) 
     print("loading in neighbors library...")
-    neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
+    #neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
+    neighbors_library = pickle.load(open("buffer_study_random_radii_only.pkl","rb"))
+
     print("assigning neighborhood...")
     radii = list(neighbors_library[idx])
     radii = np.array(radii).reshape(3,3)
     radii = np.flip(radii,axis=0).flatten()
     radii = list(radii)
-
+    
     #6 7 8  -->  0 1 2
     #3 4 5       3 4 5
     #0 1 2       6 7 8
