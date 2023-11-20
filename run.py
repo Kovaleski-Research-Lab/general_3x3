@@ -50,8 +50,7 @@ if __name__ == "__main__":
     print("loading in neighbors library...")
     #neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
     neighbors_library = pickle.load(open("buffer_study_random_radii_only.pkl","rb"))
-    from IPython import embed
-    embed();exit() 
+    
     print(f"assigning neighborhood for idx {idx}...")
     radii = list(neighbors_library[idx])
     radii = np.array(radii).reshape(3,3)
