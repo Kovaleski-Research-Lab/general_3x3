@@ -11,15 +11,15 @@ num_mem_req: 600G
 num_cpus_per_op: 48
 num_cpus: 48
 #num_cpus_total: 2048
-num_parallel_ops: 10 
+num_parallel_ops: 30 
 #num_cpus_total: 160
 
 namespace: gpn-mizzou-muem
 kill_time_min: 30
 #kill_tag: preprocess
-kill_tag: slicing
+kill_tag: buffer 
 
 # Define Simulation
 
-num_sims: 9 # this is the ending index
+num_sims: 300 # this is the ending index
 start_group_id: 0 

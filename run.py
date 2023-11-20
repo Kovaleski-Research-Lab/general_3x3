@@ -51,7 +51,7 @@ if __name__ == "__main__":
     #neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
     neighbors_library = pickle.load(open("buffer_study_random_radii_only.pkl","rb"))
 
-    print("assigning neighborhood...")
+    print(f"assigning neighborhood for idx {idx}...")
     radii = list(neighbors_library[idx])
     radii = np.array(radii).reshape(3,3)
     radii = np.flip(radii,axis=0).flatten()
