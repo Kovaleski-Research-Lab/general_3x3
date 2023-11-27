@@ -94,7 +94,9 @@ if __name__ == "__main__":
     meta_data = sim.get_array_metadata(dft_cell = dft_obj)
     eps_data = sim.get_epsilon()
 
-    folder_name = f"idx_{idx}"
+    
+    #folder_name = f"idx_{idx}"
+    folder_name = f"idx_{str(idx).zfill(3)}"
     create_folder(os.path.join(path_results, folder_name))
     path_results = os.path.join(path_results, folder_name)
     #sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
@@ -105,10 +107,11 @@ if __name__ == "__main__":
     source = params['source']['type']
     _buffer = params['geometry']['size_x_buffer']
     print("outputting dfts...")
-    
-    sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
+    sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{:03d}.pkl'.format(source, _buffer, idx.zfill(3))))
+ 
+    #sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
     print("dumping metadata...")
-    pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
+    pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{:03d}.pkl'.format(source,_buffer,idx.zfill(3))), 'wb'))
     #print("dumping eps data...")
     #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
     

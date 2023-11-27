@@ -20,7 +20,7 @@ def create_folder(path):
 
 def get_slice(path_results, folder, meta_data):
 
-    x,y,z,w = pickle.load(open(os.path.join(path_results, folder, meta_data), 'rb'))
+    #x,y,z,w = pickle.load(open(os.path.join(path_results, folder, meta_data), 'rb'))
     field_data = h5py.File(os.path.join(path_results, folder, dft_data))    
     y_field = np.asarray(field_data['ey_2.r']) + 1j*np.asarray(field_data['ey_2.i'])
     z_slice = np.where(z > (-2.39 + (1.02/2) + (1.55/2)))[0][0]
@@ -70,7 +70,7 @@ if __name__=="__main__":
         print(folder, type(folder))
         if folder == "current_logs":
             continue
-        if folder == "idx_0test":
+        if folder == "initial_buffer_study":
             continue
         if folder == "slices":
             continue

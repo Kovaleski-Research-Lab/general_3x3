@@ -72,6 +72,10 @@ def load_file(path):
     return info
 
 # Run: Parallelized Physics Simulatiion
+def keep_val(val):
+
+    last_digit = val % 10
+    return last_digit in [0, 1, 2]    
 
 def run_generation(params):
 
@@ -102,34 +106,35 @@ def run_generation(params):
             num_to_launch = params['num_parallel_ops'] - len(current_group)
 
             for i in range(counter, counter + num_to_launch):
+                if keep_val(i) is True:
+                    print(i)
+                    job_name = "%s-%s" % (params['kill_tag'], str(counter).zfill(4))
 
-                job_name = "%s-%s" % (params['kill_tag'], str(counter).zfill(4))
+                    current_group.append(job_name)
+                    
+                    template_info = {"job_name": job_name, 
+                                     "n_index": str(counter),
+                                     "num_cpus": str(params["num_cpus"]),
+                                     "num_mem_lim": str(params["num_mem_lim"]),
+                                     "num_mem_req": str(params["num_mem_req"]),
+                                     "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
 
-                current_group.append(job_name)
-                
-                template_info = {"job_name": job_name, 
-                                 "n_index": str(counter),
-                                 "num_cpus": str(params["num_cpus"]),
-                                 "num_mem_lim": str(params["num_mem_lim"]),
-                                 "num_mem_req": str(params["num_mem_req"]),
-                                 "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
+                    filled_template = template.render(template_info)
 
-                filled_template = template.render(template_info)
+                    path_job = os.path.join(params["path_sim_job_files"], job_name + ".yaml") 
 
-                path_job = os.path.join(params["path_sim_job_files"], job_name + ".yaml") 
+                    if(sys.platform == "win32"):
+                        path_job = path_job.replace("\\", "/").replace("/", "\\")
 
-                if(sys.platform == "win32"):
-                    path_job = path_job.replace("\\", "/").replace("/", "\\")
+                    # --- Save simulation job file
 
-                # --- Save simulation job file
+                    save_file(path_job, filled_template)
 
-                save_file(path_job, filled_template)
+                    # --- Launch simulation job
 
-                # --- Launch simulation job
+                    subprocess.run(["kubectl", "apply", "-f", path_job])
 
-                subprocess.run(["kubectl", "apply", "-f", path_job])
-
-                counter += 1 
+                    counter += 1 
 
         # -- Wait for a processes to finish
 
@@ -221,13 +226,13 @@ def parse_args(all_args, tags = ["--", "-"]):
 
 # Main: Load Configuration File
 
+
 if __name__ == "__main__":
 
     args = parse_args(sys.argv)
 
     params = load_config(args["config"]) 
 
-    
     #from IPython import embed; embed();exit()
     atexit.register(exit_handler)  # this is how we clean up jobs. 
     run_generation(params)
@@ -235,7 +240,10 @@ if __name__ == "__main__":
     ### buffer_study_random.pkl contains 300 radii lists ->> 10 neighborhoods for each sampling
     ###     from distributions with increasing stdev from 0.125
     #library = pickle.load(open("../buffer_study_random.pkl","rb"))
-    #radii = library['radii']
+    #radii = library['radii'][3:]
+    #short_rad = [sublist[:3] for sublist in radii]
 
+    #pickle.dump(short_rad, open"../buffer_study_random_radii_only_short.pkl","wb"))
+    #from IPython import embed; embed();exit()
     #radii = [item for sublist in radii for item in sublist]
     #pickle.dump(radii, open("../buffer_study_random_radii_only.pkl","wb")) 

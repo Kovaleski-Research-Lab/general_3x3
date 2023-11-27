@@ -6,9 +6,9 @@ path_logs: /develop/results/current_logs
 path_sim_job_files: /develop/results/job_files
 path_out_sims: /develop/results # this is really a duplicate. can change 'path_simulations' in run_datagen.py (template) if you want to clean this up.
 
-num_mem_lim: 800G
-num_mem_req: 600G
-num_cpus: 48
+num_mem_lim: 400G
+num_mem_req: 350G
+num_cpus: 32
 num_parallel_ops: 2  
 
 namespace: gpn-mizzou-muem
@@ -19,4 +19,4 @@ kill_tag: buffer
 # Define Simulation
 
 num_sims: 300 # this is the ending index
-start_group_id: 0 
+start_group_id: 182 
