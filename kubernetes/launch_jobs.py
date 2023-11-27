@@ -134,7 +134,7 @@ def run_generation(params):
 
                     subprocess.run(["kubectl", "apply", "-f", path_job])
 
-                    counter += 1 
+                counter += 1 
 
         # -- Wait for a processes to finish
 
