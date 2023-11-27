@@ -99,7 +99,7 @@ dft_slice_monitor:
 #   Simulation Parameters
 #-------------------------
 simulation:
-  resolution : 10
+  resolution : 80
   decay_rate : 0.0015
   dt : 50
   source_component: mp.Ey
