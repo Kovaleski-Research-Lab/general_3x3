@@ -63,7 +63,7 @@ if __name__=="__main__":
     create_folder(dump_path)
     print(f"folder created: {dump_path}")
     slices = {}
-    radii = pickle.load(open("buffer_study_library.pkl","rb"))
+    #radii = pickle.load(open("buffer_study_library.pkl","rb"))
     print(f"path_results: {path_results}")
     print("beginning slicing...")
     for folder in os.listdir(path_results):
@@ -92,8 +92,9 @@ if __name__=="__main__":
         slices[f'index_{idx}']['slice'] = z_slice
         print(f"Assigned slice to index {idx}, folder {folder}")
         
-        slices[f'index_{idx}']['radii'] = radii[idx]
-    
+        #slices[f'index_{idx}']['radii'] = radii[idx]
+        #print(f"Added radii to dictionary: {radii[idx]}")
+ 
         filename = os.path.join(dump_path, f"dft_slices_{idx}.pkl")
         print(f"dumping to {filename}.")
         with open(filename, "wb") as f:
