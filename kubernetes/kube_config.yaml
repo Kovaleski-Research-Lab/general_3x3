@@ -1,20 +1,23 @@
 path_image: docker.io/kovaleskilab/meep:v2_with_torch
-path_template: kube_files/templates/job.txt
+path_template: kube_files/templates/slice_job.txt
 
 path_simulations: /develop/results
 path_logs: /develop/results/current_logs
 path_sim_job_files: /develop/results/job_files
 path_out_sims: /develop/results # this is really a duplicate. can change 'path_simulations' in run_datagen.py (template) if you want to clean this up.
 
-num_mem_lim: 400G
-num_mem_req: 350G
-num_cpus: 32
+#num_mem_lim: 400G
+#num_mem_req: 350G
+#num_cpus: 32
+num_mem_lim: 100G
+num_mem_req: 50G
+num_cpus: 1
 num_parallel_ops: 2  
 
 namespace: gpn-mizzou-muem
 kill_time_min: 30
 #kill_tag: preprocess
-kill_tag: buffer 
+kill_tag: slice 
 
 # Define Simulation
 

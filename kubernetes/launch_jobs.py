@@ -225,6 +225,37 @@ def parse_args(all_args, tags = ["--", "-"]):
     return results
 
 # Main: Load Configuration File
+def slice_job(params):
+
+    template = load_file(params["path_template"])
+    
+    tag = params["path_template"].split("/")[-1]
+    folder = params["path_template"].replace("/%s" % tag, "")
+    environment = Environment(loader = FileSystemLoader(folder))
+    template = environment.get_template(tag)
+
+    job_name = "%s" % (params['kill_tag'])
+
+    template_info = {"job_name": job_name, 
+                     "num_cpus": str(params["num_cpus"]),
+                     "num_mem_lim": str(params["num_mem_lim"]),
+                     "num_mem_req": str(params["num_mem_req"]),
+                     "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
+
+    filled_template = template.render(template_info)
+
+    path_job = os.path.join(params["path_sim_job_files"], job_name + ".yaml") 
+
+    if(sys.platform == "win32"):
+        path_job = path_job.replace("\\", "/").replace("/", "\\")
+
+    # --- Save simulation job file
+
+    save_file(path_job, filled_template)
+
+    # --- Launch simulation job
+
+    subprocess.run(["kubectl", "apply", "-f", path_job])
 
 
 if __name__ == "__main__":
@@ -234,8 +265,9 @@ if __name__ == "__main__":
     params = load_config(args["config"]) 
 
     #from IPython import embed; embed();exit()
-    atexit.register(exit_handler)  # this is how we clean up jobs. 
-    run_generation(params)
+    #atexit.register(exit_handler)  # this is how we clean up jobs. 
+    #run_generation(params)
+    slice_job(params)
     
     ### buffer_study_random.pkl contains 300 radii lists ->> 10 neighborhoods for each sampling
     ###     from distributions with increasing stdev from 0.125

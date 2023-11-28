@@ -6,7 +6,7 @@ import h5py
 import re
 
 path_results = "/develop/results/all_random" #KUBE
-#path_results = "/develop/data/buffer_study" # MARGE TEST
+#path_results = "/develop/data/buffer_study/all_random" # MARGE TEST
 dump_path = os.path.join(path_results, "slices")
 
 def create_folder(path):
