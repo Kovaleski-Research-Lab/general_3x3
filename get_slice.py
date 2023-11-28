@@ -37,7 +37,7 @@ def get_eps():
 
 def get_index(folder):
     for filename in os.listdir(os.path.join(path_results,folder)):
-        if "epsdata" in filename:
+        if "metadata" in filename:
             match = re.search(r'idx_(\d+)',filename)
             idx = int(match.group(1))
             return idx
