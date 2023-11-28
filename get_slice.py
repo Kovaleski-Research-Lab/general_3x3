@@ -5,8 +5,8 @@ import os
 import h5py
 import re
 
-path_results = "/develop/results" #KUBE
-#path_results = "/develop/results/buffer_study" # MARGE TEST
+path_results = "/develop/results/all_random" #KUBE
+#path_results = "/develop/data/buffer_study" # MARGE TEST
 dump_path = os.path.join(path_results, "slices")
 
 def create_folder(path):
@@ -20,7 +20,7 @@ def create_folder(path):
 
 def get_slice(path_results, folder, meta_data):
 
-    #x,y,z,w = pickle.load(open(os.path.join(path_results, folder, meta_data), 'rb'))
+    x,y,z,w = pickle.load(open(os.path.join(path_results, folder, meta_data), 'rb'))
     field_data = h5py.File(os.path.join(path_results, folder, dft_data))    
     y_field = np.asarray(field_data['ey_2.r']) + 1j*np.asarray(field_data['ey_2.i'])
     z_slice = np.where(z > (-2.39 + (1.02/2) + (1.55/2)))[0][0]
@@ -74,6 +74,8 @@ if __name__=="__main__":
             continue
         if folder == "slices":
             continue
+        if folder == "kube_logs":
+            continue
         print(f"got {folder}, assigning index...")
         idx = get_index(folder) 
         print(f" folder index is {idx}")
@@ -93,10 +95,9 @@ if __name__=="__main__":
         slices[f'index_{idx}']['radii'] = radii[idx]
     
         filename = os.path.join(dump_path, f"dft_slices_{idx}.pkl")
-        #print(f"dumping to {filename}.")
+        print(f"dumping to {filename}.")
         with open(filename, "wb") as f:
             pickle.dump(slices, f)
-  
     print("all done") 
     #filename = os.path.join(dump_path, "z_slice.pkl")
     #with open(filename, "wb") as f:
