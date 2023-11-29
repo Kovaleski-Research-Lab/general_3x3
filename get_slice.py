@@ -107,7 +107,7 @@ if __name__=="__main__":
                 filename = os.path.join(dump_path, f"dft_slices_{idx}.pkl")
                 print(f"dumping to {filename}.")
                 with open(filename, "wb") as f:
-                    pickle.dump(slices, f)
+                    pickle.dump(z_slice, f)
             else:
                 print(f"Excluded folder {folder}")
     print("all done") 

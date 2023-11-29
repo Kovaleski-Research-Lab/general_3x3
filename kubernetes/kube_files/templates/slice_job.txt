@@ -14,7 +14,7 @@ spec:
                 cd general_3x3;
                 git checkout andy_branch;
                 pip install h5py;
-                python3 get_slice.py > {{path_logs}}/slicing.log"]
+                python3 get_slice.py >> {{path_logs}}/slicing.log"]
           resources:
             limits:
               memory: {{num_mem_lim}}
