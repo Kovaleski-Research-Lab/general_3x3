@@ -9,8 +9,8 @@ path_out_sims: /develop/results # this is really a duplicate. can change 'path_s
 #num_mem_lim: 400G
 #num_mem_req: 350G
 #num_cpus: 32
-num_mem_lim: 100G
-num_mem_req: 50G
+num_mem_lim: 150G
+num_mem_req: 100G
 num_cpus: 1
 num_parallel_ops: 2  
 
