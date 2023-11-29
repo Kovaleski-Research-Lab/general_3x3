@@ -57,6 +57,8 @@ def get_cropped_im(image):
     
     return cropped
 
+exclude_indices = [77, 84, 156, 10, 95, 8, 7, 169, 271, 12, 158, 85, 159, 114, 18, 82, 55, 38, 
+149, 181]
 
 if __name__=="__main__":
 
@@ -76,29 +78,35 @@ if __name__=="__main__":
             continue
         if folder == "kube_logs":
             continue
-        print(f"got {folder}, assigning index...")
-        idx = get_index(folder) 
-        print(f" folder index is {idx}")
-        slices[f'index_{idx}'] = {}
-        print(f"dictionary now has keys {slices.keys()}")
-        
-        meta_data = f"gaussian_metadata_with_buffer_5.000_rad_idx_{idx}.pkl"
-        dft_data = f"gaussian_outputdft_with_buffer_5.000_rad_idx_{idx}.pkl.h5"
-        eps_data = f"gaussian_epsdata_with_buffer_5.000_rad_idx_{idx}.pkl"
 
-        z_slice = get_slice(path_results, folder, meta_data)
-        z_slice = get_cropped_im(z_slice)
+        if folder.startswith('idx_'):
+            folder_index = int(folder.split('_')[1])
+            if folder_index not in exclude_indices:
+                print(f"got {folder}, assigning index...")
+                idx = get_index(folder) 
+                print(f" folder index is {idx}")
+                slices[f'index_{idx}'] = {}
+                print(f"dictionary now has keys {slices.keys()}")
+                
+                meta_data = f"gaussian_metadata_with_buffer_5.000_rad_idx_{idx}.pkl"
+                dft_data = f"gaussian_outputdft_with_buffer_5.000_rad_idx_{idx}.pkl.h5"
+                eps_data = f"gaussian_epsdata_with_buffer_5.000_rad_idx_{idx}.pkl"
 
-        slices[f'index_{idx}']['slice'] = z_slice
-        print(f"Assigned slice to index {idx}, folder {folder}")
-        
-        #slices[f'index_{idx}']['radii'] = radii[idx]
-        #print(f"Added radii to dictionary: {radii[idx]}")
+                z_slice = get_slice(path_results, folder, meta_data)
+                z_slice = get_cropped_im(z_slice)
+
+                slices[f'index_{idx}']['slice'] = z_slice
+                print(f"Assigned slice to index {idx}, folder {folder}")
+                
+                #slices[f'index_{idx}']['radii'] = radii[idx]
+                #print(f"Added radii to dictionary: {radii[idx]}")
  
-        filename = os.path.join(dump_path, f"dft_slices_{idx}.pkl")
-        print(f"dumping to {filename}.")
-        with open(filename, "wb") as f:
-            pickle.dump(slices, f)
+                filename = os.path.join(dump_path, f"dft_slices_{idx}.pkl")
+                print(f"dumping to {filename}.")
+                with open(filename, "wb") as f:
+                    pickle.dump(slices, f)
+            else:
+                print(f"Excluded folder {folder}")
     print("all done") 
     #filename = os.path.join(dump_path, "z_slice.pkl")
     #with open(filename, "wb") as f:
