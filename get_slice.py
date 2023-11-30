@@ -90,8 +90,8 @@ if __name__=="__main__":
 
         if folder.startswith('idx_'):
             folder_index = int(folder.split('_')[1])
-            if folder_index not in exclude_indices:
-            #if folder_index:
+            #if folder_index not in exclude_indices:
+            if folder_index:
                 print(f"got {folder}, assigning index...")
                 idx = get_index(folder) 
                 print(f" folder index is {idx}")
