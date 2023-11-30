@@ -114,21 +114,16 @@ if __name__=="__main__":
                 print("getting slice...")
                 z_slice = get_slice(path_results, folder, meta_data, dft_data)
                 print(f"z_slice type is {type(z_slice)}")
-                if z_slice == 0:
-                    continue
-                print("cropping...")
-                z_slice = get_cropped_im(z_slice)
+                if z_slice != 0:
+                    print("cropping...")
+                    z_slice = get_cropped_im(z_slice)
 
-                #slices[f'index_{idx}']['slice'] = z_slice
-                #print(f"Assigned slice to index {idx}, folder {folder}")
-                
-                #slices[f'index_{idx}']['radii'] = radii[idx]
-                #print(f"Added radii to dictionary: {radii[idx]}")
- 
-                filename = os.path.join(dump_path, f"dft_slices_{idx.zfill(3)}.pkl")
-                print(f"dumping to {filename}.")
-                with open(filename, "wb") as f:
-                    pickle.dump(z_slice, f)
+                    filename = os.path.join(dump_path, f"dft_slices_{idx.zfill(3)}.pkl")
+                    print(f"dumping to {filename}.")
+                    with open(filename, "wb") as f:
+                        pickle.dump(z_slice, f)
+                else:
+                    continue
             else:
                 print(f"Excluded folder {folder}")
     print("all done") 
