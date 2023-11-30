@@ -59,11 +59,11 @@ def get_cropped_im(image):
     
     return cropped
 
-exclude_indices = [ 0, 1, 10, 108, 11, 110, 114, 12, 127, 138, 
-                    139, 156, 149, 151, 156, 158, 159, 169, 171, 172,
-                    174, 179, 18, 231, 232, 250, 271, 272, 33, 38,
-                    39, 41, 48, 5, 55, 58, 60, 61, 64, 7,
-                    77, 8, 82, 84, 85, 86, 89, 90, 93, 95]
+#exclude_indices = [ 0, 1, 10, 108, 11, 110, 114, 12, 127, 138, 
+#                    139, 156, 149, 151, 156, 158, 159, 169, 171, 172,
+#                    174, 179, 18, 231, 232, 250, 271, 272, 33, 38,
+#                    39, 41, 48, 5, 55, 58, 60, 61, 64, 7,
+#                    77, 8, 82, 84, 85, 86, 89, 90, 93, 95]
 
 if __name__=="__main__":
 
@@ -86,7 +86,8 @@ if __name__=="__main__":
 
         if folder.startswith('idx_'):
             folder_index = int(folder.split('_')[1])
-            if folder_index not in exclude_indices:
+            #if folder_index not in exclude_indices:
+            if folder_index:
                 print(f"got {folder}, assigning index...")
                 idx = get_index(folder) 
                 print(f" folder index is {idx}")
