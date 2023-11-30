@@ -68,7 +68,7 @@ def get_cropped_im(image):
     end_col = start_col + crop_pix
     
     cropped = image[start_row:end_row, start_col:end_col]
-    print("test get_cropped_im() successful")    
+    
     return cropped
 
 #exclude_indices = [ 10,114,12,149,156,158,159,169,18,271,38,55,7, 
@@ -118,7 +118,7 @@ if __name__=="__main__":
                     print("cropping...")
                     z_slice = get_cropped_im(z_slice)
 
-                    filename = os.path.join(dump_path, f"dft_slice_{idx.zfill(3)}.pkl")
+                    filename = os.path.join(dump_path, f"dft_slice_{str(idx).zfill(3)}.pkl")
                     print(f"dumping to {filename}.")
                     with open(filename, "wb") as f:
                         pickle.dump(z_slice, f)
