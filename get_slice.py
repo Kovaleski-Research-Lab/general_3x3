@@ -88,18 +88,20 @@ if __name__=="__main__":
                 print(f"got {folder}, assigning index...")
                 idx = get_index(folder) 
                 print(f" folder index is {idx}")
-                slices[f'index_{idx}'] = {}
-                print(f"dictionary now has keys {slices.keys()}")
-                
+                #slices[f'index_{idx}'] = {}
+                #print(f"dictionary now has keys {slices.keys()}")
+                print("assigning meta_data...")
                 meta_data = f"gaussian_metadata_with_buffer_5.000_rad_idx_{idx}.pkl"
+                print("assigning dft data...")
                 dft_data = f"gaussian_outputdft_with_buffer_5.000_rad_idx_{idx}.pkl.h5"
-                eps_data = f"gaussian_epsdata_with_buffer_5.000_rad_idx_{idx}.pkl"
-
+                #eps_data = f"gaussian_epsdata_with_buffer_5.000_rad_idx_{idx}.pkl"
+                
+                print("getting slice...")
                 z_slice = get_slice(path_results, folder, meta_data)
                 z_slice = get_cropped_im(z_slice)
 
-                slices[f'index_{idx}']['slice'] = z_slice
-                print(f"Assigned slice to index {idx}, folder {folder}")
+                #slices[f'index_{idx}']['slice'] = z_slice
+                #print(f"Assigned slice to index {idx}, folder {folder}")
                 
                 #slices[f'index_{idx}']['radii'] = radii[idx]
                 #print(f"Added radii to dictionary: {radii[idx]}")
