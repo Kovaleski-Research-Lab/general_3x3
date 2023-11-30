@@ -98,6 +98,7 @@ if __name__=="__main__":
                 
                 print("getting slice...")
                 z_slice = get_slice(path_results, folder, meta_data)
+                print("cropping...")
                 z_slice = get_cropped_im(z_slice)
 
                 #slices[f'index_{idx}']['slice'] = z_slice
