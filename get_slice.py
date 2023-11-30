@@ -113,7 +113,7 @@ if __name__=="__main__":
                 
                 print("getting slice...")
                 z_slice = get_slice(path_results, folder, meta_data, dft_data)
-                print(f"z_slice = {z_slice}")
+                print(f"z_slice type is {type(z_slice)}")
                 if z_slice == 0:
                     continue
                 print("cropping...")
