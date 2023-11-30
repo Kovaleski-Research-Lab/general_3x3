@@ -266,8 +266,9 @@ if __name__ == "__main__":
 
     #from IPython import embed; embed();exit()
     #atexit.register(exit_handler)  # this is how we clean up jobs. 
-    #run_generation(params)
-    slice_job(params)
+    run_generation(params)
+    
+    #slice_job(params)
     
     ### buffer_study_random.pkl contains 300 radii lists ->> 10 neighborhoods for each sampling
     ###     from distributions with increasing stdev from 0.125
@@ -279,3 +280,10 @@ if __name__ == "__main__":
     #from IPython import embed; embed();exit()
     #radii = [item for sublist in radii for item in sublist]
     #pickle.dump(radii, open("../buffer_study_random_radii_only.pkl","wb")) 
+
+    #library = pickle.load(opne("../buffer_study_incy.pkl","rb"))
+    #rad = [sublist[:3] for sublist in library['radii']]
+    #library['radii'] = rad
+    #rad_list = [item for sublist in rad for item in sublist]
+    #pickle.dump(library,open("../short_incy.pkl"))
+

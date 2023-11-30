@@ -5,7 +5,7 @@ import meep as mp
 import numpy as np
 from loguru import logger
 import matplotlib.pyplot as plt
-
+import get_slice
 
 import simulation
 import field_monitors
@@ -32,6 +32,48 @@ def create_folder(path):
     except:
         print(f"\nfolder {path} already exists.\n")
 
+def get_z_location(params,eps_data,nf):
+
+    # put value on a (0 to pm.cell_z) scale - meep defines the cell on a (-cell_z/2 to cell_z/2) scale
+    value = params['geometry']['loc_top_fused_silica'] + params['geometry']['height_pillar'] + params['source']['wavelength'] / 2
+
+    cell_z = params['geometry']['cell_size'][2]
+    value = value + cell_z / 2 
+    # length of the cell in microns 
+
+    cell_min = 0  # um
+    cell_max = cell_z  # um
+
+    # length of the cell in pixels
+    pix_min = 0
+    pix_max = eps_data.squeeze().shape[2]
+
+    temp = int(((value - cell_min) / (cell_max - cell_min)) * (pix_max - pix_min) + pix_min)
+
+    pml_pix = (eps_data.squeeze().shape[2] - nf.squeeze().shape[2]) // 2
+
+    return temp - pml_pix
+
+def mod_dft_fields(params, dft_fields, eps_data):
+
+    wl_list = params['monitor']['wavelength_list']
+    new_dft_fields = {}
+
+    for wl, comps in dft_fields.items():
+        x = comps[0]
+        y = comps[1]
+        z = comps[2]       
+       
+        z_loc = get_z_location(params,eps_data,x)
+        
+        x_slice = x[:,:,z_loc] 
+        y_slice = y[:,:,z_loc]
+        z_slice = z[:,:,z_loc]
+
+        new_dft_fields[wl] = [x_slice, y_slice, z_slice]
+         
+    return new_dft_fields
+
 if __name__ == "__main__":
 
     print("loading in params...")
@@ -49,7 +91,8 @@ if __name__ == "__main__":
     idx = int(args.idx) 
     print("loading in neighbors library...")
     #neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
-    neighbors_library = pickle.load(open("buffer_study_random_radii_only.pkl","rb"))
+    #neighbors_library = pickle.load(open("buffer_study_random_radii_only.pkl","rb"))
+    neighbors_library = pickle.load(open("short_incy.pkl","rb"))
     
     print(f"assigning neighborhood for idx {idx}...")
     radii = list(neighbors_library[idx])
@@ -66,16 +109,19 @@ if __name__ == "__main__":
     #         0.20876, 0.10517, 0.09009]
     #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
     print("building sim...")
-    sim, dft_obj, flux_obj = simulation.build_sim(params, radii = radii)
+    sim, dft_obj, flux_obj, params = simulation.build_sim(params, radii = radii)
 
     cell_x = params['cell_x']
     cell_y = params['cell_y']
     cell_z = params['cell_z']
-    
+   
     center_x = 0
     center_y = 0
     center_z = 0
     
+    source = params['source']['type']
+    _buffer = params['geometry']['size_x_buffer']
+
     plot_plane = mp.Volume( center = mp.Vector3(center_x, center_y, center_z), 
                             size=mp.Vector3(cell_x, 0, cell_z))
 
@@ -90,27 +136,36 @@ if __name__ == "__main__":
                             plot_modifiers = plot_modifiers)
 
     sim.run(mp.at_every(0.1, Animate), until=25)
-    #dft_fields, flux, eps_data = field_monitors.collect_fields(params, sim, flux_obj, dft_obj)
+    #sim.run(until=25)
+    dft_fields, flux, eps_data = field_monitors.collect_fields(params, sim, flux_obj, dft_obj)
     meta_data = sim.get_array_metadata(dft_cell = dft_obj)
-    eps_data = sim.get_epsilon()
-
     
-    #folder_name = f"idx_{idx}"
+    #eps_data = sim.get_epsilon()
+
     folder_name = f"idx_{str(idx).zfill(3)}"
     create_folder(os.path.join(path_results, folder_name))
     path_results = os.path.join(path_results, folder_name)
+
     #sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
     #pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
     #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
-    #Animate.to_mp4(20, os.path.join(path_results, '{}_animation_with_buffer_{:.03f}_rad_idx_{}.mp4'.format(source,_buffer,idx)))
-     
-    source = params['source']['type']
-    _buffer = params['geometry']['size_x_buffer']
-    print("outputting dfts...")
- 
-    sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
-    print("dumping metadata...")
-    pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
+    
+    Animate.to_mp4(20, os.path.join(path_results, 'animation_with_buffer_{:.03f}_rad_idx_{}.mp4'.format(source,_buffer,idx)))
+
+    new_dft_fields = mod_dft_fields(params,dft_fields,eps_data)
+   
+    from IPython import embed;embed();exit() 
+    pickle.dump(new_dft_fields, open(path_results, 'dft_fields_rad_idx_{}.pkl'.format(idx)))
+
+    
+    # this outputs a 46GB file...    
+    #print("outputting dfts...")
+    #sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
+
+    # i'm not really sure if i need this 
+    #print("dumping metadata...")
+    #pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
+
     #print("dumping eps data...")
     #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
     

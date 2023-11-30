@@ -10,6 +10,8 @@ cell_x :
 cell_y : 
 cell_z :
 
+grid_size : 3
+
 #------------------------
 #   Geometry Parameters
 #-------------------------
@@ -74,7 +76,7 @@ source:
   size_z_source: 0 
   fwidth: 1.2
   fcen:
-  component: mp.Ey
+  component:
 
 #-----------------------
 #   Monitor Parameters
@@ -99,10 +101,10 @@ dft_slice_monitor:
 #   Simulation Parameters
 #-------------------------
 simulation:
-  resolution : 80
+  resolution : 10
   decay_rate : 0.0015
   dt : 50
-  source_component: mp.Ey
+  source_component:
   center_mon_z: 
 
 #-----------------------

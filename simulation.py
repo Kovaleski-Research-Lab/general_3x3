@@ -5,7 +5,8 @@ import geometries, sources, field_monitors
 
 def build_sim(params, radii = None):
 
-    geometry, pml_layers, monitor_volume = geometries.build_andy_metasurface_neighborhood(params, radii)
+    # hopefully i'm not introducing a bug here by returning params!
+    geometry, pml_layers, monitor_volume, params = geometries.build_andy_metasurface_neighborhood(params, radii)
     source = sources.build_andy_source(params)
     k_point = mp.Vector3(0,0,0)
 
@@ -40,7 +41,7 @@ def build_sim(params, radii = None):
     dft_obj = field_monitors.build_dft_monitor(params, sim, monitor_volume)
     flux_obj = field_monitors.build_timedep_monitor(params, sim)
 
-    return sim, dft_obj, flux_obj
+    return sim, dft_obj, flux_obj, params
 
 
 if __name__ == "__main__":

@@ -207,8 +207,15 @@ def build_andy_metasurface_neighborhood(params, radii = None):
     #Get the size of the non pml region
     size_z_non_pml = size_z_fused_silica + size_z_pdms - 2*thickness_pml
     logger.info("Size of the non PML volume : {}".format(size_z_non_pml))
-    params['geometry']['size_z_non_pml'] = size_z_non_pml
 
+    #Get the size of the nonbuffer region
+    size_x_non_buffer = params['geometry']['unit_cell_size'] * params['grid_size']
+    size_y_non_buffer = params['geometry']['unit_cell_size'] * params['grid_size']
+    logger.info("Size of the non buffer volume : x: {} y: {}".format(size_x_non_buffer, size_y_non_buffer))
+
+    params['geometry']['size_z_non_pml'] = size_z_non_pml
+    params['geometry']['size_x_non_buffer'] = size_x_non_buffer
+    params['geometry']['size_y_non_buffer'] = size_y_non_buffer
 
     material_index_fused_silica = geometry_params['material_index_fused_silica']
     material_index_pdms = geometry_params['material_index_pdms']
@@ -245,8 +252,7 @@ def build_andy_metasurface_neighborhood(params, radii = None):
 
     #Now for the pillars
     material_index_pillars = geometry_params['material_index_meta_atom']
-    #from IPython import embed
-    #embed()
+    
     if radii == None:
         radii = [0.2 for _ in range(0,Nx*Ny)]
 
@@ -274,10 +280,10 @@ def build_andy_metasurface_neighborhood(params, radii = None):
 
     #Get the volume not in the PML for the monitors
     monitor_volume = mp.Volume(center = center_sim_cell,
-                               size = mp.Vector3(size_x_cell, size_y_cell, size_z_non_pml))
+                               size = mp.Vector3(size_x_non_buffer, size_y_non_buffer, size_z_non_pml))
     
     params['geometry']['monitor_volume'] = monitor_volume
-    return metasurface, pml_layers, monitor_volume
+    return metasurface, pml_layers, monitor_volume, params
 
 if __name__ == "__main__":
     import yaml
