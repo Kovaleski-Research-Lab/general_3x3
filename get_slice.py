@@ -118,7 +118,7 @@ if __name__=="__main__":
                     print("cropping...")
                     z_slice = get_cropped_im(z_slice)
 
-                    filename = os.path.join(dump_path, f"dft_slices_{idx.zfill(3)}.pkl")
+                    filename = os.path.join(dump_path, f"dft_slice_{idx.zfill(3)}.pkl")
                     print(f"dumping to {filename}.")
                     with open(filename, "wb") as f:
                         pickle.dump(z_slice, f)
