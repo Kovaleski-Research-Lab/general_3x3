@@ -21,7 +21,11 @@ def create_folder(path):
 def get_slice(path_results, folder, meta_data, dft_data):
 
     print("assigning x, y, z, w...")
-    x,y,z,w = pickle.load(open(os.path.join(path_results, folder, meta_data), 'rb'))
+    try:
+        x,y,z,w = pickle.load(open(os.path.join(path_results, folder, meta_data), 'rb'))
+    except Exception as e:
+        print(f"an error occurred. excluding {folder} from results.")
+        return 0
     print("assigning field_data...")
     field_data = h5py.File(os.path.join(path_results, folder, dft_data))    
     y_field = np.asarray(field_data['ey_2.r']) + 1j*np.asarray(field_data['ey_2.i'])
@@ -59,7 +63,7 @@ def get_cropped_im(image):
     
     return cropped
 
-#exclude_indices = [ 0, 1, 10, 108, 11, 110, 114, 12, 127, 138, 
+#exclude_indices = [ 10,114,12,149,156,158,159,169,18,271,38,55,7, 
 #                    139, 156, 149, 151, 156, 158, 159, 169, 171, 172,
 #                    174, 179, 18, 231, 232, 250, 271, 272, 33, 38,
 #                    39, 41, 48, 5, 55, 58, 60, 61, 64, 7,
@@ -86,8 +90,8 @@ if __name__=="__main__":
 
         if folder.startswith('idx_'):
             folder_index = int(folder.split('_')[1])
-            #if folder_index not in exclude_indices:
-            if folder_index:
+            if folder_index not in exclude_indices:
+            #if folder_index:
                 print(f"got {folder}, assigning index...")
                 idx = get_index(folder) 
                 print(f" folder index is {idx}")
@@ -101,6 +105,8 @@ if __name__=="__main__":
                 
                 print("getting slice...")
                 z_slice = get_slice(path_results, folder, meta_data, dft_data)
+                if z_slice is 0:
+                    continue
                 print("cropping...")
                 z_slice = get_cropped_im(z_slice)
 
@@ -110,7 +116,7 @@ if __name__=="__main__":
                 #slices[f'index_{idx}']['radii'] = radii[idx]
                 #print(f"Added radii to dictionary: {radii[idx]}")
  
-                filename = os.path.join(dump_path, f"dft_slices_{idx}.pkl")
+                filename = os.path.join(dump_path, f"dft_slices_{idx}.zfill(3)}.pkl")
                 print(f"dumping to {filename}.")
                 with open(filename, "wb") as f:
                     pickle.dump(z_slice, f)
