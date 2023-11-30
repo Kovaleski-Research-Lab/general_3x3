@@ -105,7 +105,7 @@ if __name__=="__main__":
                 
                 print("getting slice...")
                 z_slice = get_slice(path_results, folder, meta_data, dft_data)
-                if z_slice is 0:
+                if z_slice == 0:
                     continue
                 print("cropping...")
                 z_slice = get_cropped_im(z_slice)
@@ -116,7 +116,7 @@ if __name__=="__main__":
                 #slices[f'index_{idx}']['radii'] = radii[idx]
                 #print(f"Added radii to dictionary: {radii[idx]}")
  
-                filename = os.path.join(dump_path, f"dft_slices_{idx}.zfill(3)}.pkl")
+                filename = os.path.join(dump_path, f"dft_slices_{idx.zfill(3)}.pkl")
                 print(f"dumping to {filename}.")
                 with open(filename, "wb") as f:
                     pickle.dump(z_slice, f)
