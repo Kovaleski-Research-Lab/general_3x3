@@ -23,11 +23,19 @@ def get_slice(path_results, folder, meta_data, dft_data):
     print("assigning x, y, z, w...")
     try:
         x,y,z,w = pickle.load(open(os.path.join(path_results, folder, meta_data), 'rb'))
+        print("successfully assigned x, y, z, w")
     except Exception as e:
-        print(f"an error occurred. excluding {folder} from results.")
+        print(f"an error occurred trying to assign meta data. excluding {folder} from results.")
         return 0
+
     print("assigning field_data...")
-    field_data = h5py.File(os.path.join(path_results, folder, dft_data))    
+    try:
+        field_data = h5py.File(os.path.join(path_results, folder, dft_data))    
+        print("successfully assigned field data")
+    except:
+        print(f"an error occurred trying to assign field data. exculding {folder} from results.")
+        return 0
+    
     y_field = np.asarray(field_data['ey_2.r']) + 1j*np.asarray(field_data['ey_2.i'])
     z_slice = np.where(z > (-2.39 + (1.02/2) + (1.55/2)))[0][0]
 
