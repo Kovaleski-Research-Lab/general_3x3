@@ -18,9 +18,11 @@ def create_folder(path):
         print(f"\nfolder {path} already exists.\n")
         pass
 
-def get_slice(path_results, folder, meta_data):
+def get_slice(path_results, folder, meta_data, dft_data):
 
+    print("assigning x, y, z, w...")
     x,y,z,w = pickle.load(open(os.path.join(path_results, folder, meta_data), 'rb'))
+    print("assigning field_data...")
     field_data = h5py.File(os.path.join(path_results, folder, dft_data))    
     y_field = np.asarray(field_data['ey_2.r']) + 1j*np.asarray(field_data['ey_2.i'])
     z_slice = np.where(z > (-2.39 + (1.02/2) + (1.55/2)))[0][0]
@@ -97,7 +99,7 @@ if __name__=="__main__":
                 #eps_data = f"gaussian_epsdata_with_buffer_5.000_rad_idx_{idx}.pkl"
                 
                 print("getting slice...")
-                z_slice = get_slice(path_results, folder, meta_data)
+                z_slice = get_slice(path_results, folder, meta_data, dft_data)
                 print("cropping...")
                 z_slice = get_cropped_im(z_slice)
 
