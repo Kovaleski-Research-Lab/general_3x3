@@ -96,6 +96,7 @@ def build_timedep_monitor(params, sim):
     loc_top_fused_silica = params['geometry']['loc_top_fused_silica']
     height_pillar = params['geometry']['height_pillar']
 
+    # -1.105
     loc_z_timedep_mon = loc_top_fused_silica + height_pillar + 0.775
 
     mon_pt = mp.Vector3(center_x,center_y,loc_z_timedep_mon)

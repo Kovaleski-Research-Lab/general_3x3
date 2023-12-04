@@ -196,18 +196,20 @@ def build_andy_metasurface_neighborhood(params, radii = None):
     params['geometry']['loc_top_fused_silica'] = loc_top_fused_silica
     params['geometry']['loc_top_pdms'] = loc_top_pdms
 
+    #Get the size of the non pml region
+    size_z_non_pml = size_z_fused_silica + size_z_pdms - 2*thickness_pml
+    size_z_non_pml_reduced = size_z_non_pml / 2
+    logger.info("Size of the non PML volume : {}".format(size_z_non_pml))
+
     #Get the center of the simulation cell
-    loc_z_center_cell = 0
+    loc_z_center_cell = 0 
     loc_x_center_cell = 0
     loc_y_center_cell = 0
     center_sim_cell = mp.Vector3(loc_x_center_cell, loc_y_center_cell, loc_z_center_cell)
     logger.info("Center of the simulation cell : {}".format(center_sim_cell))
     params['geometry']['center_sim_cell'] = center_sim_cell
 
-    #Get the size of the non pml region
-    size_z_non_pml = size_z_fused_silica + size_z_pdms - 2*thickness_pml
-    logger.info("Size of the non PML volume : {}".format(size_z_non_pml))
-
+    
     #Get the size of the nonbuffer region
     size_x_non_buffer = params['geometry']['unit_cell_size'] * params['grid_size']
     size_y_non_buffer = params['geometry']['unit_cell_size'] * params['grid_size']

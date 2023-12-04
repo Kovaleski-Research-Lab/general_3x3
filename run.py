@@ -40,7 +40,6 @@ def get_z_location(params,eps_data,nf):
     cell_z = params['geometry']['cell_size'][2]
     value = value + cell_z / 2 
     # length of the cell in microns 
-
     cell_min = 0  # um
     cell_max = cell_z  # um
 
@@ -50,6 +49,8 @@ def get_z_location(params,eps_data,nf):
 
     temp = int(((value - cell_min) / (cell_max - cell_min)) * (pix_max - pix_min) + pix_min)
 
+    # temp is number of pixels based on eps data, which includes pml. we need to adjust for this
+    # since we are getting a slice of dft_fields, which does NOT include the pml region.
     pml_pix = (eps_data.squeeze().shape[2] - nf.squeeze().shape[2]) // 2
 
     return temp - pml_pix
@@ -107,7 +108,7 @@ if __name__ == "__main__":
     #radii = [0.18664, 0.09511, 0.13333,
     #         0.16552, 0.19670, 0.13635,
     #         0.20876, 0.10517, 0.09009]
-    #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+    radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
     print("building sim...")
     sim, dft_obj, flux_obj, params = simulation.build_sim(params, radii = radii)
 
@@ -150,13 +151,18 @@ if __name__ == "__main__":
     #pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
     #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
     
-    Animate.to_mp4(20, os.path.join(path_results, 'animation_with_buffer_{:.03f}_rad_idx_{}.mp4'.format(source,_buffer,idx)))
+    print("saving animation...")
+    Animate.to_mp4(20, os.path.join(path_results, 'animation_with_buffer_{}_rad_idx_{}.mp4'.format(_buffer,idx)))
 
     new_dft_fields = mod_dft_fields(params,dft_fields,eps_data)
    
-    from IPython import embed;embed();exit() 
-    pickle.dump(new_dft_fields, open(path_results, 'dft_fields_rad_idx_{}.pkl'.format(idx)))
+    pickle.dump(new_dft_fields, open(os.path.join(path_results, f'dft_fields_rad_idx_{idx}.pkl'),'wb'))
 
+    fig,ax = plt.subplots(1,1,figsize = (5,5))
+    sim.plot2D(output_plane = plot_plane, ax=ax)
+    print("saving png image...")
+    fig.savefig(os.path.join(path_results, 'plot2D_with_buffer_rad_idx_{}.png'.format(idx)))
+    print("all done")
     
     # this outputs a 46GB file...    
     #print("outputting dfts...")
@@ -168,12 +174,5 @@ if __name__ == "__main__":
 
     #print("dumping eps data...")
     #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
-    
-    #print("saving animation...")
-    #Animate.to_mp4(20, os.path.join(path_results, '{}_animation_with_buffer_{:.03f}_rad_idx_{}.mp4'.format(source,_buffer,idx)))
 
-    #fig,ax = plt.subplots(1,1,figsize = (5,5))
-    #sim.plot2D(output_plane = plot_plane, ax=ax)
-    #fig.savefig(os.path.join(path_results, '{}_plot2D_with_buffer_{:.03f}_rad_idx_{}.png'.format(source,_buffer,idx)))
-    #fig.savefig(os.path.join(path_results, '{}_plot2D_with_buffer_{:.03f}_rad_idx_{}.png'.format(source,_buffer,idx)))
-    print("all done")
+
