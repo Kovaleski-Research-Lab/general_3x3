@@ -7,10 +7,10 @@ path_sim_job_files: /develop/results/job_files
 path_out_sims: /develop/results # this is really a duplicate. can change 'path_simulations' in run_datagen.py (template) if you want to clean this up.
 
 # for datagen
-num_mem_lim: 300G
-num_mem_req: 250G
+num_mem_lim: 175G
+num_mem_req: 175G
 num_cpus: 32
-num_parallel_ops : 25
+num_parallel_ops : 3
 
 # for slicing:
 #num_mem_lim: 150G
@@ -25,5 +25,5 @@ kill_tag: datagen
 
 # Define Simulation
 
-num_sims: 5000 # this is the ending index
+num_sims: 1000 # this is the ending index
 start_group_id: 0 

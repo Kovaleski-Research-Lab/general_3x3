@@ -1,3 +1,4 @@
+print("importing packages..")
 import os
 import yaml
 import pickle
@@ -9,7 +10,6 @@ import get_slice
 
 import simulation
 import field_monitors
-
 import argparse
 
 font = {

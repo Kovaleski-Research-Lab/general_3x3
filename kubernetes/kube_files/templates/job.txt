@@ -10,10 +10,11 @@ spec:
         - name: {{job_name}}
           image: {{path_image}}
           command: ["/bin/sh", "-c"]
-          args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git;
+          args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git; 
                 cd general_3x3;
                 git checkout andy_branch;
-                mpirun --allow-run-as-root -np {{num_cpus}} python3 run.py -idx {{n_index}} > {{path_logs}}/{{n_index}}.log"]
+                pip install h5py;
+                mpirun --allow-run-as-root -np {{num_cpus}} python3 run.py -idx {{n_index}} >> {{path_logs}}/{{n_index}}.log"]
           resources:
             limits:
               memory: {{num_mem_lim}}
@@ -22,12 +23,12 @@ spec:
               memory: {{num_mem_req}}
               cpu: {{num_cpus}}
           volumeMounts:
-            - name: buffer-study
+            - name: meep-dataset-v2
               mountPath: /develop/results
 
       volumes:
-        - name: buffer-study
+        - name: meep-dataset-v2
           persistentVolumeClaim:
-            claimName: buffer-study
+            claimName: meep-dataset-v2
 
       restartPolicy: Never
