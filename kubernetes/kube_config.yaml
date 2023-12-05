@@ -1,5 +1,5 @@
 path_image: docker.io/kovaleskilab/meep:v2_with_torch
-path_template: kube_files/templates/slice_job.txt
+path_template: kube_files/templates/job.txt
 
 path_simulations: /develop/results
 path_logs: /develop/results/current_logs
@@ -10,19 +10,20 @@ path_out_sims: /develop/results # this is really a duplicate. can change 'path_s
 num_mem_lim: 300G
 num_mem_req: 250G
 num_cpus: 32
+num_parallel_ops : 25
 
 # for slicing:
 #num_mem_lim: 150G
 #num_mem_req: 100G
 #num_cpus: 1
-#num_parallel_ops: 2  
+#num_parallel_ops: 1  
 
 namespace: gpn-mizzou-muem
 kill_time_min: 30
 #kill_tag: preprocess
-kill_tag: slice 
+kill_tag: datagen 
 
 # Define Simulation
 
-num_sims: 300 # this is the ending index
-start_group_id: 182 
+num_sims: 5000 # this is the ending index
+start_group_id: 0 

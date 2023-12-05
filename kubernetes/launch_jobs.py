@@ -106,8 +106,9 @@ def run_generation(params):
             num_to_launch = params['num_parallel_ops'] - len(current_group)
 
             for i in range(counter, counter + num_to_launch):
-                if keep_val(i) is True:
-                    print(i)
+                #if keep_val(i) is True: # just a quick and dirty way to only run certain sims. don't use this for large scale datagen!
+                if True:
+                    #print(i)
                     job_name = "%s-%s" % (params['kill_tag'], str(counter).zfill(4))
 
                     current_group.append(job_name)
