@@ -7,7 +7,8 @@ def build_sim(params, radii = None):
 
     # hopefully i'm not introducing a bug here by returning params!
     geometry, pml_layers, monitor_volume, params = geometries.build_andy_metasurface_neighborhood(params, radii)
-    source = sources.build_andy_source(params)
+    source, params = sources.build_andy_source(params)
+    #from IPython import embed; embed()
     k_point = mp.Vector3(0,0,0)
 
     size_x_cell = params['cell_x']

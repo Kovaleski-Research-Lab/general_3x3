@@ -7,8 +7,8 @@ path_sim_job_files: /develop/results/job_files
 path_out_sims: /develop/results # this is really a duplicate. can change 'path_simulations' in run_datagen.py (template) if you want to clean this up.
 
 # for datagen
-num_mem_lim: 400G
-num_mem_req: 350G
+num_mem_lim: 300G
+num_mem_req: 250G
 num_cpus: 32
 
 # for slicing:

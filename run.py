@@ -93,7 +93,8 @@ if __name__ == "__main__":
     print("loading in neighbors library...")
     #neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
     #neighbors_library = pickle.load(open("buffer_study_random_radii_only.pkl","rb"))
-    neighbors_library = pickle.load(open("short_incy.pkl","rb"))
+    #neighbors_library = pickle.load(open("short_incy.pkl","rb"))
+    neighbors_library = pickle.load(open("neighbors_library_allrandom.pkl","rb"))
     
     print(f"assigning neighborhood for idx {idx}...")
     radii = list(neighbors_library[idx])
@@ -108,7 +109,7 @@ if __name__ == "__main__":
     #radii = [0.18664, 0.09511, 0.13333,
     #         0.16552, 0.19670, 0.13635,
     #         0.20876, 0.10517, 0.09009]
-    radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+    #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
     print("building sim...")
     sim, dft_obj, flux_obj, params = simulation.build_sim(params, radii = radii)
 
@@ -136,43 +137,46 @@ if __name__ == "__main__":
                             normalize = True,
                             plot_modifiers = plot_modifiers)
 
-    sim.run(mp.at_every(0.1, Animate), until=25)
-    #sim.run(until=25)
+    #sim.run(mp.at_every(0.1, Animate), until=15)
+    sim.run(until=15)
+    
+    folder_name = f"{str(idx).zfill(5)}"
+    create_folder(os.path.join(path_results, folder_name))
+
+    subfolder_name = "slices"
+    create_folder(os.path.join(path_results, subfolder_name))
+
     dft_fields, flux, eps_data = field_monitors.collect_fields(params, sim, flux_obj, dft_obj)
     meta_data = sim.get_array_metadata(dft_cell = dft_obj)
     
-    #eps_data = sim.get_epsilon()
-
-    folder_name = f"idx_{str(idx).zfill(3)}"
-    create_folder(os.path.join(path_results, folder_name))
     path_results = os.path.join(path_results, folder_name)
 
-    #sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
-    #pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
-    #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
+    #print("saving animation...") 
+    #Animate.to_mp4(20, os.path.join(path_results, 'test_anim_rad_idx_{}.mp4'.format(idx)))
+
+    # these are sliced. 
+    sliced_dft_fields = mod_dft_fields(params,dft_fields,eps_data)
+    data = {'slices': sliced_dft_fields,
+            'radii': radii,
+           }
+
+    print(f"dumping sliced field and radii info to {subfolder_name}...")
+    pickle.dump(data, open(os.path.join(path_results, '../slices', f'{str(idx).zfill(5)}.pkl'),'wb'))
+
+    #fig,ax = plt.subplots(1,1,figsize = (5,5))
+    #sim.plot2D(output_plane = plot_plane, ax=ax)
+    #print("saving png image...")
+    #fig.savefig(os.path.join(path_results, 'test_plot2D_with_buffer_rad_idx_{}.png'.format(idx)))
+    #from IPython import embed; embed() 
     
-    print("saving animation...")
-    Animate.to_mp4(20, os.path.join(path_results, 'animation_with_buffer_{}_rad_idx_{}.mp4'.format(_buffer,idx)))
+    # this outputs a 3GB file   
+    print("outputting full dft volume...")
+    sim.output_dft(dft_obj, os.path.join(path_results, 'outputdft_{}.pkl'.format(str(idx).zfill(5))))
 
-    new_dft_fields = mod_dft_fields(params,dft_fields,eps_data)
-   
-    pickle.dump(new_dft_fields, open(os.path.join(path_results, f'dft_fields_rad_idx_{idx}.pkl'),'wb'))
-
-    fig,ax = plt.subplots(1,1,figsize = (5,5))
-    sim.plot2D(output_plane = plot_plane, ax=ax)
-    print("saving png image...")
-    fig.savefig(os.path.join(path_results, 'plot2D_with_buffer_rad_idx_{}.png'.format(idx)))
-    print("all done")
-    
-    # this outputs a 46GB file...    
-    #print("outputting dfts...")
-    #sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)))
-
-    # i'm not really sure if i need this 
-    #print("dumping metadata...")
-    #pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
+    print("dumping metadata...")
+    pickle.dump(meta_data, open(os.path.join(path_results, 'test_metadata_{}.pkl'.format(str(idx).zfill(5))), 'wb'))
 
     #print("dumping eps data...")
     #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
 
-
+    print("all done.")

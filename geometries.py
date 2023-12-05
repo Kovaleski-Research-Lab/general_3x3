@@ -198,10 +198,10 @@ def build_andy_metasurface_neighborhood(params, radii = None):
 
     #Get the size of the non pml region
     size_z_non_pml = size_z_fused_silica + size_z_pdms - 2*thickness_pml
-    size_z_non_pml_reduced = size_z_non_pml / 2
     logger.info("Size of the non PML volume : {}".format(size_z_non_pml))
 
     #Get the center of the simulation cell
+    #loc_z_center_cell = 0 
     loc_z_center_cell = 0 
     loc_x_center_cell = 0
     loc_y_center_cell = 0
@@ -209,7 +209,7 @@ def build_andy_metasurface_neighborhood(params, radii = None):
     logger.info("Center of the simulation cell : {}".format(center_sim_cell))
     params['geometry']['center_sim_cell'] = center_sim_cell
 
-    
+    size_z_non_pml 
     #Get the size of the nonbuffer region
     size_x_non_buffer = params['geometry']['unit_cell_size'] * params['grid_size']
     size_y_non_buffer = params['geometry']['unit_cell_size'] * params['grid_size']
@@ -280,10 +280,20 @@ def build_andy_metasurface_neighborhood(params, radii = None):
     params['geometry']['pml_layers'] = pml_layers
     #pml_layers = []
 
+    params['source']['loc_z_source'] = round(thickness_pml + ((size_z_fused_silica-thickness_pml) * 0.2) - params['cell_z'] / 2, 4)
+    # adjusting monitor volume to reduce the size
+    top_monitor = params['source']['loc_z_source'] + 4.5
+    bottom_monitor = -params['cell_z'] / 2 + params['geometry']['thickness_pml']
+    size_z_reduced = top_monitor - bottom_monitor
+ 
+    loc_z_center_cell_reduced = -(params['cell_z'] / 2) + params['geometry']['thickness_pml'] + size_z_reduced / 2
+    center_sim_cell_reduced = mp.Vector3(loc_x_center_cell, loc_y_center_cell, loc_z_center_cell_reduced)
     #Get the volume not in the PML for the monitors
-    monitor_volume = mp.Volume(center = center_sim_cell,
-                               size = mp.Vector3(size_x_non_buffer, size_y_non_buffer, size_z_non_pml))
-    
+    #monitor_volume = mp.Volume(center = center_sim_cell,
+    #                           size = mp.Vector3(size_x_non_buffer, size_y_non_buffer, size_z_non_pml))
+    monitor_volume = mp.Volume(center = center_sim_cell_reduced,
+                               size = mp.Vector3(size_x_non_buffer, size_y_non_buffer, size_z_reduced))
+
     params['geometry']['monitor_volume'] = monitor_volume
     return metasurface, pml_layers, monitor_volume, params
 

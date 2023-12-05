@@ -29,6 +29,7 @@ def collect_fields(params, sim, flux_obj = None, dft_obj = None):
 
 
 def build_dft_slice_monitor(params, sim, monitor_volume): # passing monitor volume now
+
     monitor_params = params['dft_slice_monitor']
     components = monitor_params['components_dft_monitor']
     if components == 'all':

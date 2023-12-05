@@ -151,7 +151,7 @@ def build_andy_source(params):
 
     params['source_params'] = source_params
 
-    return build_source(params)
+    return build_source(params), params
 
 
 if __name__ == "__main__":
