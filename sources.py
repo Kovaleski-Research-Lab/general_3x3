@@ -59,7 +59,8 @@ def continuous_source(params):
 def gaussian_source(params):
 
     fcen = params['fcen']
-    fwidth = params['fwidth']
+    #fwidth = params['fwidth']
+    wavelength_list = params['wavelength_list']
     wavelength = params['wavelength']
     component = params['component']
 
@@ -71,15 +72,17 @@ def gaussian_source(params):
         logger.error("The component of the source needs to be specified")
         exit()
 
-    if fwidth is None:
-        logger.error("You need to specify the width of the gaussian source")
-        exit()
+    #if fwidth is None:
+    #    logger.error("You need to specify the width of the gaussian source")
+    #    exit()
 
     if fcen is None and wavelength is not None:
         logger.info("Calculating frequency from given wavelength")
         fcen = 1 / wavelength
 
-    fwidth = fwidth * fcen
+    fmax = 1 / min(wavelength_list)
+    fmin = 1 / max(wavelength_list)
+    fwidth = fmax - fmin
 
     loc_x_source = params['loc_x_source']
     loc_y_source = params['loc_y_source']

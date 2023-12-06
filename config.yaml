@@ -74,9 +74,10 @@ source:
   size_x_source: 
   size_y_source:
   size_z_source: 0 
-  fwidth: 1.2
+  fwidth: 
   fcen:
   component:
+  wavelength_list: [2.881, 1.650, 1.550, 1.300, 1.060]
 
 #-----------------------
 #   Monitor Parameters

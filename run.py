@@ -1,4 +1,3 @@
-print("importing packages..")
 import os
 import yaml
 import pickle
@@ -7,6 +6,7 @@ import numpy as np
 from loguru import logger
 import matplotlib.pyplot as plt
 import get_slice
+import time
 
 import simulation
 import field_monitors
@@ -138,6 +138,7 @@ if __name__ == "__main__":
                             plot_modifiers = plot_modifiers)
 
     #sim.run(mp.at_every(0.1, Animate), until=15)
+    start_time = time.time
     sim.run(until=15)
     
     folder_name = f"{str(idx).zfill(5)}"
@@ -179,4 +180,5 @@ if __name__ == "__main__":
     #print("dumping eps data...")
     #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
 
-    print("all done.")
+    end_time = round((time.time() - start_time) / 60, 3)
+    print(f"all done. elapsed time: {end_time} minutes.")
