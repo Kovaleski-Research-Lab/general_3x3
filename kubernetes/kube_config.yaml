@@ -9,7 +9,7 @@ path_out_sims: /develop/results # this is really a duplicate. can change 'path_s
 # for datagen
 num_mem_lim: 190G
 num_mem_req: 190G
-num_cpus: 32
+num_cpus: 28 
 num_parallel_ops : 3
 
 # for slicing:
