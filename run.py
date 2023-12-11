@@ -87,7 +87,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     #path_results = "/develop/results/buffer_study"
-    path_results = "/develop/results"
+    path_results = "/develop/results/random_set"
 
     idx = int(args.idx) 
     print("loading in neighbors library...")
