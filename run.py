@@ -83,13 +83,15 @@ if __name__ == "__main__":
     print("parsing args...")
     parser = argparse.ArgumentParser()
     parser.add_argument("-idx", help="An integer value used to grab a radii list from radii library")
+    parser.add_argument("-until",help="time in femtoseconds to run simulation")
 
     args = parser.parse_args()
 
-    #path_results = "/develop/results/buffer_study"
-    path_results = "/develop/results"
+    path_results = "/develop/results/buffer_study"
+    #path_results = "/develop/results"
 
     idx = int(args.idx) 
+    until = int(args.until)
     print("loading in neighbors library...")
     #neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
     #neighbors_library = pickle.load(open("buffer_study_random_radii_only.pkl","rb"))
@@ -137,9 +139,9 @@ if __name__ == "__main__":
                             normalize = True,
                             plot_modifiers = plot_modifiers)
 
-    #sim.run(mp.at_every(0.1, Animate), until=15)
     start_time = time.time
-    sim.run(until=15)
+    sim.run(mp.at_every(0.1, Animate), until=until)
+    #sim.run(until=15)
     
     folder_name = f"{str(idx).zfill(5)}"
     create_folder(os.path.join(path_results, folder_name))
@@ -153,7 +155,7 @@ if __name__ == "__main__":
     path_results = os.path.join(path_results, folder_name)
 
     #print("saving animation...") 
-    #Animate.to_mp4(20, os.path.join(path_results, 'test_anim_rad_idx_{}.mp4'.format(idx)))
+    Animate.to_mp4(20, os.path.join(path_results, 'anim_buffer_{}_time_{}.mp4'.format(_buffer, until)))
 
     # these are sliced. 
     sliced_dft_fields = mod_dft_fields(params,dft_fields,eps_data)
@@ -161,21 +163,21 @@ if __name__ == "__main__":
             'radii': radii,
            }
 
-    print(f"dumping sliced field and radii info to {subfolder_name}...")
-    pickle.dump(data, open(os.path.join(path_results, '../slices', f'{str(idx).zfill(5)}.pkl'),'wb'))
+    #print(f"dumping sliced field and radii info to {subfolder_name}...")
+    #pickle.dump(data, open(os.path.join(path_results, '../slices', f'{str(idx).zfill(5)}.pkl'),'wb'))
 
-    #fig,ax = plt.subplots(1,1,figsize = (5,5))
-    #sim.plot2D(output_plane = plot_plane, ax=ax)
-    #print("saving png image...")
-    #fig.savefig(os.path.join(path_results, 'test_plot2D_with_buffer_rad_idx_{}.png'.format(idx)))
+    fig,ax = plt.subplots(1,1,figsize = (5,5))
+    sim.plot2D(output_plane = plot_plane, ax=ax)
+    print("saving png image...")
+    fig.savefig(os.path.join(path_results, 'plot2D_with_buffer_{}_time_{until}.png'.format(_buffer, until)))
     #from IPython import embed; embed() 
     
     # this outputs a 3GB file   
-    print("outputting full dft volume...")
-    sim.output_dft(dft_obj, os.path.join(path_results, 'outputdft_{}.pkl'.format(str(idx).zfill(5))))
+    #print("outputting full dft volume...")
+    #sim.output_dft(dft_obj, os.path.join(path_results, 'outputdft_{}.pkl'.format(str(idx).zfill(5))))
 
-    print("dumping metadata...")
-    pickle.dump(meta_data, open(os.path.join(path_results, 'test_metadata_{}.pkl'.format(str(idx).zfill(5))), 'wb'))
+    #print("dumping metadata...")
+    #pickle.dump(meta_data, open(os.path.join(path_results, 'test_metadata_{}.pkl'.format(str(idx).zfill(5))), 'wb'))
 
     #print("dumping eps data...")
     #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}_rad_idx_{}.pkl'.format(source,_buffer,idx)), 'wb'))
