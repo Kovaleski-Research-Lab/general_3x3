@@ -28,12 +28,12 @@ spec:
           memory: 6G
           cpu: 6
       volumeMounts:
-        - name: meep-dataset-v2
+        - name: buffer-study 
           mountPath: /develop/results
   volumes:
-    - name: meep-dataset-v2
+    - name: buffer-study
       persistentVolumeClaim:
-        claimName: meep-dataset-v2
+        claimName: buffer-study
 
   restartPolicy: Never
 

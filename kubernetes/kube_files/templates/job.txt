@@ -23,12 +23,15 @@ spec:
               memory: {{num_mem_req}}
               cpu: {{num_cpus}}
           volumeMounts:
-            - name: meep-dataset-v2
+            - name: buffer-study
               mountPath: /develop/results
-
+          tolerations:
+            - key: "nautilus.io/andy-varner"
+              operator: "Exists"
+              effect: "NoSchedule"
       volumes:
-        - name: meep-dataset-v2
+        - name: buffer-study
           persistentVolumeClaim:
-            claimName: meep-dataset-v2
+            claimName: buffer-study
 
       restartPolicy: Never

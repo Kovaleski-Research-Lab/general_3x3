@@ -83,21 +83,18 @@ if __name__ == "__main__":
     print("parsing args...")
     parser = argparse.ArgumentParser()
     parser.add_argument("-idx", help="An integer value used to grab a radii list from radii library")
-    parser.add_argument("-until",help="time in femtoseconds to run simulation")
 
     args = parser.parse_args()
 
-    path_results = "/develop/results/buffer_study"
-    #path_results = "/develop/results"
+    #path_results = "/develop/results/buffer_study"
+    path_results = "/develop/results"
 
     idx = int(args.idx) 
-    until = int(args.until)
     print("loading in neighbors library...")
-    #neighbors_library = pickle.load(open("buffer_study_library.pkl", "rb"))
-    #neighbors_library = pickle.load(open("buffer_study_random_radii_only.pkl","rb"))
-    #neighbors_library = pickle.load(open("short_incy.pkl","rb"))
-    neighbors_library = pickle.load(open("neighbors_library_allrandom.pkl","rb"))
-    
+    buffer_study = pickle.load(open("buffer-study.pkl","rb")) # all random, no fixed mu
+    radii = buffer_study['radii'] # 40 variance levels, 3 sets of radii each
+    neighbors_library = [item for sublist in radii for item in sublist]   # 120 sims 
+   
     print(f"assigning neighborhood for idx {idx}...")
     radii = list(neighbors_library[idx])
     radii = np.array(radii).reshape(3,3)
@@ -139,11 +136,11 @@ if __name__ == "__main__":
                             normalize = True,
                             plot_modifiers = plot_modifiers)
 
+    #sim.run(mp.at_every(0.1, Animate), until=15)
     start_time = time.time
-    sim.run(mp.at_every(0.1, Animate), until=until)
-    #sim.run(until=15)
+    sim.run(until=15)
     
-    folder_name = f"{str(idx).zfill(5)}"
+    folder_name = f"{str(idx).zfill(4)}"
     create_folder(os.path.join(path_results, folder_name))
 
     subfolder_name = "slices"
@@ -155,7 +152,7 @@ if __name__ == "__main__":
     path_results = os.path.join(path_results, folder_name)
 
     #print("saving animation...") 
-    Animate.to_mp4(20, os.path.join(path_results, 'anim_buffer_{}_time_{}.mp4'.format(_buffer, until)))
+    #Animate.to_mp4(20, os.path.join(path_results, 'test_anim_rad_idx_{}.mp4'.format(idx)))
 
     # these are sliced. 
     sliced_dft_fields = mod_dft_fields(params,dft_fields,eps_data)
@@ -163,13 +160,13 @@ if __name__ == "__main__":
             'radii': radii,
            }
 
-    #print(f"dumping sliced field and radii info to {subfolder_name}...")
-    #pickle.dump(data, open(os.path.join(path_results, '../slices', f'{str(idx).zfill(5)}.pkl'),'wb'))
+    print(f"dumping sliced field and radii info to {subfolder_name}...")
+    pickle.dump(data, open(os.path.join(path_results, '../slices', f'{str(idx).zfill(5)}.pkl'),'wb'))
 
-    fig,ax = plt.subplots(1,1,figsize = (5,5))
-    sim.plot2D(output_plane = plot_plane, ax=ax)
-    print("saving png image...")
-    fig.savefig(os.path.join(path_results, 'plot2D_with_buffer_{}_time_{until}.png'.format(_buffer, until)))
+    #fig,ax = plt.subplots(1,1,figsize = (5,5))
+    #sim.plot2D(output_plane = plot_plane, ax=ax)
+    #print("saving png image...")
+    #fig.savefig(os.path.join(path_results, 'test_plot2D_with_buffer_rad_idx_{}.png'.format(idx)))
     #from IPython import embed; embed() 
     
     # this outputs a 3GB file   

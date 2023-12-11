@@ -19,14 +19,15 @@ def get_random_radii(params):
     _min = params['geometry']['radius_min']
     _max = params['geometry']['radius_max']
     
-    while i < 30: 
+    while i < 40: 
 
-        initial_value = params['geometry']['radius_max'] / 2 
+        #initial_value = params['geometry']['radius_max'] / 2 
+        initial_value = np.random.uniform(0.075, 0.250)
         std_dev = 0.0025 * (i + 1)
         library['std_dev'].append(std_dev)
         library['percent_of_range'].append((std_dev / (0.250-0.075)) * 100)
 
-        for j in range(10):
+        for j in range(3):
             if j == 0:
                 rad_list = []
 
@@ -42,7 +43,7 @@ def get_random_radii(params):
             # Append the generated sublist to the list of lists
             rad_list.append(list(radii))
             
-            if j == 9:
+            if j == 2:
                 library['radii'].append(rad_list)
                 print(f"appended to library['radii']: list length = {len(rad_list)}")
         i += 1
@@ -93,7 +94,7 @@ def rad_inc_with_y(params):
         library['std_dev'].append(std_dev)
         library['percent_of_range'].append((std_dev / (0.250-0.075)) * 100)
                                                                                          
-        for j in range(10):
+        for j in range(5):
             if j == 0:
                 rad_list = []
            
@@ -108,12 +109,12 @@ def rad_inc_with_y(params):
             
             rad_list.append(list(radii))
             
-            if j == 9:
+            if j == 4: 
                 library['radii'].append(rad_list)
                 #print(f"appended to library['radii']: list length = {len(rad_list)}")
         i += 1
          
-    pickle.dump(library, open("buffer_study_incy.pkl", "wb"))
+    #pickle.dump(library, open("buffer_study_inc_y.pkl", "wb"))
     return library
 
 
@@ -122,9 +123,10 @@ if __name__=="__main__":
 
     params = yaml.load(open("config.yaml", 'r'), Loader = yaml.FullLoader)
 
-    expected_val = params['geometry']['radius_max'] / 2
-    library = rad_inc_with_y(params)
+    #expected_val = params['geometry']['radius_max'] / 2
+    #library = rad_inc_with_y(params)
 
+    library = get_random_radii(params) 
     #visualize(library)
     #pickle.dump(library, open("buffer_study_random.pkl","wb"))
     embed()

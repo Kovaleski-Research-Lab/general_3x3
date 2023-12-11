@@ -2,7 +2,7 @@ import pickle
 import torch
 import numpy as np
 import os
-import h5py
+#import h5py
 import re
 
 path_results = "/develop/results/all_random" #KUBE
