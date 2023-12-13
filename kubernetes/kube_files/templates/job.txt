@@ -1,11 +1,22 @@
 {# kube_files/templates/job.txt #}
 apiVersion: batch/v1
-kind: Job
+kind: Job 
 metadata:
   name: {{job_name}}
+  namespace: gpn-mizzou-muem 
 spec:
   template:
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+                - key: nvidia.com/gpu.product
+                  operator: In
+                  values:
+                  - "NVIDIA-A100-SXM4-80GB"
       containers:
         - name: {{job_name}}
           image: {{path_image}}
@@ -13,6 +24,7 @@ spec:
           args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git; 
                 cd general_3x3;
                 git checkout andy_branch;
+                echo checkout out branch successfully > {{path_logs}}/test.log;
                 pip install h5py;
                 mpirun --allow-run-as-root -np {{num_cpus}} python3 run.py -idx {{n_index}} >> {{path_logs}}/{{n_index}}.log"]
           resources:
@@ -25,10 +37,11 @@ spec:
           volumeMounts:
             - name: buffer-study
               mountPath: /develop/results
-          tolerations:
-            - key: "nautilus.io/andy-varner"
-              operator: "Exists"
-              effect: "NoSchedule"
+      tolerations:
+        - key: "nautilus.io/andy-varner"
+          operator: "Exists"
+          effect: "NoSchedule"
+      nodeName: gnp-fiona-mizzou-2.rnet.missouri.edu
       volumes:
         - name: buffer-study
           persistentVolumeClaim:
