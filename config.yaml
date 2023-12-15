@@ -41,8 +41,8 @@ geometry:
 
   #Buffer
   substrate_buffer: True
-  size_x_buffer: 4.5
-  size_y_buffer: 4.5
+  size_x_buffer: 4
+  size_y_buffer: 4
   size_z_buffer: 1.5
 
   #Metasurface
@@ -102,7 +102,7 @@ dft_slice_monitor:
 #   Simulation Parameters
 #-------------------------
 simulation:
-  resolution : 80
+  resolution : 30
   decay_rate : 0.0015
   dt : 50
   source_component:

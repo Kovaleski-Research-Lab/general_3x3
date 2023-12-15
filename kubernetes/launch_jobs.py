@@ -133,7 +133,7 @@ def run_generation(params):
 
                     # --- Launch simulation job
 
-                    subprocess.run(["kubectl", "apply", "-f", path_job])
+                    #subprocess.run(["kubectl", "apply", "-f", path_job])
 
                 counter += 1 
 

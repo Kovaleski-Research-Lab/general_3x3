@@ -40,7 +40,7 @@ def build_sim(params, radii = None):
     dft_slice_objs = field_monitors.build_dft_slice_monitor(params, sim, monitor_volume)
     
     dft_obj = field_monitors.build_dft_monitor(params, sim, monitor_volume)
-    flux_obj = field_monitors.build_timedep_monitor(params, sim)
+    flux_obj,params = field_monitors.build_timedep_monitor(params, sim)
 
     return sim, dft_obj, flux_obj, params
 

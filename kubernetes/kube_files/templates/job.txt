@@ -6,6 +6,9 @@ metadata:
   namespace: gpn-mizzou-muem 
 spec:
   template:
+    metadata:
+      name: {{job_name}}
+      namespace: gpn-mizzou-muem
     spec:
       affinity:
         nodeAffinity:
@@ -35,16 +38,16 @@ spec:
               memory: {{num_mem_req}}
               cpu: {{num_cpus}}
           volumeMounts:
-            - name: buffer-study
+            - name: {{pvc_name}}
               mountPath: /develop/results
       tolerations:
         - key: "nautilus.io/andy-varner"
           operator: "Exists"
           effect: "NoSchedule"
-      nodeName: gnp-fiona-mizzou-2.rnet.missouri.edu
+      nodeName: gpn-fiona-mizzou-2.rnet.missouri.edu
       volumes:
-        - name: buffer-study
+        - name: {{pvc_name}} 
           persistentVolumeClaim:
-            claimName: buffer-study
+            claimName: {{pvc_name}} 
 
       restartPolicy: Never

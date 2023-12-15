@@ -27,7 +27,6 @@ def collect_fields(params, sim, flux_obj = None, dft_obj = None):
     eps_data = sim.get_epsilon()
     return dft_fields, flux, eps_data
 
-
 def build_dft_slice_monitor(params, sim, monitor_volume): # passing monitor volume now
 
     monitor_params = params['dft_slice_monitor']
@@ -99,6 +98,7 @@ def build_timedep_monitor(params, sim):
 
     # -1.105
     loc_z_timedep_mon = loc_top_fused_silica + height_pillar + 0.775
+    params['loc_z_timedep_mon'] = loc_z_timedep_mon
 
     mon_pt = mp.Vector3(center_x,center_y,loc_z_timedep_mon)
     size = mp.Vector3(params['cell_x'], params['cell_y'], 0)
@@ -115,7 +115,7 @@ def build_timedep_monitor(params, sim):
         monitor_params['freq_list'] = freq_list
 
     flux_obj = sim.add_flux(freq_list, flux_region)
-    return flux_obj
+    return flux_obj,params
 
 if __name__ == "__main__":
 
