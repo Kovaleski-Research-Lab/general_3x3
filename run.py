@@ -229,7 +229,7 @@ if __name__ == "__main__":
     print(f"dumping surrogate model training data to {subfolder_name}...")
     #path_results = os.path.join(path_results, subfolder_name)
     #pickle.dump(training_data, open(os.path.join(path_results, '../slices', f'{str(idx).zfill(5)}.pkl'),'wb'))
-    filename = os.path.join(path_results, '../slices', f'str(idx).zfill(5)}.pkl')
+    filename = os.path.join(path_results, '../slices', f'{str(idx).zfill(5)}.pkl')
     with open(filename,'wb') as f:
         pickle.dump(training_data, f)
  
