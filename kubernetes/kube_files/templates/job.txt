@@ -49,5 +49,4 @@ spec:
         - name: {{pvc_name}} 
           persistentVolumeClaim:
             claimName: {{pvc_name}} 
-
       restartPolicy: Never

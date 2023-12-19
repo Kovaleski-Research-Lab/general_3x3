@@ -118,6 +118,7 @@ def run_generation(params):
                                      "num_cpus": str(params["num_cpus"]),
                                      "num_mem_lim": str(params["num_mem_lim"]),
                                      "num_mem_req": str(params["num_mem_req"]),
+                                     "pvc_name": str(params["pvc_name"]),
                                      "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
 
                     filled_template = template.render(template_info)
@@ -133,10 +134,10 @@ def run_generation(params):
 
                     # --- Launch simulation job
 
-                    #subprocess.run(["kubectl", "apply", "-f", path_job])
+                    subprocess.run(["kubectl", "apply", "-f", path_job])
 
                 counter += 1 
-
+                print(f"counter = {counter}")
         # -- Wait for a processes to finish
 
         else:
@@ -265,26 +266,5 @@ if __name__ == "__main__":
 
     params = load_config(args["config"]) 
 
-    #from IPython import embed; embed();exit()
-    #atexit.register(exit_handler)  # this is how we clean up jobs. 
-    run_generation(params)
-    
-    #slice_job(params)
-    
-    ### buffer_study_random.pkl contains 300 radii lists ->> 10 neighborhoods for each sampling
-    ###     from distributions with increasing stdev from 0.125
-    #library = pickle.load(open("../buffer_study_random.pkl","rb"))
-    #radii = library['radii'][3:]
-    #short_rad = [sublist[:3] for sublist in radii]
-
-    #pickle.dump(short_rad, open"../buffer_study_random_radii_only_short.pkl","wb"))
-    #from IPython import embed; embed();exit()
-    #radii = [item for sublist in radii for item in sublist]
-    #pickle.dump(radii, open("../buffer_study_random_radii_only.pkl","wb")) 
-
-    #library = pickle.load(opne("../buffer_study_incy.pkl","rb"))
-    #rad = [sublist[:3] for sublist in library['radii']]
-    #library['radii'] = rad
-    #rad_list = [item for sublist in rad for item in sublist]
-    #pickle.dump(library,open("../short_incy.pkl"))
-
+    atexit.register(exit_handler)  # this is how we clean up jobs. 
+    #run_generation(params)

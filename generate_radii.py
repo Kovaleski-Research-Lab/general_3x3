@@ -87,25 +87,33 @@ def rad_inc_with_y(params):
     _min = params['geometry']['radius_min']
     _max = params['geometry']['radius_max']
     
-    while i < 30: 
-                                                                                         
+    num_groups = 30
+    while i < num_groups: 
+    
+        # fix this                                              
         initial_value = params['geometry']['radius_max'] / 2 # central row
-        std_dev = 0.0025 * (i + 1)
-        library['std_dev'].append(std_dev)
-        library['percent_of_range'].append((std_dev / (0.250-0.075)) * 100)
-                                                                                         
+        #std_dev = 0.0025 * (i + 1)
+        #library['std_dev'].append(std_dev)
+        #library['percent_of_range'].append((std_dev / (0.250-0.075)) * 100)
+
+        epsilon = 0.1 # adjust this to change your window
+                                                                                        
         for j in range(5):
             if j == 0:
                 rad_list = []
            
             radii_mid = [initial_value for _ in range(3)] 
-            val = np.random.normal(0, std_dev)                                                                             
+
+            # could make this increase deterministic: ((max - mean) / num_groups) = delta  -- let max = mean + delta, min = mean-delta
+            #val = np.random.normal(0, std_dev)                                                                             
+            delta = (_max*epsilon - initial_value) / num_groups 
+            val = i * delta
+            
             radii_min = [round(initial_value - val,5) for _ in range(3)]
             radii_max = [round(initial_value + val,5) for _ in range(3)]
             
             radii = [radii_max,radii_mid,radii_min] 
             radii = [item for sublist in radii for item in sublist]
-            #radii = np.clip(radii, _min, _max)
             
             rad_list.append(list(radii))
             

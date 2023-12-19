@@ -10,7 +10,7 @@ path_out_sims: /develop/results # this is really a duplicate. can change 'path_s
 num_mem_lim: 190G
 num_mem_req: 190G
 num_cpus: 28 
-num_parallel_ops : 1
+num_parallel_ops : 4
 
 # for slicing:
 #num_mem_lim: 150G
@@ -26,6 +26,6 @@ kill_tag: datagen
 # Define Simulation
 
 num_sims: 1000 # this is the ending index
-start_group_id: 0 
+start_group_id: 26 
 
 pvc_name: meep-dataset-v2
