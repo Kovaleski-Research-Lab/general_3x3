@@ -258,7 +258,7 @@ def slice_job(params):
 
     # --- Save simulation job file
 
-    (path_job, filled_template)
+    save_file(path_job, filled_template)
 
     # --- Launch simulation job
 
@@ -270,58 +270,39 @@ if __name__ == "__main__":
     args = parse_args(sys.argv)
 
     params = load_config(args["config"]) 
-    #exit_handler();exit()
+
+    #from IPython import embed; embed()
     # time is in seconds
-    minutes = 45
+    minutes = 50
     seconds = 60 * minutes
-   
-    sim_list = list(range(1501,2000))
-
-    template = load_file(params["path_template"])
     
-    tag = params["path_template"].split("/")[-1]
-    folder = params["path_template"].replace("/%s" % tag, "")
-    environment = Environment(loader = FileSystemLoader(folder))
-    template = environment.get_template(tag)
-
+    sim_list = list(range(358,358))
+    sim_list.extend(list(range(376,377)))
+    sim_list.extend(list(range(392,394)))
+    sim_list.extend(list(range(430,431)))
+    sim_list.extend(list(range(464,476)))
+    sim_list.extend(list(range(486,499)))
+    sim_list.extend(list(range(500,516)))
+    sim_list.extend(list(range(517,518)))
+    sim_list.extend(list(range(520,521)))
+    sim_list.extend(list(range(530,531)))
+    
     current_list = []
     for i, name in enumerate(sim_list):
-        ### charlie's code
-        job_name = "%s-%s" % (params['kill_tag'], str(name).zfill(4))
-
-        #current_group.append(job_name)
-        
-        template_info = {"job_name": job_name, 
-                         "n_index": str(name),
-                         "num_cpus": str(params["num_cpus"]),
-                         "num_mem_lim": str(params["num_mem_lim"]),
-                         "num_mem_req": str(params["num_mem_req"]),
-                         "pvc_name": str(params["pvc_name"]),
-                         "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
-
-        filled_template = template.render(template_info)
-
+        job_name = f"datagen-0{name}"
         path_job = os.path.join(params["path_sim_job_files"], job_name + ".yaml") 
-
-        # --- Save simulation job file
-
-        save_file(path_job, filled_template)
-
-        ## end charlie's code
-
         subprocess.run(["kubectl", "apply", "-f", path_job])
-        #from IPython import embed;embed()
         current_list.append(job_name)
-        if (i + 1) % 5 == 0:
+        if i % 4 == 0 and i != 0:
             
             print(f"i={i},sleeping...")
             time.sleep(seconds)
             for job in current_list:
                 subprocess.run(["kubectl", "delete", "job", job])     
+                print(f"Deleted job {job}")
                 time.sleep(5)
             print("resetting current list...")
             current_list = []
-            time.sleep(30)
             print(f"current list should be empty: {current_list}")
-    #atexit.register(exit_handler)  # this is how we clean up jobs. 
+    atexit.register(exit_handler)  # this is how we clean up jobs. 
     #run_generation(params)
