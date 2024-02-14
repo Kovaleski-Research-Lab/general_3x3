@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: andy-mon
+  name: andy
 spec:
   containers:
-    - name: andy-mon
+    - name: andy
       #image: docker.io/kovaleskilab/meep_ml:s3_enabled
       image: docker.io/kovaleskilab/meep:v2_with_torch
       env:

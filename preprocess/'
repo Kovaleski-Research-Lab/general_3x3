@@ -7,6 +7,9 @@ import os
 import re
 import yaml
 
+path_data = '/develop/data/meep-dataset-v2'
+#path_library = '/develop/code/general_3x3/neighbors_library_allrandom.pkl'
+dump_path = os.path.join(path_data,"volumes")
 
 def get_volumes(params,meta_data,dft_data):
 
@@ -65,6 +68,8 @@ def get_volumes(params,meta_data,dft_data):
         z_vol = [z_real_vol,z_imag_vol]
         z_vol = np.asarray(z_vol)
  
+        embed();exit()
+ 
         volumes[wl] = [x_vol, y_vol, z_vol] 
 
     return volumes 
@@ -80,30 +85,15 @@ def dump_volumes(volumes,idx):
 
 if __name__=='__main__':    
 
-    kube = True
-    
-    if kube == True:
-        path_data = '/develop/results'
-    else:
-        path_data = '/develop/data/meep-dataset-v2'
-
-    #path_library = '/develop/code/general_3x3/neighbors_library_allrandom.pkl'
-    dump_path = os.path.join(path_data,"volumes")
     params = yaml.load(open("/develop/code/general_3x3/config.yaml","r"),Loader=yaml.FullLoader)
 
-    if kube == True:
-        exclude = ['current_logs', 'slices', 'volumes']
-        include = [val for val in range(20,100)]
-        include = [str(val).zfill(4) for val in include]
-    else:
-        exclude = ['volumes','reduced_data','pt']
+    exclude = ['volumes','reduced_data','pt']
     with os.scandir(path_data) as entries:
         
         for entry in entries:
 
             #if entry.is_dir() and entry.name != "volumes":
-            #if entry.is_dir() and entry.name not in exclude:
-            if entry.is_dir() and entry.name in include:
+            if entry.is_dir() and entry.name not in exclude:
                      
                 with os.scandir(entry.path) as files:
                      
