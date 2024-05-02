@@ -32,7 +32,9 @@ spec:
                 git checkout andy_branch;
                 echo checkout out branch successfully for job {{job_name}} >> {{path_logs}}/test.log;
                 pip install h5py;
-                python3 preprocess.py >> {{path_logs}}/preprocess.log"]
+                echo installed h5py  >> {{path_logs}}/test.log;
+                ls >> {{path_logs}}/test.log;
+                python3 preprocess_data.py >> {{path_logs}}/preprocess.log"]
           resources:
             limits:
               memory: {{num_mem_lim}}
@@ -41,15 +43,20 @@ spec:
               memory: {{num_mem_req}}
               cpu: {{num_cpus}}
           volumeMounts:
-            - name: {{pvc_name}}
+            - name: {{pvc_data}}
+              mountPath: /develop/data
+            - name: {{pvc_results}}
               mountPath: /develop/results
-      tolerations:
-        - key: "nautilus.io/andy-varner"
-          operator: "Exists"
-          effect: "NoSchedule"
-      nodeName: gpn-fiona-mizzou-2.rnet.missouri.edu
+      #tolerations:
+      #  - key: "nautilus.io/andy-varner"
+      #    operator: "Exists"
+      #    effect: "NoSchedule"
+      #nodeName: gpn-fiona-mizzou-2.rnet.missouri.edu
       volumes:
-        - name: {{pvc_name}} 
+        - name: {{pvc_data}} 
           persistentVolumeClaim:
-            claimName: {{pvc_name}} 
-      
+            claimName: {{pvc_data}} 
+        - name: {{pvc_results}} 
+          persistentVolumeClaim:
+            claimName: {{pvc_results}} 
+

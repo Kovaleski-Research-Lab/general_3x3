@@ -7,7 +7,6 @@ path_template: kube_files/templates/job.txt
 path_simulations: /develop/results
 path_logs: /develop/results/current_logs
 path_sim_job_files: /develop/results/job_files
-path_out_sims: /develop/results # this is really a duplicate. can change 'path_simulations' in run_datagen.py (template) if you want to clean this up.
 
 # for slicing
 num_mem_lim: 150G
@@ -25,4 +24,5 @@ kill_tag: preprocess
 #num_sims: 1000 # this is the ending index
 #start_group_id: 247 
 
-pvc_name: meep-dataset-v2
+pvc_data: meep-dataset-v2
+pvc_results: dft-volumes 
