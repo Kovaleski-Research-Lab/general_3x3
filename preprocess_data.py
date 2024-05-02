@@ -88,7 +88,7 @@ if __name__=='__main__':
         path_data = '/develop/data/meep-dataset-v2'
 
     print(f"path_data = {path_data}")
-    print(f"path_results = {path_results")
+    print(f"path_results = {path_results}")
 
     #path_library = '/develop/code/general_3x3/neighbors_library_allrandom.pkl'
     #dump_path = os.path.join(path_data,"volumes")

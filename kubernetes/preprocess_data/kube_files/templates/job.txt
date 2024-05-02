@@ -31,8 +31,7 @@ spec:
           args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git; 
                 cd general_3x3;
                 git checkout andy_branch;
-                #echo checkout out branch successfully for job {{job_name}} >> {{path_logs}}/test.log;
-                #ls >> {{path_logs}}/test.log;
+                echo checkout out branch successfully for job {{job_name}} >> {{path_logs}}/test.log;
                 python3 preprocess_data.py >> {{path_logs}}/preprocess.log"]
           resources:
             limits:
