@@ -96,7 +96,7 @@ if __name__=='__main__':
 
     if kube == True:
         exclude = ['current_logs', 'slices', 'volumes']
-        include = [val for val in range(0,5)]
+        include = [val for val in range(0,1501)]
         include = [str(val).zfill(4) for val in include]
     else:
         exclude = ['volumes','reduced_data','pt']
