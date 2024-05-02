@@ -83,12 +83,14 @@ if __name__=='__main__':
     kube = True
     print("kube=True") 
     if kube == True:
-        path_data = '/develop/results'
+        path_data = '/develop/data'
         dump_path = '/develop/results' # this is the dft-volumes pvc
     else:
         path_data = '/develop/data/meep-dataset-v2'
 
     print(f"path_data = {path_data}")
+    print(f"path_results = {path_results")
+
     #path_library = '/develop/code/general_3x3/neighbors_library_allrandom.pkl'
     #dump_path = os.path.join(path_data,"volumes")
     params = yaml.load(open("/develop/code/general_3x3/config.yaml","r"),Loader=yaml.FullLoader)
