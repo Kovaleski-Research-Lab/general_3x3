@@ -69,7 +69,7 @@ def get_volumes(params,meta_data,dft_data):
 
     return volumes 
 
-def dump_volumes(volumes,idx):
+def dump_volumes(volumes,idx,dump_path):
 
     filename = str(idx).zfill(4)
     filename = filename + ".pkl"
@@ -84,17 +84,18 @@ if __name__=='__main__':
     print("kube=True") 
     if kube == True:
         path_data = '/develop/results'
+        dump_path = '/develop/results' # this is the dft-volumes pvc
     else:
         path_data = '/develop/data/meep-dataset-v2'
 
     print(f"path_data = {path_data}")
     #path_library = '/develop/code/general_3x3/neighbors_library_allrandom.pkl'
-    dump_path = os.path.join(path_data,"volumes")
+    #dump_path = os.path.join(path_data,"volumes")
     params = yaml.load(open("/develop/code/general_3x3/config.yaml","r"),Loader=yaml.FullLoader)
 
     if kube == True:
         exclude = ['current_logs', 'slices', 'volumes']
-        include = [val for val in range(20,100)]
+        include = [val for val in range(0,5)]
         include = [str(val).zfill(4) for val in include]
     else:
         exclude = ['volumes','reduced_data','pt']
@@ -136,4 +137,4 @@ if __name__=='__main__':
                                     print("pickle error")
 
                     volumes = get_volumes(params,pkl_file,h5_file)
-                    dump_volumes(volumes,idx)
+                    dump_volumes(volumes,idx,dump_path)

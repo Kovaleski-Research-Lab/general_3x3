@@ -1,3 +1,5 @@
+# /general_3x3/kubernetes/preprocess_data/launch_jobs.py
+
 import os
 import sys
 import yaml
@@ -289,8 +291,11 @@ if __name__ == "__main__":
                          "num_cpus": str(params["num_cpus"]),
                          "num_mem_lim": str(params["num_mem_lim"]),
                          "num_mem_req": str(params["num_mem_req"]),
-                         "pvc_name": str(params["pvc_name"]),
-                         "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
+                         "pvc_data": str(params["pvc_data"]),
+                         "pvc_results": str(params["pvc_results"]),
+                         #"path_out_sims": params["path_simulations"],
+                         "path_image": params["path_image"],
+                         "path_logs": params["path_logs"]}
 
     filled_template = template.render(template_info)
 

@@ -1,4 +1,5 @@
 {# kube_files/templates/job.txt #}
+
 apiVersion: batch/v1
 kind: Job 
 metadata:
@@ -12,16 +13,16 @@ spec:
       name: {{job_name}}
       namespace: gpn-mizzou-muem
     spec:
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
-              matchExpressions:
-                - key: nvidia.com/gpu.product
-                  operator: In
-                  values:
-                  - "NVIDIA-A100-SXM4-80GB"
+      #affinity:
+      #  nodeAffinity:
+      #    preferredDuringSchedulingIgnoredDuringExecution:
+      #    - weight: 1
+      #      preference:
+      #        matchExpressions:
+      #          - key: nvidia.com/gpu.product
+      #            operator: In
+      #            values:
+      #            - "NVIDIA-A100-SXM4-80GB"
       restartPolicy: Never
       containers:
         - name: {{job_name}}
@@ -30,10 +31,8 @@ spec:
           args: ["git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git; 
                 cd general_3x3;
                 git checkout andy_branch;
-                echo checkout out branch successfully for job {{job_name}} >> {{path_logs}}/test.log;
-                pip install h5py;
-                echo installed h5py  >> {{path_logs}}/test.log;
-                ls >> {{path_logs}}/test.log;
+                #echo checkout out branch successfully for job {{job_name}} >> {{path_logs}}/test.log;
+                #ls >> {{path_logs}}/test.log;
                 python3 preprocess_data.py >> {{path_logs}}/preprocess.log"]
           resources:
             limits:

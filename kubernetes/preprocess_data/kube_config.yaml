@@ -1,10 +1,9 @@
 ## config file for preprocessing data, aka moving from full volumes with buffers to 
 ## reduced volumes
 
-path_image: docker.io/kovaleskilab/meep:v2_with_torch
+path_image: docker.io/kovaleskilab/meep:v3_lightning
 path_template: kube_files/templates/job.txt
 
-path_simulations: /develop/results
 path_logs: /develop/results/current_logs
 path_sim_job_files: /develop/results/job_files
 
