@@ -34,8 +34,6 @@ def build_sim(params, radii = None):
                          boundary_layers = pml_layers,
                          resolution = resolution,
                          symmetries=None)
-
-    dft_slice_objs = field_monitors.build_dft_slice_monitors(params, sim)
     
     dft_obj = field_monitors.build_dft_monitor(params, sim, monitor_volume)
     flux_obj = field_monitors.build_timedep_monitor(params, sim)

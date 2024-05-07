@@ -5,7 +5,6 @@ import meep as mp
 from loguru import logger
 
 
-
 ##############################################################################
 # Simple build functions on the MEEP primatives. Might be overkill - 
 # the current primatives are pretty abstract already. These are nice for 

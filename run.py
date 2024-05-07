@@ -28,17 +28,17 @@ if __name__ == "__main__":
 
     params = yaml.load(open("config.yaml", 'r'), Loader = yaml.FullLoader)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-lateral_buffer", help="Buffer for the x-y dimensions")
-    parser.add_argument("-source", help="The type of source to use")
+    #parser = argparse.ArgumentParser()
+    #parser.add_argument("-lateral_buffer", help="Buffer for the x-y dimensions")
+    #parser.add_argument("-source", help="The type of source to use")
 
-    args = parser.parse_args()
-    buffer = float(args.lateral_buffer)
-    params['geometry']['size_x_buffer'] = buffer
-    params['geometry']['size_y_buffer'] = buffer
+    #args = parser.parse_args()
+    #buffer = float(args.lateral_buffer)
+    #params['geometry']['size_x_buffer'] = buffer
+    #params['geometry']['size_y_buffer'] = buffer
 
-    source = args.source
-    params['source']['type'] = source
+    #source = args.source
+    #params['source']['type'] = source
     path_results = "/develop/results/buffer_study"
 
     #6 7 8
@@ -48,7 +48,8 @@ if __name__ == "__main__":
     #radii = [0.18664, 0.09511, 0.13333,
     #         0.16552, 0.19670, 0.13635,
     #         0.20876, 0.10517, 0.09009]
-    radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+    #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+    radii = None
     sim, dft_obj, flux_obj = simulation.build_sim(params, radii = radii)
 
     cell_x = params['cell_x']
@@ -59,29 +60,31 @@ if __name__ == "__main__":
     center_y = 0
     center_z = 0
     
-    plot_plane = mp.Volume( center = mp.Vector3(center_x, center_y, center_z), 
-                            size=mp.Vector3(cell_x, 0, cell_z))
+    #plot_plane = mp.Volume( center = mp.Vector3(center_x, center_y, center_z), 
+    #                        size=mp.Vector3(cell_x, 0, cell_z))
 
 
-    plot_modifiers = [mod_axes]
-    f = plt.figure(dpi=100, figsize=(8,15))
-    Animate = mp.Animate2D( output_plane = plot_plane,
-                            fields = mp.Ey,
-                            f = f,
-                            realtime = False,
-                            normalize = True,
-                            plot_modifiers = plot_modifiers)
+    #plot_modifiers = [mod_axes]
+    #f = plt.figure(dpi=100, figsize=(8,15))
+    #Animate = mp.Animate2D( output_plane = plot_plane,
+    #                        fields = mp.Ey,
+    #                        f = f,
+    #                        realtime = False,
+    #                        normalize = True,
+    #                        plot_modifiers = plot_modifiers)
 
-    sim.run(mp.at_every(0.1, Animate), until=25)
+    #sim.run(mp.at_every(0.1, Animate), until=25)
     #dft_fields, flux, eps_data = field_monitors.collect_fields(params, sim, flux_obj, dft_obj)
+
+    sim.run(until=25)
     meta_data = sim.get_array_metadata(dft_cell = dft_obj)
     eps_data = sim.get_epsilon()
 
-    sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}.pkl'.format(source,buffer)))
+    sim.output_dft(dft_obj, os.path.join(path_results, '{}_outputdft_with_buffer_{:.03f}'.format(source,buffer)))
     pickle.dump(meta_data, open(os.path.join(path_results, '{}_metadata_with_buffer_{:.03f}.pkl'.format(source,buffer)), 'wb'))
     pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}.pkl'.format(source,buffer)), 'wb'))
-    Animate.to_mp4(20, os.path.join(path_results, '{}_animation_with_buffer_{:.03f}.mp4'.format(source,buffer)))
+    #Animate.to_mp4(20, os.path.join(path_results, '{}_animation_with_buffer_{:.03f}.mp4'.format(source,buffer)))
 
-    fig,ax = plt.subplots(1,1,figsize = (5,5))
-    sim.plot2D(output_plane = plot_plane, ax=ax)
-    fig.savefig(os.path.join(path_results, '{}_plot2D_with_buffer_{:.03f}.png'.format(source,buffer)))
+    #fig,ax = plt.subplots(1,1,figsize = (5,5))
+    #sim.plot2D(output_plane = plot_plane, ax=ax)
+    #fig.savefig(os.path.join(path_results, '{}_plot2D_with_buffer_{:.03f}.png'.format(source,buffer)))
