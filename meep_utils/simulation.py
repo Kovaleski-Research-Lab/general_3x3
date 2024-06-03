@@ -1,6 +1,5 @@
 import meep as mp
-from loguru import logger
-import geometries, sources, field_monitors
+from meep_utils import geometries, sources, field_monitors
 
 
 def build_sim(params, radii = None):

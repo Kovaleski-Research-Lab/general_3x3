@@ -1,7 +1,19 @@
+#---------------------------------------------------------
+#    Define task - 0: Generate data, 1: Preprocess data
+#    Define deployment mode - 0: Running locally, 1: kubernetes
+#----------------------------------------------------------
+
+task : 0
+deployment_mode : 0
+idx :
+
 #--------------------------------
 #       All paths
 #--------------------------------
 
+paths :
+  data : /develop/data/testing
+  library : /develop/code/general_3x3/radii/neighbors_library_allrandom.pkl 
 #------------------------
 #   General Parameters
 #-------------------------
@@ -102,11 +114,13 @@ dft_slice_monitor:
 #   Simulation Parameters
 #-------------------------
 simulation:
+  until : 18
   resolution : 80
   decay_rate : 0.0015
   dt : 50
   source_component:
   center_mon_z: 
+
 
 #-----------------------
 #  Animation Params
@@ -114,3 +128,12 @@ simulation:
 
 plot_plane :
 fps : 20
+
+#-----------------------
+# Kubernetes params 
+#----------------------
+
+kube :
+  paths :
+
+

@@ -1,7 +1,5 @@
 import meep as mp
-import yaml
-from loguru import logger
-import geometries
+from meep_utils import geometries
 
 
 
@@ -12,15 +10,17 @@ def continuous_source(params):
     component = params['component']
 
     if frequency is None and wavelength is None:
-        logger.error("Either frequency or wavelength need to be specified")
+        #logger.error("Either frequency or wavelength need to be specified")
+        raise NotImplementedError
         exit()
 
     if component is None:
-        logger.error("The component of the source needs to be specified")
+        #logger.error("The component of the source needs to be specified")
+        raise NotImplementedError
         exit()
 
     if frequency is None and wavelength is not None:
-        logger.info("Calculating frequency from given wavelength")
+        #logger.info("Calculating frequency from given wavelength")
         frequency = 1 / wavelength
 
     loc_x_source = params['loc_x_source']
@@ -34,11 +34,12 @@ def continuous_source(params):
     center = mp.Vector3(loc_x_source, loc_y_source, loc_z_source)
     size = mp.Vector3(size_x_source, size_y_source, size_z_source)
     if None in center:
-        logger.error("Failed to specify center")
+        #logger.error("Failed to specify center")
+        raise NotImplementedError
         exit()
 
     if None in size:
-        logger.info("Setting default source size from component : {}".format(component))
+        #logger.info("Setting default source size from component : {}".format(component))
         if component is mp.Ez:
             size = [params['cell_x'], params['cell_y'], 0]
         elif component is mp.Ex:
@@ -46,7 +47,8 @@ def continuous_source(params):
         elif component is mp.Ey:
             size = [params['cell_x'], 0, params['cell_z']]
         else:
-            logger.error("Failed to specify default size")
+            #logger.error("Failed to specify default size")
+            raise NotImplementedError
             exit()
 
 
@@ -65,11 +67,13 @@ def gaussian_source(params):
     component = params['component']
 
     if fcen is None and wavelength is None:
-        logger.error("Either fcen or wavelength need to be specified")
+        #logger.error("Either fcen or wavelength need to be specified")
+        raise NotImplementedError
         exit()
 
     if component is None:
-        logger.error("The component of the source needs to be specified")
+        #logger.error("The component of the source needs to be specified")
+        raise NotImplementedError
         exit()
 
     #if fwidth is None:
@@ -77,7 +81,7 @@ def gaussian_source(params):
     #    exit()
 
     if fcen is None and wavelength is not None:
-        logger.info("Calculating frequency from given wavelength")
+        #logger.info("Calculating frequency from given wavelength")
         fcen = 1 / wavelength
 
     fmax = 1 / min(wavelength_list)
@@ -95,11 +99,12 @@ def gaussian_source(params):
     center = mp.Vector3(loc_x_source, loc_y_source, loc_z_source)
     size = mp.Vector3(size_x_source, size_y_source, size_z_source)
     if None in center:
-        logger.error("Failed to specify center")
+        #logger.error("Failed to specify center")
+        raise NotImplementedError
         exit()
 
     if None in size:
-        logger.info("Setting default source size from component : {}".format(component))
+        #logger.info("Setting default source size from component : {}".format(component))
         if component is mp.Ez:
             size = [params['cell_x'], params['cell_y'], 0]
         elif component is mp.Ex:
@@ -107,7 +112,8 @@ def gaussian_source(params):
         elif component is mp.Ey:
             size = [params['cell_x'], 0, params['cell_z']]
         else:
-            logger.error("Failed to specify default size")
+            #logger.error("Failed to specify default size")
+            raise NotImplementedError
             exit()
 
     return [mp.Source(mp.GaussianSource(fcen,
@@ -117,16 +123,17 @@ def gaussian_source(params):
                             size=size)]
    
 def build_source(params):
-    logger.info("Building a source")
+    #logger.info("Building a source")
     source_params = params['source']
     if source_params['type'] == 'continuous':
-        logger.info("Building a continuous source")
+        #logger.info("Building a continuous source")
         return continuous_source(source_params)
     elif source_params['type'] == 'gaussian':
-        logger.info("Building a gaussian source")
+        #logger.info("Building a gaussian source")
         return gaussian_source(source_params)
     else:
-        logger.error("Source type {} is not supported".format(source_params['type']))
+        #logger.error("Source type {} is not supported".format(source_params['type']))
+        raise NotImplementedError
         exit()
 
 

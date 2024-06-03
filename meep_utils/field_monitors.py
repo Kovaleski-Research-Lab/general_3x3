@@ -2,7 +2,7 @@ from numpy import diag_indices_from
 import meep as mp
 import yaml
 from loguru import logger
-import geometries, sources, simulation
+from meep_utils import geometries, sources, simulation
 
 
 def collect_fields(params, sim, flux_obj = None, dft_obj = None):
