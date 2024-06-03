@@ -21,7 +21,6 @@ spec:
                 cd general_3x3;
                 git checkout andy_branch;
                 echo checkout out branch successfully for job {{job_name}} >> {{path_logs}}/test.log;
-                pip install h5py;
                 mpirun --allow-run-as-root -np {{num_cpus}} python3 main.py -config configs/config.yaml -idx {{n_index}} >> {{path_logs}}/{{n_index}}.log"]
           resources:
             limits:

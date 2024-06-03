@@ -20,15 +20,15 @@ def run(params):
     if params['deployment_mode'] == 0:
         path_data = params['paths']['data']
     elif params['deployment_mode'] == 1:
-        path_data = params['paths']['data']
+        path_data = params['kube']['datagen_job']['paths']['data']
     else:
         raise NotImplementedError
 
     folder_name = f"{str(idx).zfill(4)}"
     create_folder(os.path.join(path_data, folder_name))
 
-    subfolder_name = "slices"
-    create_folder(os.path.join(path_data, subfolder_name))
+    #subfolder_name = "slices"
+    #create_folder(os.path.join(path_data, subfolder_name))
 
     ## folder for dumping metadata (.pkl file) and dft data (.h5 file)
     path_data = os.path.join(path_data, folder_name)
