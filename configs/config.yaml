@@ -12,7 +12,7 @@ idx :
 #--------------------------------
 
 paths :
-  data : /develop/data/testing
+  data : /develop/data
   library : /develop/code/general_3x3/radii/neighbors_library_allrandom.pkl 
 #------------------------
 #   General Parameters
@@ -135,5 +135,6 @@ fps : 20
 
 kube :
   paths :
-
+    data : /develop/results
+    
 

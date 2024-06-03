@@ -3,7 +3,6 @@ import yaml
 import pickle
 import meep as mp
 import numpy as np
-import get_slice
 import time
 import h5py
 
@@ -16,13 +15,12 @@ from utils.meep_helpers import get_z_location, mod_dft_fields, get_slice_from_me
 def run(params):
 
     idx = params['idx'] 
-       
+    path_library = params['paths']['library']
+
     if params['deployment_mode'] == 0:
         path_data = params['paths']['data']
-        path_library = params['paths']['library']
     elif params['deployment_mode'] == 1:
         path_data = params['paths']['data']
-        path_library = params['kube']['paths']['library']
     else:
         raise NotImplementedError
 
