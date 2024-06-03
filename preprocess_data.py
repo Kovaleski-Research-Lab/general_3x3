@@ -1,3 +1,5 @@
+# collect volumes from h5py files
+
 import h5py
 import numpy as np
 import torch
@@ -75,7 +77,7 @@ def dump_volumes(volumes,idx,dump_path):
 
     with open(os.path.join(dump_path,filename),'wb') as f:
         pickle.dump(volumes, f)
-        print(f"{filename} dumped successfully.")
+        print(f"{filename} dumped successfully.", flush=True)
 
 if __name__=='__main__':    
 

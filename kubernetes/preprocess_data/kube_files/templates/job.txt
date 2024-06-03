@@ -13,16 +13,6 @@ spec:
       name: {{job_name}}
       namespace: gpn-mizzou-muem
     spec:
-      #affinity:
-      #  nodeAffinity:
-      #    preferredDuringSchedulingIgnoredDuringExecution:
-      #    - weight: 1
-      #      preference:
-      #        matchExpressions:
-      #          - key: nvidia.com/gpu.product
-      #            operator: In
-      #            values:
-      #            - "NVIDIA-A100-SXM4-80GB"
       restartPolicy: Never
       containers:
         - name: {{job_name}}
@@ -45,11 +35,6 @@ spec:
               mountPath: /develop/data
             - name: {{pvc_results}}
               mountPath: /develop/results
-      #tolerations:
-      #  - key: "nautilus.io/andy-varner"
-      #    operator: "Exists"
-      #    effect: "NoSchedule"
-      #nodeName: gpn-fiona-mizzou-2.rnet.missouri.edu
       volumes:
         - name: {{pvc_data}} 
           persistentVolumeClaim:
