@@ -69,7 +69,7 @@ def run(params):
 
     eps_data = sim.get_epsilon()
     print("dumping eps data...")
-    pickle.dump(eps_data, open(os.path.join(path_data, 'epsdata_{}.pkl'.format(idx)), 'wb'))
+    pickle.dump(eps_data, open(os.path.join(path_data, 'epsdata_{}.pkl'.format(str(idx).zfill(5))), 'wb'))
 
     # this outputs a 3GB file   
     #print("outputting full dft volume...")
