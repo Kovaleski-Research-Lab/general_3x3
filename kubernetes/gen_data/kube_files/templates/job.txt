@@ -12,16 +12,6 @@ spec:
       name: {{job_name}}
       namespace: gpn-mizzou-muem
     spec:
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            preference:
-              matchExpressions:
-                - key: nvidia.com/gpu.product
-                  operator: In
-                  values:
-                  - "NVIDIA-A100-SXM4-80GB"
       restartPolicy: Never
       containers:
         - name: {{job_name}}
@@ -32,7 +22,7 @@ spec:
                 git checkout andy_branch;
                 echo checkout out branch successfully for job {{job_name}} >> {{path_logs}}/test.log;
                 pip install h5py;
-                mpirun --allow-run-as-root -np {{num_cpus}} python3 run.py -idx {{n_index}} >> {{path_logs}}/{{n_index}}.log"]
+                mpirun --allow-run-as-root -np {{num_cpus}} python3 main.py -config configs/config.yaml -idx {{n_index}} >> {{path_logs}}/{{n_index}}.log"]
           resources:
             limits:
               memory: {{num_mem_lim}}
@@ -43,11 +33,6 @@ spec:
           volumeMounts:
             - name: {{pvc_name}}
               mountPath: /develop/results
-      tolerations:
-        - key: "nautilus.io/andy-varner"
-          operator: "Exists"
-          effect: "NoSchedule"
-      nodeName: gpn-fiona-mizzou-2.rnet.missouri.edu
       volumes:
         - name: {{pvc_name}} 
           persistentVolumeClaim:

@@ -4,7 +4,7 @@
 #----------------------------------------------------------
 
 task : 0
-deployment_mode : 0
+deployment_mode : 1
 idx :
 
 #--------------------------------
@@ -134,7 +134,26 @@ fps : 20
 #----------------------
 
 kube :
-  paths :
-    data : /develop/results
-    
+  namespace: gpn-mizzou-muem
+  pvc_name: meep-dataset-v2   
 
+  datagen_job :
+    paths :
+      data : /develop/results
+      image: docker.io/kovaleskilab/meep:v3_lightning
+      template: kube_files/templates/job.txt
+      simulations: /develop/results
+      logs: /develop/results/current_logs
+      job_files: /develop/data/job_files
+      #out_sims: /develop/results # this is really a duplicate. can change 'path_simulations' in run_datagen.py (template) if you want to clean this up.
+
+    num_mem_lim: 100G
+    num_mem_req: 100G
+    num_cpus: 32 
+    num_parallel_ops : 5
+
+    kill_time_min: 30
+    kill_tag: datagen 
+
+    num_sims: 1000 # this is the ending index
+    start_group_id: 0 
