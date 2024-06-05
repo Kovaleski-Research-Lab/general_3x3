@@ -5,22 +5,22 @@ from kubernetes import client, config
 import subprocess
 
 
-def exit_handler(): # always run this script after this file ends.
+def exit_handler(params,job): # always run this script after this file ends.
 
     config.load_kube_config()   # python can see the kube config now. now we can run API commands.
 
     v1 = client.CoreV1Api()   # initializing a tool to do kube stuff.
 
-    pod_list = v1.list_namespaced_pod(namespace = params["namespace"])    # get all pods currently running (1 pod generates a single meep sim) 
+    pod_list = v1.list_namespaced_pod(namespace = params['kube']['namespace'])    # get all pods currently running (1 pod generates a single meep sim) 
 
-    current_group = [ele.metadata.owner_references[0].name for ele in pod_list.items if(params["kill_tag"] in ele.metadata.name)]    # getting the name of the pod
+    current_group = [ele.metadata.owner_references[0].name for ele in pod_list.items if(params['kube'][job]['kill_tag'] in ele.metadata.name)]    # getting the name of the pod
 
     current_group = list(set(current_group))    # remove any duplicates
 
     for job_name in current_group:
         subprocess.run(["kubectl", "delete", "job", job_name])    # delete the kube job (a.k.a. pod)
 
-    print("\nCleaned up any jobs that include tag : %s\n" % params["kill_tag"])   
+    print("\nCleaned up any jobs that include tag : %s\n" % params['kube'][job]['kill_tag'])   
 
 # Create: Results Folders
 def create_folder(path):

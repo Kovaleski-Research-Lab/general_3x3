@@ -4,7 +4,7 @@
 #----------------------------------------------------------
 
 task : 0
-deployment_mode : 1
+deployment_mode : 0
 idx :
 
 #--------------------------------
@@ -12,7 +12,7 @@ idx :
 #--------------------------------
 
 paths :
-  data : /develop/data
+  data : /develop/data/meep-dataset-v2
   library : /develop/code/general_3x3/radii/neighbors_library_allrandom.pkl 
 #------------------------
 #   General Parameters
@@ -114,7 +114,7 @@ dft_slice_monitor:
 #   Simulation Parameters
 #-------------------------
 simulation:
-  until : 18
+  until : 1
   resolution : 80
   decay_rate : 0.0015
   dt : 50
@@ -141,7 +141,7 @@ kube :
     paths :
       data : /develop/results
       image: docker.io/kovaleskilab/meep:v3_lightning
-      template: kube_files/templates/job.txt
+      template: /develop/code/general_3x3/kubernetes/gen_data/kube_files/templates/job.txt
       simulations: /develop/results
       logs: /develop/results/current_logs
       job_files: /develop/data/job_files
@@ -150,10 +150,16 @@ kube :
     num_mem_lim: 100G
     num_mem_req: 100G
     num_cpus: 32 
-    num_parallel_ops : 5
+    num_parallel_ops : 16
 
     kill_time_min: 30
     kill_tag: datagen 
 
-    num_sims: 1000 # this is the ending index
-    start_group_id: 0 
+    num_sims: 1501 # this is the ending index
+    start_group_id: 168 
+
+  copy_job :
+    paths :
+     template : /develop/code/general_3x3/kubernetes/rclone/kube_files/templates/job.txt  
+    
+    kill_tag : copy
