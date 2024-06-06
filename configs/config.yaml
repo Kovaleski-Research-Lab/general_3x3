@@ -150,13 +150,13 @@ kube :
     num_mem_lim: 100G
     num_mem_req: 100G
     num_cpus: 32 
-    num_parallel_ops : 16
+    num_parallel_ops : 8
 
     kill_time_min: 30
     kill_tag: datagen 
 
     num_sims: 1501 # this is the ending index
-    start_group_id: 168 
+    start_group_id: 203 
 
   copy_job :
     paths :

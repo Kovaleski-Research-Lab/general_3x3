@@ -75,7 +75,7 @@ def launch_datagen(params):
 
             k = 0
             check_time_min = 2
-            wait_time_sec = 60
+            wait_time_sec = 10
 
             while(len(current_group) == params['kube']['datagen_job']['num_parallel_ops']): 
 
@@ -102,15 +102,30 @@ def launch_datagen(params):
                     # --- Remove pods that have finished. Jobs and pods share the same name.
                     pod_progress = [1 if(phase == "Succeeded") else 0 for phase in pod_statuses]
                     #pod_progress = [1 if(phase == "Succeeded" or phase == "Error" or phase == "Failed") else 0 for phase in pod_statuses]
+
+                    remove_group = []
+
                     for i, (job_name, remove_flag) in enumerate(zip(current_group, pod_progress)):
                         print(i, job_name, remove_flag)
                         if(remove_flag==1):
                             print()
                             #time.sleep(wait_time_sec)
-                            subprocess.run(["kubectl", "delete", "job", job_name])
-                            print(f"removed job {job_name} with {remove_flag} status.")
-                            current_group.remove(job_name)
-                            print()
+                            remove_group.append(job_name)
+                            #subprocess.run(["kubectl", "delete", "job", job_name])
+                            #print(f"removed job {job_name} with {remove_flag} status.")
+                            #current_group.remove(job_name)
+                            #print()
+                   
+                    if len(remove_group) > 0:
+
+                        for job in remove_group:
+
+                            print(f"removing job {job}...")
+                            
+                            subprocess.run(["kubectl", "delete", "job", job])
+                            time.sleep(wait_time_sec)
+
+                        remove_group.clear()
 
                     print("Log: Elapsed Time = %s minutes, Group Size = %s, Total (In Progress) = %s / %s" % ((wait_time_sec * (k + 1)) / 60, len(current_group), counter, params['kube']['datagen_job']['num_sims']))
 
