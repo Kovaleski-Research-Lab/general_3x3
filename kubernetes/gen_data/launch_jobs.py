@@ -126,9 +126,12 @@ def launch_datagen(params):
                             print(f"removing job {job}...")
                             
                             subprocess.run(["kubectl", "delete", "job", job])
+                            current_group.remove(job_name)
+                            
                             time.sleep(wait_time_sec)
 
                         remove_group.clear()
+                        
                         print(f"cleared remove_group. remove_group = {remove_group}")
 
                     print("Log: Elapsed Time = %s minutes, Group Size = %s, Total (In Progress) = %s / %s" % ((wait_time_sec * (k + 1)) / 60, len(current_group), counter, params['kube']['datagen_job']['num_sims']))
