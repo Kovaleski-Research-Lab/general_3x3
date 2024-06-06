@@ -119,6 +119,7 @@ def launch_datagen(params):
 
                     print(f"current_group = {current_group}")
                     print(f"remove group = {remove_group}")               
+
                     if len(remove_group) > 0:
 
                         for job in remove_group:
@@ -130,9 +131,10 @@ def launch_datagen(params):
                             
                             time.sleep(wait_time_sec)
 
-                        remove_group.clear()
-                        
-                        print(f"cleared remove_group. remove_group = {remove_group}")
+                    print("after removing jobs:")
+                    print(f"current_group = {current_group}")
+                    print(f"remove_group = {remove_group} - not empty. will be cleared in next iter")
+                    
 
                     print("Log: Elapsed Time = %s minutes, Group Size = %s, Total (In Progress) = %s / %s" % ((wait_time_sec * (k + 1)) / 60, len(current_group), counter, params['kube']['datagen_job']['num_sims']))
 
