@@ -79,6 +79,7 @@ def launch_datagen(params):
 
             while(len(current_group) == params['kube']['datagen_job']['num_parallel_ops']): 
 
+                print(f"len(current_group) = {len(current_group)}")
                 time.sleep(wait_time_sec)
 
                 # --- Check progress every k minutes
@@ -108,14 +109,16 @@ def launch_datagen(params):
                     for i, (job_name, remove_flag) in enumerate(zip(current_group, pod_progress)):
                         print(i, job_name, remove_flag)
                         if(remove_flag==1):
-                            print()
+                            #print()
                             #time.sleep(wait_time_sec)
                             remove_group.append(job_name)
                             #subprocess.run(["kubectl", "delete", "job", job_name])
                             #print(f"removed job {job_name} with {remove_flag} status.")
                             #current_group.remove(job_name)
                             #print()
-                   
+
+                    print(f"current_group = {current_group}")
+                    print(f"remove group = {remove_group}")               
                     if len(remove_group) > 0:
 
                         for job in remove_group:
@@ -126,11 +129,12 @@ def launch_datagen(params):
                             time.sleep(wait_time_sec)
 
                         remove_group.clear()
+                        print(f"cleared remove_group. remove_group = {remove_group}")
 
                     print("Log: Elapsed Time = %s minutes, Group Size = %s, Total (In Progress) = %s / %s" % ((wait_time_sec * (k + 1)) / 60, len(current_group), counter, params['kube']['datagen_job']['num_sims']))
 
                     if(sum(pod_progress) > 0):
-                        print("\nJobs Finished. Updating...\n")
+                        print("\nUpdating...\n")
                         break                    
 
                 k += 1
