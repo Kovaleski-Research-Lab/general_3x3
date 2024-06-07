@@ -36,6 +36,8 @@ def launch_datagen(params):
  
     current_group = []
 
+    include_list = [704, 705, 826, 827, 828, 829, 830]
+
     while(counter < params['kube']['datagen_job']['num_sims']):
 
         if(len(current_group) < params['kube']['datagen_job']['num_parallel_ops']):
@@ -45,30 +47,30 @@ def launch_datagen(params):
 
             for i in range(counter, counter + num_to_launch):
 
-                job_name = "%s-%s" % (params['kube']['datagen_job']['kill_tag'], str(counter).zfill(4))
+                if counter in include_list:
+                    job_name = "%s-%s" % (params['kube']['datagen_job']['kill_tag'], str(counter).zfill(4))
 
-                current_group.append(job_name)
-                print(f"appended current group. now current_group = {current_group}")
-                    
-                template_info = {"job_name": job_name, 
-                                 "n_index": str(counter),
-                                 "num_cpus": str(params['kube']['datagen_job']['num_cpus']),
-                                 "num_mem_lim": str(params['kube']['datagen_job']['num_mem_lim']),
-                                 "num_mem_req": str(params['kube']['datagen_job']['num_mem_req']),
-                                 "pvc_name": str(params['kube']['pvc_name']),
-                                 "path_out_sims": params['kube']['datagen_job']['paths']['simulations'],
-                                 "path_image": params['kube']['datagen_job']['paths']['image'],
-                                 "path_logs": params['kube']['datagen_job']['paths']['logs']}
+                    current_group.append(job_name)
+                        
+                    template_info = {"job_name": job_name, 
+                                     "n_index": str(counter),
+                                     "num_cpus": str(params['kube']['datagen_job']['num_cpus']),
+                                     "num_mem_lim": str(params['kube']['datagen_job']['num_mem_lim']),
+                                     "num_mem_req": str(params['kube']['datagen_job']['num_mem_req']),
+                                     "pvc_name": str(params['kube']['pvc_name']),
+                                     "path_out_sims": params['kube']['datagen_job']['paths']['simulations'],
+                                     "path_image": params['kube']['datagen_job']['paths']['image'],
+                                     "path_logs": params['kube']['datagen_job']['paths']['logs']}
 
-                filled_template = template.render(template_info)
+                    filled_template = template.render(template_info)
 
-                path_job = os.path.join(params['kube']['datagen_job']['paths']['job_files'], job_name + ".yaml") 
+                    path_job = os.path.join(params['kube']['datagen_job']['paths']['job_files'], job_name + ".yaml") 
 
-                save_file(path_job, filled_template)
+                    save_file(path_job, filled_template)
 
-                subprocess.run(["kubectl", "apply", "-f", path_job])
+                    subprocess.run(["kubectl", "apply", "-f", path_job])
 
-                counter += 1 
+                    counter += 1 
         # -- Wait for a processes to finish
 
         else:
@@ -79,7 +81,6 @@ def launch_datagen(params):
 
             while(len(current_group) == params['kube']['datagen_job']['num_parallel_ops']): 
 
-                print(f"len(current_group) = {len(current_group)}")
                 time.sleep(wait_time_sec)
 
                 # --- Check progress every k minutes
@@ -107,18 +108,9 @@ def launch_datagen(params):
                     remove_group = []
 
                     for i, (job_name, remove_flag) in enumerate(zip(current_group, pod_progress)):
-                        print(i, job_name, remove_flag)
+                        
                         if(remove_flag==1):
-                            #print()
-                            #time.sleep(wait_time_sec)
                             remove_group.append(job_name)
-                            #subprocess.run(["kubectl", "delete", "job", job_name])
-                            #print(f"removed job {job_name} with {remove_flag} status.")
-                            #current_group.remove(job_name)
-                            #print()
-
-                    print(f"current_group = {current_group}")
-                    print(f"remove group = {remove_group}")               
 
                     if len(remove_group) > 0:
 
@@ -130,11 +122,6 @@ def launch_datagen(params):
                             current_group.remove(job)
                             
                             time.sleep(wait_time_sec)
-
-                    print("after removing jobs:")
-                    print(f"current_group = {current_group}")
-                    print(f"remove_group = {remove_group} - if not empty, will be cleared in next iter")
-                    
 
                     print("Log: Elapsed Time = %s minutes, Group Size = %s, Total (In Progress) = %s / %s" % ((wait_time_sec * (k + 1)) / 60, len(current_group), counter, params['kube']['datagen_job']['num_sims']))
 
@@ -150,7 +137,7 @@ def launch_datagen(params):
 if __name__=="__main__":
 
     kill = False
-    kill = True
+    #kill = True
 
     params = load_config(sys.argv)
 

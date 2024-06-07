@@ -114,7 +114,7 @@ dft_slice_monitor:
 #   Simulation Parameters
 #-------------------------
 simulation:
-  until : 1
+  until : 18
   resolution : 80
   decay_rate : 0.0015
   dt : 50
@@ -147,16 +147,16 @@ kube :
       job_files: /develop/data/job_files
       #out_sims: /develop/results # this is really a duplicate. can change 'path_simulations' in run_datagen.py (template) if you want to clean this up.
 
-    num_mem_lim: 100G
-    num_mem_req: 100G
+    num_mem_lim: 200G
+    num_mem_req: 200G
     num_cpus: 32 
-    num_parallel_ops : 32
+    num_parallel_ops : 2
 
     kill_time_min: 30
     kill_tag: datagen 
 
     num_sims: 1501 # this is the ending index
-    start_group_id: 297 
+    start_group_id: 0 
 
   copy_job :
     paths :

@@ -63,17 +63,17 @@ def run(params):
     ## Do not run this if sim = get_vis() is called. (You'll extraneously run the simulation twice)
     sim.run(until=params['simulation']['until'])
     
-    #meta_data = sim.get_array_metadata(dft_cell = dft_obj)
-    #print("dumping metadata...")
-    #pickle.dump(meta_data, open(os.path.join(path_data, 'metadata_{}.pkl'.format(str(idx).zfill(5))), 'wb'))
+    meta_data = sim.get_array_metadata(dft_cell = dft_obj)
+    print("dumping metadata...")
+    pickle.dump(meta_data, open(os.path.join(path_data, 'metadata_{}.pkl'.format(str(idx).zfill(5))), 'wb'))
 
     eps_data = sim.get_epsilon()
     print("dumping eps data...")
     pickle.dump(eps_data, open(os.path.join(path_data, 'epsdata_{}.pkl'.format(str(idx).zfill(5))), 'wb'))
 
     # this outputs a 3GB file   
-    #print("outputting full dft volume...")
-    #sim.output_dft(dft_obj, os.path.join(path_data, 'dft_{}'.format(str(idx).zfill(5))))
+    print("outputting full dft volume...")
+    sim.output_dft(dft_obj, os.path.join(path_data, 'dft_{}'.format(str(idx).zfill(5))))
 
 
     ## Everything we need to train the surrogate model goes in the 'slices' folder ##
