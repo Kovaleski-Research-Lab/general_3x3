@@ -16,7 +16,7 @@ def get_volumes(params,meta_data,dft_data):
     #z_top = params['loc_z_timedep_mon']
     z_top = loc_z_timedep_mon
     z_bottom = z_top - 0.775
-
+   
     x, y, z, w = meta_data
     z_loc1 = np.where(z > z_top)[0][0] + 1 
     z_loc2 = np.where(z > z_bottom)[0][0]
@@ -79,39 +79,33 @@ def dump_volumes(volumes,idx,dump_path):
         pickle.dump(volumes, f)
         print(f"{filename} dumped successfully.", flush=True)
 
-if __name__=='__main__':    
+def run(params):    
 
-    kube = True
-    print("kube=True") 
-    if kube == True:
-        path_data = '/develop/data'
-        dump_path = '/develop/results' # this is the dft-volumes pvc
-    else:
-        path_data = '/develop/data/meep-dataset-v2'
-
-    print(f"path_data = {path_data}")
-    print(f"path_results = {dump_path}")
-
-    #path_library = '/develop/code/general_3x3/neighbors_library_allrandom.pkl'
-    #dump_path = os.path.join(path_data,"volumes")
-    params = yaml.load(open("/develop/code/general_3x3/config.yaml","r"),Loader=yaml.FullLoader)
-
-    if kube == True:
+    if params['deployment_mode'] == 0: 
+        path_data = params['paths']['data'] 
+        path_dump = params['paths']['dump']
+        exclude = ['volumes','reduced_data','pt','preprocessed_data','preprocessed_data_copy','volumes_temp']
+    elif params['deployment_mode'] == 1:
+        path_data = params['kube']['reduce_job']['paths']['data'] 
+        dump_path = params['kube']['reduce_job']['paths']['dump']  # this is the dft-volumes pvc
         exclude = ['current_logs', 'slices', 'volumes']
         include = [val for val in range(0,1501)]
         include = [str(val).zfill(4) for val in include]
     else:
-        exclude = ['volumes','reduced_data','pt']
-    print("about to scan directories in path_data")
+        raise NotImplementedError
+
+    print(f"path_data = {path_data}")
+    print(f"path_results = {path_dump}")
+
+    print("Scanning directories in path_data...")
 
     with os.scandir(path_data) as entries:
-        
+         
         for entry in entries:
 
-            #if entry.is_dir() and entry.name != "volumes":
-            #if entry.is_dir() and entry.name not in exclude:
-            if entry.is_dir() and entry.name in include:
-                     
+            if entry.is_dir() and entry.name not in exclude:
+            #if entry.is_dir() and entry.name in include:
+                             
                 with os.scandir(entry.path) as files:
                      
                     for file_entry in files:
@@ -131,13 +125,14 @@ if __name__=='__main__':
         
                                     print("h5py File Error")
 
-                            elif file_entry.name.endswith(".pkl"):
+                            elif file_entry.name.endswith(".pkl") and 'metadata' in file_entry.name:
                                 try:
                                     pkl_path = os.path.join(path_data, entry, file_entry)
+                                    print("pickle path:")
+                                    print(pkl_path)
                                     pkl_file = pickle.load(open(pkl_path, "rb"))
                             
                                 except:
                                     print("pickle error")
-
                     volumes = get_volumes(params,pkl_file,h5_file)
-                    dump_volumes(volumes,idx,dump_path)
+                    dump_volumes(volumes,idx,path_dump)

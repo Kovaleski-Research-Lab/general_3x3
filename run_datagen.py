@@ -15,6 +15,10 @@ from utils.meep_helpers import get_z_location, mod_dft_fields, get_slice_from_me
 def run(params):
 
     idx = params['idx'] 
+    if idx == None:
+        err_message = "Need to pass -idx {int value} as command line argument."
+        raise NotImplementedError(err_message)
+
     path_library = params['paths']['library']
 
     if params['deployment_mode'] == 0:

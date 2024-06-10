@@ -3,16 +3,17 @@
 #    Define deployment mode - 0: Running locally, 1: kubernetes
 #----------------------------------------------------------
 
-task : 0
-deployment_mode : 1
+task : 1
+deployment_mode : 0
 idx :
 
-#--------------------------------
-#       All paths
-#--------------------------------
+#-----------------------------------
+#       'Local' paths (not kube)
+#-----------------------------------
 
 paths :
   data : /develop/data/meep-dataset-v2
+  dump : /develop/data/meep-dataset-v2/volumes
   library : /develop/code/general_3x3/radii/neighbors_library_allrandom.pkl 
 #------------------------
 #   General Parameters
@@ -155,11 +156,17 @@ kube :
     kill_time_min: 30
     kill_tag: datagen 
 
-    num_sims: 1501 # this is the ending index
-    start_group_id: 0 
+    num_sims: 831 # this is the ending index
+    start_group_id: 703 
 
   copy_job :
     paths :
      template : /develop/code/general_3x3/kubernetes/rclone/kube_files/templates/job.txt  
     
     kill_tag : copy
+  
+  reduce_job :
+    paths :
+      data : '/develop/data'
+      dump : '/develop/results' # this is the dft-volumes pvc
+

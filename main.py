@@ -9,6 +9,7 @@ import sys
 
 from utils.general import load_config, parse_args
 import run_datagen
+import reduce_data
 
 def run(params):
 
@@ -18,8 +19,7 @@ def run(params):
 
     elif params['task'] == 1:
         
-        from IPython import embed; embed()        
-        #preprocess.run()     
+        reduce_data.run(params)     
 
     else:
 
