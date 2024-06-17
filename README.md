@@ -111,6 +111,7 @@ kubectl get pvc
   - kube.datagen_job.start_group_id: 0 (or whatever index you want the first sample to come from the .pkl file output of `generate_radii.py`)
   - kube.datagen_job.num_sims: 1500 (or however many sims you want to run total)
   - kube.datagen_job.num_parallel_ops: 2 (If you want more than 2, you will have to contact a [local administrator](https://github.com/MU-HPDI/nautilus/wiki/Getting-Started) about setting up a [taint](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/).
+  - kube.pvc_name : should match metadata.name in `/kubernetes/storage.yaml`
  
   2. From your (launch kube) Docker container, navigate to `/develop/code/general_3x3/kubernetes/gen_data` and run
      ```
@@ -136,6 +137,10 @@ kubectl get pvc
     ```
     ```
     ls /develop/results
+    ```
+    To see meep outputs:
+    ```
+    cd /develop/results/current_logs
     ```
 **Step 2** Reduce the raw data into volumes.
 
