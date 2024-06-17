@@ -90,6 +90,18 @@ The output of `reduce_data.py` is a .pkl file with the naming convention `000{id
 
 #### Option 2: Scale up, launch Kubernetes jobs:
 
+**Step 2** Create storage
+
+Navigate to `general_3x3/kubernetes/`. Update 'metadata.name` to your desired pvc name.
+Run
+```
+kubectl apply -f storage.yaml
+```
+Verify creation of storage volume
+```
+kubectl get pvc
+```
+
 **Step 1** Generate the data
   
   1. Update the [config file](https://github.com/Kovaleski-Research-Lab/general_3x3/blob/andy_branch/configs/config.yaml) in an editor:
@@ -104,6 +116,27 @@ The output of `reduce_data.py` is a .pkl file with the naming convention `000{id
      ```
      python3 launch_jobs.py -config ../configs/config.yaml
      ```
+  3. Monitor data generation pods
+     ```
+     kubectl get pods
+     ```
+     ```
+     kubectl describe pod {pod_name}
+     ```
+     ```
+     kubectl logs {pod_name}
+     ```
+ 4. Use an interactive pod to check what simulation files are being generated
+    ```
+    kubectl apply -f monitor.yaml
+    ```
+    Once the pod status for `monitor-dataset` is `Running` enter the pod as interactive root user,
+    ```
+    kubectl exec -it monitor-dataset -- /bin/bash
+    ```
+    ```
+    ls /develop/results
+    ```
 **Step 2** Reduce the raw data into volumes.
 
   1. Update the [config file](https://github.com/Kovaleski-Research-Lab/general_3x3/blob/andy_branch/configs/config.yaml) in an editor:
