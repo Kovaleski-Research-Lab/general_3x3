@@ -2,13 +2,116 @@
 
 A wrapper for [meep code](https://meep.readthedocs.io/en/latest/) that generates a dataset of electric field data for 3x3 meta-atom pillars. The radii of the pillars are generated randomly from values within the 75 nm to 150 nm range (See [single pillar sim](https://github.com/Kovaleski-Research-Lab/single_pillar_sim) for reference).
 
-The simulations are performed, as described in [this publication](https://www.spiedigitallibrary.org/conference-proceedings-of-spie/13042/1304206/Time-series-neural-networks-to-predict-electromagnetic-wave-propagation/10.1117/12.3013488.full), with the finite-difference time-domain (FDTD) method using an open-source software package5 for 3x3 configurations of high dielectric nanopillars, a class of meta-atom that enables wavefront modification for optical wavelengths.6 The pillar radii are randomly generated for values in the range of 75 nm to 250 nm. The simulations are performed with a resolution of 80 pixels/µm using Bloch periodic boundary conditions in the lateral directions and perfectly matched layers (PML) upstream and downstream.7 A model of the computational cell is shown in Fig. 1.A, where a Gaussian source, polarized in the Ey direction, is normally incident on the silicon nanopillars (n = 3.48) embedded in a layer of polydimethylsiloxane (PDMS) (n = 1.4) and situated on a fused silica substrate (n = 1.44). A single nanopillar lattice size is 680 nm. Extending this configuration to three nanopillars in both the x and y directions results in a lattice area of 2040 nm² for the neighborhood. The simulation outputs discrete Fourier transmormed (DFT) fields, which can be used to analyze electric fields to understand their spectral content while keeping the spatial dependence of the field intact. As the wave propagates in the z-direction and interacts with the nonuniform pillars, scattering occurs. To prevent any component of the scattered wave traveling in the x- or y-direction from contaminating the region of interest due to the periodic boundary, a buffer of 4000 nm is established in both the x and y directions, as presented in Fig. 1.B. To ensure the buffer distance is sufficient, consider the pulse length of the Gaussian source, represented by the time-bandwidth product, ∆t∆f ≈0.88. With the frequency width ∆f of the Gaussian source defined as 178.76 THz to account for wavelengths ranging from 1060 nm to 2881 nm, the pulse length ∆t, corresponding to the full width at half maximum, is approximately 4.9 fs. The time required for any component of the wave to propagate orthogonal to the z-direction and reach the nearest pillar in the periodic boundary is calculated based on the velocity of wave propagation through PDMS, which is 0.214 µm/fs. For a distance of 4 µm, approximately 18.6 fs is needed, corresponding to 3.8 pulse lengths. Hence, establishing a buffer region extending 4 µm (4000 nm) in both the x and y directions guarantees the meaningful propagation of the wave through and beyond the pillars, such that the DFT fields in the region of interest are collected without contamination arising from the periodic boundaries.
+The details of the simulation are described in [this publication](https://www.spiedigitallibrary.org/conference-proceedings-of-spie/13042/1304206/Time-series-neural-networks-to-predict-electromagnetic-wave-propagation/10.1117/12.3013488.full).
 
 ## Folder descriptions
 
 - [kubernetes folder](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/kubernetes) : contains files for generating data and reducing data (reducing raw data to volumes) via kubernetes. Data transfer via rclone is also supported.
 - [configs folder](https://github.com/Kovaleski-Research-Lab/meta_atom_rnn/tree/main/configs) : contains the configuration (.yaml) file for the entire pipeline, including a flag `deployment_mode` which gives the user the option to develop locally (via [Docker](https://hub.docker.com/layers/kovaleskilab/meep/v3_lightning/images/sha256-e550d12e2c85e095e8fd734eedba7104e9561e86e73aac545614323fda93efb2?context=repo)) with a limited dataset, or using the Nautilus cluster via Kubernetes. The config file also contains a parameter called `task`, which allows the user to either generate raw data or preprocess (reduce) the raw data. Additionally, the config file contains paths, and meep parameters.
-- [Preprocess_data folder](https://github.com/Kovaleski-Research-Lab/meta_atom_rnn/tree/main/preprocess_data) : contains a script that takes in volumes of DFT electric field data from meep simulations and conditions them for the time series networks here.
-- [main.py](https://github.com/Kovaleski-Research-Lab/meta_atom_rnn/blob/main/main.py) is the script we run for all processes if we are developing locally. If we're training locally, `train.sh` automates the experiments.
-  - Run `main.py -config configs/params.yaml`. Make sure configs/params.yaml is correct for your preferred deployment_mode and experiment, as well as network training parameters, paths, etc.
-- [Utils folder](https://github.com/Kovaleski-Research-Lab/meta_atom_rnn/tree/main/utils) : contains all our implementations of time series networks using PyTorch lightning, as well as helper functions for data processing, building plots, etc.
+- [meep utils folder](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/meep_utils) : contains files with python wrappers for building meep sources, simulations, geometries, and field monitors.
+- [radii folder](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/radii) : contains a script for generating 3x3 configurations of pillar radii between 75 nm and 250 nm. Outputs a .pkl file with a python list containing 1x9 sublists. This pickle file is used by `run_datagen.py`.
+- [utils folder](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/utils) : contains helper scripts for general python programming and data modification scripting.
+
+## How to run this code
+
+### Prerequisites:
+1. [Kubernetes](https://github.com/Kovaleski-Research-Lab/Global-Lab-Repo/blob/main/sops/software_development/kubernetes.md) must be installed if using Nautilus resources.
+2. Must be running the appropriate docker container for [local deployment](https://hub.docker.com/layers/kovaleskilab/meep/v3_lightning/images/sha256-e550d12e2c85e095e8fd734eedba7104e9561e86e73aac545614323fda93efb2?context=repo) or [kubernetes deployment](https://hub.docker.com/layers/kovaleskilab/meep_ml/launcher/images/sha256-464ec5f4310603229e96b5beae9355055e2fb2de2027539c3d6bef94b7b5a4f1?context=repo)
+3. Your docker container for local deployment should be mounted as follows (data is mounted to agkgd4 - code and results should be unique to you):
+   ```
+   -v /home/{your_pawprint}/Documents/code:/develop/code \
+   -v /home/agkgd4/Documents/data:/develop/data \
+   -v /home/{your_pawprint}/Documents/results:/develop/results \
+   ```
+4. Your docker container for kubernetes deployment should be mounted as follows:
+   ```
+   -v /home/{your_pawprint}/Documents/code:/develop/code \
+   -v /home/agkgd4/Documents/data:/develop/data \
+   -v /home/{your_pawprint}/Documents/results:/develop/results \
+   -v ~/.kube:/root/.kube 
+   ```
+  - Note: You may prefer a conda environment instead of a docker container for launching Kubernetes jobs. A barebones environment should have jinja2 installed (not necessary to install kubernetes in the conda environment if you used `snap install` per the Kubernetes link in item 1.
+
+### Running the code
+
+The output of `run_datagen.py` is stored in a folder generated by the script with the naming convention `000{idx}`. Regardless of `deployment_mode`, the file structure is as follows:
+
+/000{idx}/  
+ ├─ dft_0000{idx}.h5 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 2.4G, output of `sim.output_dft()`. More at: [meep dft fields](https://meep.readthedocs.io/en/latest/Mode_Decomposition/#exporting-frequency-domain-fields)  
+ ├─ epsdata_0000{idx}.pkl  &nbsp;&nbsp;&nbsp;&nbsp;# 921M, output of `sim.get_epsilon()`. More at: [epsilon data](https://meep.readthedocs.io/en/latest/Python_User_Interface/#array-slices)  
+ ├─ metadata_0000{idx}.pkl &nbsp;&nbsp;# 79M, output of `sim.get_array_metadata`. More at: [meep metadata](https://meep.readthedocs.io/en/latest/Python_User_Interface/#array-metadata)  
+
+The output of `reduce_data.py` is a .pkl file with the naming convention `000{idx}.pkl`. Regardless of `deployment_mode`, the file structure is as follows:
+
+/volumes/  
+ ├─ 000{idx}.pkl &nbsp;# 398M
+
+- File sizes are based on a meep resolution of 80 (Can be adjusted in config file).
+
+#### Option 1: Running locally:
+- Note: Because the storage requirements for this dataset are large, large-scale data generation using the Nautilus cluster via Kubernetes is recommended.
+
+**Step 1** Generate the data (This generates a single sample. To run multiple samples, a bash script is recommended - However, it is not recommeded to do this locally becuase of storage considerations)
+  
+  1. Update the [config file](https://github.com/Kovaleski-Research-Lab/general_3x3/blob/andy_branch/configs/config.yaml) in an editor:
+     
+  - deployment_mode : 0
+  - task : 0
+  - idx : {any integer value representing the desired index from the .pkl file output of `generate_radii.py`}
+
+  2. Ensure you are looking at `andy_branch` by navigating to `/code/general_3x3` and running
+     ```
+     git status
+     ```
+     If the output is **not** on branch `andy_branch`, run the command,
+     ```
+     git checkout andy_branch
+     ```
+     
+  3. From your Docker container, navigate to `/develop/code/general_3x3` and run
+     ```
+     mpirun -np 32 python3 main.py -config configs/config.yaml
+     ```
+     - Note: This command expects 32 CPU cores to be available.
+     
+**Step 2** Reduce the raw data into volumes.
+
+  1. Update the [config file](https://github.com/Kovaleski-Research-Lab/general_3x3/blob/andy_branch/configs/config.yaml) in an editor:
+     
+  - deployment_mode : 0
+  - task : 1
+
+  2. Ensure you are looking at `andy_branch` (See Step 2 above)
+
+  3. From your Docker container, navigate to `/develop/code/general_3x3` and run
+     ```
+     python3 main.py -config configs/config.yaml
+     ```
+
+#### Option 2: Scale up, launch Kubernetes jobs:
+
+**Step 1** Generate the data
+  
+  1. Update the [config file](https://github.com/Kovaleski-Research-Lab/general_3x3/blob/andy_branch/configs/config.yaml) in an editor:
+     
+  - deployment_mode : 1
+  - task : 0
+  - kube.datagen_job.start_group_id: 0 (or whatever index you want the first sample to come from the .pkl file output of `generate_radii.py`)
+  - kube.datagen_job.num_sims: 1500 (or however many sims you want to run total)
+  - kube.datagen_job.num_parallel_ops: 2 (If you want more than 2, you will have to contact a [local administrator](https://github.com/MU-HPDI/nautilus/wiki/Getting-Started) about setting up a [taint](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/).
+ 
+  2. From your (launch kube) Docker container, navigate to `/develop/code/general_3x3/kubernetes/gen_data` and run
+     ```
+     python3 launch_jobs.py -config ../configs/config.yaml
+     ```
+**Step 2** Reduce the raw data into volumes.
+
+  1. Update the [config file](https://github.com/Kovaleski-Research-Lab/general_3x3/blob/andy_branch/configs/config.yaml) in an editor:
+     
+  - deployment_mode : 1
+  - task : 1
+
+  2. From your (launch kube) Docker container, navigate to `/develop/code/general_3x3/kubernetes/reduce_data` and run
+     ```
+     python3 launch_jobs.py -config ../configs/config.yaml
+     ```
