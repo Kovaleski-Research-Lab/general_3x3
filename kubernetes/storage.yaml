@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: meep-results
+spec:
+  storageClassName: rook-cephfs
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 3T
