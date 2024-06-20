@@ -114,7 +114,15 @@ def build_timedep_monitor(params, sim):
         freq_list = [1/wl for wl in wavelength_list]
         monitor_params['freq_list'] = freq_list
 
-    flux_obj = sim.add_flux(freq_list, flux_region)
+    
+    if params['source']['type'] == 'continuous':
+
+        flux_obj = sim.add_flux(freq_list[2], 0, 1, flux_region)
+        
+    elif params['source']['type'] == 'gaussian':
+        
+        flux_obj = sim.add_flux(freq_list, flux_region)
+
     return flux_obj,params
 
 if __name__ == "__main__":

@@ -4,11 +4,12 @@ from meep_utils import geometries
 
 
 def continuous_source(params):
-    
+
+        
     frequency = params['frequency']
     wavelength = params['wavelength']
     component = params['component']
-
+    
     if frequency is None and wavelength is None:
         #logger.error("Either frequency or wavelength need to be specified")
         raise NotImplementedError
@@ -169,5 +170,5 @@ if __name__ == "__main__":
     params = yaml.load(open('config.yaml'), Loader = yaml.FullLoader)
     geo,pml,mon_vol = geometries.build_andy_metasurface_neighborhood(params)
     source = build_andy_source(params)
-    from IPython import embed; embed();
+    from IPython import embed; embed(); exit()
 

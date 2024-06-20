@@ -3,9 +3,10 @@
 #    Define deployment mode - 0: Running locally, 1: kubernetes
 #----------------------------------------------------------
 
-task : 1
+task : 0
 deployment_mode : 0
 idx :
+res :
 
 #-----------------------------------
 #       'Local' paths (not kube)
@@ -169,4 +170,3 @@ kube :
     paths :
       data : '/develop/data'
       dump : '/develop/results' # this is the dft-volumes pvc
-
