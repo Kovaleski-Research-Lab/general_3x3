@@ -117,7 +117,7 @@ dft_slice_monitor:
 #-------------------------
 simulation:
   until : 18
-  resolution : 80
+  resolution : 60
   decay_rate : 0.0015
   dt : 50
   source_component:
