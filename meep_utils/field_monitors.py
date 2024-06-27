@@ -52,8 +52,6 @@ def build_dft_slice_monitor(params, sim, monitor_volume): # passing monitor volu
     return dft_obj
 
 
-    
-
 def build_dft_monitor(params, sim, monitor_volume):
 
     monitor_params = params['monitor']
@@ -122,7 +120,7 @@ def build_timedep_monitor(params, sim):
     elif params['source']['type'] == 'gaussian':
         
         flux_obj = sim.add_flux(freq_list, flux_region)
-
+    
     return flux_obj,params
 
 if __name__ == "__main__":

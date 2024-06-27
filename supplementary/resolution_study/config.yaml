@@ -1,0 +1,109 @@
+
+#### ---- config file ---- ####
+#---- This file contains all the configuration parameters to be passed as a command line
+#---- argument to main.py, i.e. python3 main.py -config configs.yaml.
+
+#---- All values NOT populated in this file require math or python packages, so they 
+#---- are updated in utils/update_config.py
+
+#---- If you want to run the experiment which identifies the characteristics,
+#---- let experiment.animate = 0
+
+#---- If you want to generate an animation of the fields through a single pillar, let
+#---- experiment.animate = 1. an mp4 will be generated and sent to /src/single_pillar/vis.
+
+
+
+####----- Simulation params for single pillar simulation -----###
+#-----------------------------------------------------------###
+
+resolution : 
+
+cell :
+  x : 
+  y : 
+  z :
+
+cell_size :
+
+wavelength : 1.55
+
+freq : 
+
+k_point : 
+
+symmetries:
+
+####----- Geometry params for single pillar simulation ----- ###
+#----------------------------------------------------------- ###
+
+
+#       2D cross section of 3x3 neighborhood:
+#       _________________
+#      |                 |
+#      |                 |<--- PDMS 
+#      |  ___  ___  ___  |
+#      |  | |  | |  | |  |
+#      |  | |  | |  | |<-|-- Amorphous Silicon - pillar radii range is 0.075 - 0.250 micron
+#      |  | |  | |  | |  |
+#      |__|_|__|_|__|_|__|
+#      |                 |
+#      |                 |<--- Fused Silica (substrate)
+#      |_________________|
+#      
+#      |--a--|--a--|--a--|
+
+#---------------------------------------------------------- ###
+
+fusedSilica :
+  n : 1.44
+  width : 0.780
+  center :
+
+PDMS :
+  n : 1.4
+  width : 1.560
+  center :
+
+amorphousSi :
+  n : 3.48
+  height : 1.020
+  center :
+  radius_min : 0.075
+  radius_max : 0.250
+
+pml:
+  thickness : 0.780
+  layers :
+
+a : 0.680   # lattice period 
+idx : # index of neighbors library list
+
+####----- Source params for single pillar simulation -----###
+#---------------------------------------------------------###
+
+source :
+  center: 
+  cmpt : 
+
+####----- Flux region params for single pillar simulation -----###
+#--------------------------------------------------------------###
+
+flux :
+  nfreq : 1
+  df : 0
+  center :
+
+##-- Experimental params for obtaining single pillar characteristics --##
+#--------------------------------------------------------------------####
+
+experiment :
+  num : 8 # this is the number of pillars we will build
+  animate : 0
+
+vis :
+  fps : 20
+
+paths :
+  root : "/develop/data/meep_studies/resolution_study"
+  library : "/develop/code/general_3x3/radii/neighbors_library_allrandom.pkl"

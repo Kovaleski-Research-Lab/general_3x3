@@ -105,13 +105,8 @@ def build_silica_pdms_substrate(params:dict) -> list:
     
     return [fused_silica, pdms]
 
-def build_andy_metasurface_neighborhood(params, radii = None):
-    '''
-    This is basically the same code as the parameter manager's calculate_dependencies
-    from the surrogate model code. Just with additional comments and different
-    organization.
-    Builds a fused silica + pdms substrate with a Nx x Ny pillar neighborhood.
-    '''
+def get_substrate_params(params):
+
     geometry_params = params['geometry']
     Nx, Ny = geometry_params['neighborhood_size']
     #logger.info("Creating metasurface neighborhood. Nx,Ny : {},{}".format(Nx,Ny))
@@ -243,17 +238,44 @@ def build_andy_metasurface_neighborhood(params, radii = None):
             'size_z_buffer': size_z_buffer,
             'offset_x_buffer': offset_x_buffer,
             'offset_y_buffer': offset_y_buffer,
-            'offset_z_buffer': offset_z_buffer
-            }
+            'offset_z_buffer': offset_z_buffer,
+            'size_x_non_buffer': size_x_non_buffer,
+            'size_y_non_buffer': size_y_non_buffer,
+            'loc_z_center_cell': loc_z_center_cell, 
+            'loc_x_center_cell': loc_x_center_cell,
+            'loc_y_center_cell': loc_y_center_cell,
+       }
 
     params['substrate_params'] = substrate_params
 
+    return params
+
+def build_andy_metasurface_neighborhood(params, radii = None):
+
+    '''
+    This is basically the same code as the parameter manager's calculate_dependencies
+    from the surrogate model code. Just with additional comments and different
+    organization.
+    Builds a fused silica + pdms substrate with a Nx x Ny pillar neighborhood.
+    '''
+
+    params = get_substrate_params(params)
+    Nx, Ny = params['geometry']['neighborhood_size']
+    unit_cell_size = params['geometry']['unit_cell_size']
+    size_x_cell = params['cell_x']
+    size_y_cell = params['cell_y']
+    loc_z_pillar = params['geometry']['loc_z_pillar']
+    height_pillar = params['geometry']['height_pillar']
+    offset_x_buffer = params['substrate_params']['offset_x_buffer']
+    offset_y_buffer = params['substrate_params']['offset_y_buffer']
+
+    substrate_params = params['substrate_params'] 
     substrate = build_silica_pdms_substrate(substrate_params)
 
     metasurface = [i for i in substrate]
 
     #Now for the pillars
-    material_index_pillars = geometry_params['material_index_meta_atom']
+    material_index_pillars = params['geometry']['material_index_meta_atom']
     
     if radii == None:
         radii = [0.2 for _ in range(0,Nx*Ny)]
@@ -275,29 +297,30 @@ def build_andy_metasurface_neighborhood(params, radii = None):
             count += 1
 
     #Now for the pml layers
-    pml_layers = [mp.PML(thickness = thickness_pml, direction = mp.Z)]
+    pml_layers = [mp.PML(thickness = params['geometry']['thickness_pml'], direction = mp.Z)]
 
     params['geometry']['pml_layers'] = pml_layers
     #pml_layers = []
 
-    params['source']['loc_z_source'] = round(thickness_pml + ((size_z_fused_silica-thickness_pml) * 0.2) - params['cell_z'] / 2, 4)
+    params['source']['loc_z_source'] = round(params['geometry']['thickness_pml'] + ((params['substrate_params']['size_z_fused_silica']-params['geometry']['thickness_pml']) * 0.2) - params['cell_z'] / 2, 4)
     # adjusting monitor volume to reduce the size
     top_monitor = params['source']['loc_z_source'] + 4.5
     bottom_monitor = -params['cell_z'] / 2 + params['geometry']['thickness_pml']
     size_z_reduced = top_monitor - bottom_monitor
  
     loc_z_center_cell_reduced = -(params['cell_z'] / 2) + params['geometry']['thickness_pml'] + size_z_reduced / 2
-    center_sim_cell_reduced = mp.Vector3(loc_x_center_cell, loc_y_center_cell, loc_z_center_cell_reduced)
+    center_sim_cell_reduced = mp.Vector3(params['substrate_params']['loc_x_center_cell'], params['substrate_params']['loc_y_center_cell'], loc_z_center_cell_reduced)
     #Get the volume not in the PML for the monitors
     #monitor_volume = mp.Volume(center = center_sim_cell,
     #                           size = mp.Vector3(size_x_non_buffer, size_y_non_buffer, size_z_non_pml))
     monitor_volume = mp.Volume(center = center_sim_cell_reduced,
-                               size = mp.Vector3(size_x_non_buffer, size_y_non_buffer, size_z_reduced))
+                               size = mp.Vector3(params['substrate_params']['size_x_non_buffer'], params['substrate_params']['size_y_non_buffer'], size_z_reduced))
 
     params['geometry']['monitor_volume'] = monitor_volume
     return metasurface, pml_layers, monitor_volume, params
 
 if __name__ == "__main__":
+
     import yaml
     params = yaml.load(open('config.yaml'), Loader = yaml.FullLoader)
     metasurface, pml, monitor_volume = build_andy_metasurface_neighborhood(params)

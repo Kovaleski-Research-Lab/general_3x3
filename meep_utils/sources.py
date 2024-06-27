@@ -23,6 +23,7 @@ def continuous_source(params):
     if frequency is None and wavelength is not None:
         #logger.info("Calculating frequency from given wavelength")
         frequency = 1 / wavelength
+        params['frequency'] = frequency
 
     loc_x_source = params['loc_x_source']
     loc_y_source = params['loc_y_source']
