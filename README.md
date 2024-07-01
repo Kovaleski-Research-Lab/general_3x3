@@ -22,16 +22,20 @@ The details of the simulation are described in [this publication](https://www.sp
 ### Prerequisites:
 1. [Kubernetes](https://github.com/Kovaleski-Research-Lab/Global-Lab-Repo/blob/main/sops/software_development/kubernetes.md) must be installed if using Nautilus resources.
 2. Must be running the appropriate docker container for [local deployment](https://hub.docker.com/layers/kovaleskilab/meep/v3_lightning/images/sha256-e550d12e2c85e095e8fd734eedba7104e9561e86e73aac545614323fda93efb2?context=repo) or [kubernetes deployment](https://hub.docker.com/layers/kovaleskilab/meep_ml/launcher/images/sha256-464ec5f4310603229e96b5beae9355055e2fb2de2027539c3d6bef94b7b5a4f1?context=repo)
-3. Your docker container for local deployment should be mounted as follows (data is mounted to agkgd4 - code and results should be unique to you):
+3. You should be remotely connected to Marge
+   ```
+   ssh {your_pawprint}@128.206.23.4
+   ```
+5. Your docker container for local deployment should be mounted as follows (data is mounted to `/home/datasets` - code and results should be unique to you):
    ```
    -v /home/{your_pawprint}/Documents/code:/develop/code \
-   -v /home/agkgd4/Documents/data:/develop/data \
+   -v /home/datasets:/develop/data \
    -v /home/{your_pawprint}/Documents/results:/develop/results \
    ```
-4. Your docker container for kubernetes deployment should be mounted as follows:
+6. Your docker container for kubernetes deployment should be mounted as follows:
    ```
    -v /home/{your_pawprint}/Documents/code:/develop/code \
-   -v /home/agkgd4/Documents/data:/develop/data \
+   -v /home/datasets:/develop/data \
    -v /home/{your_pawprint}/Documents/results:/develop/results \
    -v ~/.kube:/root/.kube 
    ```
