@@ -11,6 +11,11 @@ The details of the simulation are described in [this publication](https://www.sp
 - [meep utils folder](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/meep_utils) : contains files with python wrappers for building meep sources, simulations, geometries, and field monitors.
 - [radii folder](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/radii) : contains a script for generating 3x3 configurations of pillar radii between 75 nm and 250 nm. Outputs a .pkl file with a python list containing 1x9 sublists. This pickle file is used by `run_datagen.py`.
 - [utils folder](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/utils) : contains helper scripts for general python programming and data modification scripting.
+- [supplementary folder](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/supplementary) : Contains background info / supplementary studies to support the simulations.
+     - [gaussian_width](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/supplementary/gaussian_width) : Contains a script that helps us viualize the relationship between frequency and wavelength in meep units.
+     - [sim_states](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/supplementary/sim_states) : Contains a script that shows the user how to dump out a simulation state after a simulation has run, and how to reload that simulation.
+     - [resolution_study](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/supplementary/resolution_study) : Contains the script used as well as the analysis to determine at what resolution the simulation converges.
+     - [core_study](https://github.com/Kovaleski-Research-Lab/general_3x3/tree/andy_branch/supplementary/core_study) : Contains the script used as well as the analysis to determine the optimal number of cores to get the fastest simulation time. We used WOPR, which has 112 CPU cores, to run this experiment - Times will vary depending on CPUs.
 
 ## How to run this code
 
