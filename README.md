@@ -1,6 +1,6 @@
 # general_3x3
 
-A wrapper for [meep code](https://meep.readthedocs.io/en/latest/) that generates a dataset of electric field data for 3x3 meta-atom pillars. The radii of the pillars are generated randomly from values within the 75 nm to 150 nm range (See [single pillar sim](https://github.com/Kovaleski-Research-Lab/single_pillar_sim) for reference).
+A wrapper for [meep code](https://meep.readthedocs.io/en/latest/) that generates a dataset of electric field data for 3x3 meta-atom pillars. The radii of the pillars are generated randomly from values within the 75 nm to 250 nm range (See [single pillar sim](https://github.com/Kovaleski-Research-Lab/single_pillar_sim) for reference).
 
 The details of the simulation are described in [this publication](https://www.spiedigitallibrary.org/conference-proceedings-of-spie/13042/1304206/Time-series-neural-networks-to-predict-electromagnetic-wave-propagation/10.1117/12.3013488.full).
 
