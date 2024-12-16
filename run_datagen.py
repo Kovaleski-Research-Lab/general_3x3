@@ -43,9 +43,13 @@ def run(params):
        
     print(f"assigning neighborhood for idx {idx}...")
     radii = list(neighbors_library[idx])
+    heights = list(neighbors_library[idx])
     radii = np.array(radii).reshape(3,3)
     radii = np.flip(radii,axis=0).flatten()
     radii = list(radii)
+    heights = np.array(heights).reshape(3,3)
+    heights = np.flip(heights,axis=0).flatten()
+    heights = list(heights)
    
     # This is how we are arranging the raddi:
  
@@ -59,7 +63,7 @@ def run(params):
     #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
     
     print("building sim...")
-    sim, dft_obj, flux_obj, params = simulation.build_sim(params, radii = radii)
+    sim, dft_obj, flux_obj, params = simulation.build_sim(params, radii = radii, heights = heights)
 
     start_time = time.time()
     

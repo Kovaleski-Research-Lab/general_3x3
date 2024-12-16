@@ -279,6 +279,9 @@ def build_andy_metasurface_neighborhood(params, radii = None):
     
     if radii == None:
         radii = [0.2 for _ in range(0,Nx*Ny)]
+        
+    if heights == None:
+        heights = [1.02 for _ in range(0,Nx*Ny)]
 
     #logger.info("Radii of the pillars : {}".format(radii))
     count = 0
@@ -290,7 +293,7 @@ def build_andy_metasurface_neighborhood(params, radii = None):
             params['geometry']['loc_y_pillar_{}'.format(count)] = loc_y_pillar
             metasurface.append(build_cylinder(loc = mp.Vector3(loc_x_pillar, loc_y_pillar, loc_z_pillar),
                                               axis = mp.Vector3(0,0,1),
-                                              height = height_pillar,
+                                              height = heights[count],
                                               radius = radii[count],
                                               material_index = material_index_pillars))
 

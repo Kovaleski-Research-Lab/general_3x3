@@ -11,7 +11,8 @@ def get_random_radii(params):
     library = {} 
     library['std_dev'] = []
     library['percent_of_range'] = []
-    library['radii'] = [] 
+    library['radii'] = []
+    library['heights'] = []
 
     rows, cols = 3, 3
    
@@ -21,34 +22,46 @@ def get_random_radii(params):
     
     while i < 40: 
 
-        #initial_value = params['geometry']['radius_max'] / 2 
+        # Choose initial radius and std dev for this iteration
         initial_value = np.random.uniform(0.075, 0.250)
         std_dev = 0.0025 * (i + 1)
         library['std_dev'].append(std_dev)
         library['percent_of_range'].append((std_dev / (0.250-0.075)) * 100)
 
+        # Choose the varied height once per iteration, similar to how we pick initial_value
+        varied_height = np.random.uniform(params['geometry']['height_min'], params['geometry']['height_max'])
+
         for j in range(3):
             if j == 0:
                 rad_list = []
+                height_list = []
 
+            # Generate radii
             radii = [initial_value + np.random.normal(0, std_dev) for _ in range(9)]
-
             radii = np.clip(radii, _min, _max)
             
-            # Ensure no duplicates in the sublist
+            # Ensure no duplicates
             while len(set(radii)) < len(radii):
                 radii = [initial_value + np.random.normal(0, std_dev) for _ in range(9)]
                 radii = np.clip(radii, _min, _max)
 
-            # Append the generated sublist to the list of lists
-            rad_list.append(list(radii))
+            # Append radii
+            rad_list.append(radii)
+
+            # Generate heights
+            height_grid = np.full((3,3), params['geometry']['height_pillar'])
+            height_grid[1,1] = varied_height  # vary the center pillar only
+            height_vals = height_grid.flatten().tolist()  # flatten for consistency
+            height_list.append(height_vals)
             
             if j == 2:
+                # After building up 3 sublists for both radii and heights, append them
                 library['radii'].append(rad_list)
+                library['heights'].append(height_list)
                 print(f"appended to library['radii']: list length = {len(rad_list)}")
+
         i += 1
          
-    #pickle.dump(library, open("buffer_study_library.pkl", "wb"))
     return library
 
 def visualize(library):

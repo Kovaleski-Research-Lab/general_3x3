@@ -4,7 +4,7 @@
 #----------------------------------------------------------
 
 task : 0
-deployment_mode : 0
+deployment_mode : 1
 idx :
 res :
 
@@ -13,8 +13,8 @@ res :
 #-----------------------------------
 
 paths :
-  data : /develop/data/meep-dataset-v2
-  dump : /develop/data/meep-dataset-v2/volumes
+  data : /develop/data/nfe-data
+  dump : /develop/data/nfe-data/volumes
   library : /develop/code/general_3x3/radii/neighbors_library_allrandom.pkl 
 #------------------------
 #   General Parameters
@@ -66,6 +66,8 @@ geometry:
   material_index_meta_atom : 3.48 #amorphous silica
   unit_cell_size: 0.68
   height_pillar: 1.02
+  height_min: 0.75
+  height_max: 1.25
   radius_pillar:
   radius_min: 0.075
   radius_max: 0.250
@@ -137,12 +139,12 @@ fps : 20
 
 kube :
   namespace: gpn-mizzou-muem
-  pvc_name: meep-dataset-v2   
+  pvc_name: nfe-data
 
   datagen_job :
     paths :
       data : /develop/results
-      image: docker.io/kovaleskilab/meep:v3_lightning
+      image: docker.io/kovaleskilab/meep_ml:launcher
       template: /develop/code/general_3x3/kubernetes/gen_data/kube_files/templates/job.txt
       simulations: /develop/results
       logs: /develop/results/current_logs
@@ -157,8 +159,8 @@ kube :
     kill_time_min: 30
     kill_tag: datagen 
 
-    num_sims: 831 # this is the ending index
-    start_group_id: 703 
+    num_sims: 1
+    start_group_id: 0
 
   copy_job :
     paths :

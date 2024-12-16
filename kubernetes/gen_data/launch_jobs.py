@@ -36,7 +36,7 @@ def launch_datagen(params):
  
     current_group = []
 
-    include_list = [704, 705, 826, 827, 828, 829, 830]
+    include_list = [0]
 
     while(counter < params['kube']['datagen_job']['num_sims']):
 
