@@ -250,7 +250,7 @@ def get_substrate_params(params):
 
     return params
 
-def build_andy_metasurface_neighborhood(params, radii = None):
+def build_andy_metasurface_neighborhood(params, radii = None, heights = None):
 
     '''
     This is basically the same code as the parameter manager's calculate_dependencies

@@ -3,9 +3,9 @@
 #    Define deployment mode - 0: Running locally, 1: kubernetes
 #----------------------------------------------------------
 
-task : 0
-deployment_mode : 1
-idx :
+task : 1
+deployment_mode : 0
+idx : 0
 res :
 
 #-----------------------------------
