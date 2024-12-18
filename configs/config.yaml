@@ -135,7 +135,7 @@ fps : 20
 
 #-----------------------
 # Kubernetes params 
-#----------------------
+#-----------------------0
 
 kube :
   namespace: gpn-mizzou-muem
