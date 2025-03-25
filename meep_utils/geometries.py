@@ -12,7 +12,7 @@ from loguru import logger
 # logging purposes at least.
 ##############################################################################
 
-def build_cylinder(loc:list, axis:list, height:float, radius:float, material_index:float, epsilon:float=None) -> mp.Cylinder:
+def build_cylinder(loc:list, axis:list, height:float, radius:float, material_index:float=None, epsilon:float=None) -> mp.Cylinder:
     #logger.info("Building a MEEP cylinder")
 
     #logger.info("Creating cylinder material. Index = {}".format(material_index))
