@@ -172,7 +172,7 @@ kube :
     paths :
       data : '/develop/data'
       image: docker.io/kovaleskilab/meep:v3_lightning
-      dump : '/develop/results' # this is the dft-volumes pvc
+      dump : '/develop/results'
       template: /develop/code/general_3x3/kubernetes/reduce_data/kube_files/templates/job.txt  # Add this
       simulations: /develop/results
       logs: /develop/results/current_logs
@@ -184,4 +184,4 @@ kube :
     num_parallel_ops : 2
     kill_tag: reduce
     pvc_data: nfe-data
-    pvc_results: dft-volumes
+    pvc_results: dft-volumes-refidx
