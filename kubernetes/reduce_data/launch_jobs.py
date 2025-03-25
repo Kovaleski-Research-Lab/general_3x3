@@ -22,7 +22,7 @@ def exit_handler(): # always run this script after this file ends.
 
     v1 = client.CoreV1Api()   # initializing a tool to do kube stuff.
 
-    pod_list = v1.list_namespaced_pod(namespace = params["namespace"])    # get all pods currently running (1 pod generates a single meep sim) 
+    pod_list = v1.list_namespaced_pod(namespace = params["kube"]["namespace"])    # get all pods currently running (1 pod generates a single meep sim) 
 
     current_group = [ele.metadata.owner_references[0].name for ele in pod_list.items if(params["kill_tag"] in ele.metadata.name)]    # getting the name of the pod
 
@@ -31,7 +31,7 @@ def exit_handler(): # always run this script after this file ends.
     for job_name in current_group:
         subprocess.run(["kubectl", "delete", "job", job_name])    # delete the kube job (a.k.a. pod)
 
-    print("\nCleaned up any jobs that include tag : %s\n" % params["kill_tag"])   
+    print("\nCleaned up any jobs that include tag : %s\n" % params["kube"]["reduce_job"]["kill_tag"])   
 
 # Create: Results Folders
 
@@ -83,10 +83,10 @@ def run_generation(params):
 
     # Load job template
 
-    template = load_file(params["path_template"])
+    template = load_file(params['kube']['datagen_job']['paths']['template'])
     
-    tag = params["path_template"].split("/")[-1]
-    folder = params["path_template"].replace("/%s" % tag, "")
+    tag = params['kube']['datagen_job']['paths']['template'].split("/")[-1]
+    folder = params['kube']['datagen_job']['paths']['template'].replace("/%s" % tag, "")
     environment = Environment(loader = FileSystemLoader(folder))
     template = environment.get_template(tag)
 
@@ -101,31 +101,31 @@ def run_generation(params):
  
     current_group = []
 
-    while(counter < params['num_sims']):
+    while(counter < params['kube']['datagen_job']['num_parallel_ops']):
 
-        if(len(current_group) < params['num_parallel_ops']):
+        if(len(current_group) < params['kube']['datagen_job']['num_parallel_ops']):
 
-            num_to_launch = params['num_parallel_ops'] - len(current_group)
+            num_to_launch = params['kube']['datagen_job']['num_parallel_ops'] - len(current_group)
 
             for i in range(counter, counter + num_to_launch):
                 #if keep_val(i) is True: # just a quick and dirty way to only run certain sims. don't use this for large scale datagen!
                 if True:
                     #print(i)
-                    job_name = "%s-%s" % (params['kill_tag'], str(counter).zfill(4))
+                    job_name = "%s-%s" % (params['kube']['datagen_job']['kill_tag'], str(counter).zfill(4))
 
                     current_group.append(job_name)
                     
                     template_info = {"job_name": job_name, 
                                      "n_index": str(counter),
-                                     "num_cpus": str(params["num_cpus"]),
-                                     "num_mem_lim": str(params["num_mem_lim"]),
-                                     "num_mem_req": str(params["num_mem_req"]),
-                                     "pvc_name": str(params["pvc_name"]),
-                                     "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
+                                     "num_cpus": str(params["kube"]["datagen_job"]["paths"]["num_cpus"]),
+                                     "num_mem_lim": str(params["kube"]["datagen_job"]["paths"]["num_mem_lim"]),
+                                     "num_mem_req": str(params["kube"]["rdatagen_job"]["paths"]["num_mem_req"]),
+                                     "pvc_name": str(params["kube"]["pvc_name"]),
+                                     "path_out_sims": params["kube"]["datagen_job"]["paths"]["simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
 
                     filled_template = template.render(template_info)
 
-                    path_job = os.path.join(params["path_sim_job_files"], job_name + ".yaml") 
+                    path_job = os.path.join(params["kube"]["datagen_job"]["paths"]["job_files"], job_name + ".yaml") 
 
                     if(sys.platform == "win32"):
                         path_job = path_job.replace("\\", "/").replace("/", "\\")
@@ -148,7 +148,7 @@ def run_generation(params):
             check_time_min = 2
             wait_time_sec = 60
 
-            while(len(current_group) == params["num_parallel_ops"]): 
+            while(len(current_group) == params["kube"]["datagen_job"]["num_parallel_ops"]): 
 
                 time.sleep(wait_time_sec)
 
@@ -160,12 +160,12 @@ def run_generation(params):
 
                     config.load_kube_config()
                     v1 = client.CoreV1Api()
-                    pod_list = v1.list_namespaced_pod(namespace = params["namespace"], timeout_seconds = 300)
+                    pod_list = v1.list_namespaced_pod(namespace = params['kube']["namespace"], timeout_seconds = 300)
             
                     if(k == 0):
                         print()
 
-                    pod_list = [item for item in pod_list.items if(params["kill_tag"] in item.metadata.name)]
+                    pod_list = [item for item in pod_list.items if(params['kube']['datagen_job']['kill_tag'] in item.metadata.name)]
 
                     pod_names = [item.metadata.name for item in pod_list]
                     pod_statuses = [item.status.phase for item in pod_list]
@@ -236,24 +236,24 @@ def parse_args(all_args, tags = ["--", "-"]):
 # Main: Load Configuration File
 def preprocess_job(params):
 
-    template = load_file(params["path_template"])
+    template = load_file(params['kube']['reduce_job']['paths']['template'])
     
-    tag = params["path_template"].split("/")[-1]
-    folder = params["path_template"].replace("/%s" % tag, "")
+    tag = params['kube']['reduce_job']['paths']['template'].split("/")[-1]
+    folder = params['kube']['reduce_job']['paths']['template'].replace("/%s" % tag, "")
     environment = Environment(loader = FileSystemLoader(folder))
     template = environment.get_template(tag)
 
-    job_name = "%s" % (params['kill_tag'])
+    job_name = "%s" % (params['kube']['reduce_job']['kill_tag'])
 
     template_info = {"job_name": job_name, 
-                     "num_cpus": str(params["num_cpus"]),
-                     "num_mem_lim": str(params["num_mem_lim"]),
-                     "num_mem_req": str(params["num_mem_req"]),
-                     "path_out_sims": params["path_simulations"], "path_image": params["path_image"], "path_logs": params["path_logs"]}
+                     "num_cpus": str(params['kube']['reduce_job']["num_cpus"]),
+                     "num_mem_lim": str(params['kube']['reduce_job']["num_mem_lim"]),
+                     "num_mem_req": str(params['kube']['reduce_job']['num_mem_req']),
+                     "path_out_sims": params['kube']['reduce_job']['paths']['simulations'], "path_image": params["path_image"], "path_logs": params['kube']['reduce_job']['paths']['logs']}
 
     filled_template = template.render(template_info)
 
-    path_job = os.path.join(params["path_sim_job_files"], job_name + ".yaml") 
+    path_job = os.path.join(params['kube']['reduce_job']['paths']['job_files'], job_name + ".yaml") 
 
     if(sys.platform == "win32"):
         path_job = path_job.replace("\\", "/").replace("/", "\\")
@@ -277,29 +277,29 @@ if __name__ == "__main__":
     minutes = 45
     seconds = 60 * minutes
    
-    template = load_file(params["path_template"])
+    template = load_file(params['kube']['reduce_job']['paths']['template'])
     
-    tag = params["path_template"].split("/")[-1]
-    folder = params["path_template"].replace("/%s" % tag, "")
+    tag = params['kube']['reduce_job']['paths']['template'].split("/")[-1]
+    folder = params['kube']['reduce_job']['paths']['template'].replace("/%s" % tag, "")
     environment = Environment(loader = FileSystemLoader(folder))
     template = environment.get_template(tag)
 
     ### charlie's code
-    job_name = "%s" % (params['kill_tag'])
+    job_name = "%s" % (params['kube']['reduce_job']['kill_tag'])
 
     template_info = {"job_name": job_name, 
-                         "num_cpus": str(params["num_cpus"]),
-                         "num_mem_lim": str(params["num_mem_lim"]),
-                         "num_mem_req": str(params["num_mem_req"]),
-                         "pvc_data": str(params["pvc_data"]),
-                         "pvc_results": str(params["pvc_results"]),
+                         "num_cpus": str(params['kube']['reduce_job']["num_cpus"]),
+                         "num_mem_lim": str(params['kube']['reduce_job']["num_mem_lim"]),
+                         "num_mem_req": str(params['kube']['reduce_job']["num_mem_req"]),
+                         "pvc_data": str(params['kube']["reduce_job"]["pvc_data"]),
+                         "pvc_results": str(params['kube']["reduce_job"]["pvc_results"]),
                          #"path_out_sims": params["path_simulations"],
-                         "path_image": params["path_image"],
-                         "path_logs": params["path_logs"]}
+                         "path_image": params['kube']['reduce_job']['paths']['image'],
+                         "path_logs": params['kube']['reduce_job']['paths']['logs']}
 
     filled_template = template.render(template_info)
 
-    path_job = os.path.join(params["path_sim_job_files"], job_name + ".yaml") 
+    path_job = os.path.join(params['kube']['reduce_job']['paths']['job_files'], job_name + ".yaml") 
 
     # --- Save simulation job file
 
