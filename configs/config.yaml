@@ -172,3 +172,14 @@ kube :
     paths :
       data : '/develop/data'
       dump : '/develop/results' # this is the dft-volumes pvc
+
+    path_template: /develop/code/general_3x3/kubernetes/reduce_data/kube_files/templates/job.txt  # Add this
+    path_sim_job_files: /develop/data/job_files
+    path_image: docker.io/kovaleskilab/meep:v3_lightning
+    path_logs: /develop/results/current_logs
+    path_simulations: /develop/results
+    
+    num_mem_lim: 200G
+    num_mem_req: 200G
+    num_cpus: 32
+    kill_tag: reduce
