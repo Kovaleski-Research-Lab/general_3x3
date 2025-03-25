@@ -65,7 +65,16 @@ def run(params):
     elif params['grid_size'] == 1 and params['geometry']['neighborhood_size'] == [1,1]:
         print("assigning geometries for single pillar sim...")
         radii = [0.15]
-        heights = [0.35]
+        heights = [0.35]    
+    elif params['grid_size'] == 2 and params['geometry']['neighborhood_size'] == [2,2]:
+        print("assigning geometries for single pillar sim...")
+        radii = [0.18664, 0.09511, 0.13333, 0.16552]
+        radii = np.array(radii).reshape(2,2)
+        radii = np.flip(radii,axis=0).flatten()
+        radii = list(radii)
+        heights = [1.02, 1.02, 1.02, 1.02]
+        heights = np.flip(heights,axis=0).flatten()
+        heights = list(heights)
     else:
         raise NotImplementedError("Check your config for grid_size and neighborhood_size")
     
