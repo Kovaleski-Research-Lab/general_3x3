@@ -16,12 +16,12 @@ spec:
           memory: 4G
           cpu: 2
       volumeMounts:
-        - name: meep-dataset-v2 
+        - name: nfe-data
           mountPath: /develop/results
   volumes:
-    - name: meep-dataset-v2
+    - name: nfe-data
       persistentVolumeClaim:
-        claimName: meep-dataset-v2
+        claimName: nfe-data
 
   restartPolicy: Never
 

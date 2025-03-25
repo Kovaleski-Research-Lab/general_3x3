@@ -3,7 +3,7 @@
 #    Define deployment mode - 0: Running locally, 1: kubernetes
 #----------------------------------------------------------
 
-task : 0
+task : 1
 deployment_mode : 1
 idx : 0
 res :
@@ -153,7 +153,7 @@ kube :
 
     num_mem_lim: 200G
     num_mem_req: 200G
-    num_cpus: 16 
+    num_cpus: 32 
     num_parallel_ops : 2
 
     kill_time_min: 30
