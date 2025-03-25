@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: monitor-dataset-volume
+  name: monitor-volume
 spec:
   containers:
-    - name: monitor-dataset-volume
+    - name: monitor-volume
       image: docker.io/kovaleskilab/meep:v3_lightning      
       stdin: True
       tty: True
@@ -16,12 +16,12 @@ spec:
           memory: 4G
           cpu: 2
       volumeMounts:
-        - name: dft-volumes
+        - name: dft-volumes-refidx
           mountPath: /develop/results
   volumes:
-    - name: dft-volumes
+    - name: dft-volumes-refidx
       persistentVolumeClaim:
-        claimName: dft-volumes
+        claimName: dft-volumes-refidx
 
   restartPolicy: Never
 

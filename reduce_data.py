@@ -87,7 +87,7 @@ def run(params):
         exclude = ['volumes','reduced_data','pt','preprocessed_data','preprocessed_data_copy','volumes_temp']
     elif params['deployment_mode'] == 1:
         path_data = params['kube']['reduce_job']['paths']['data'] 
-        dump_path = params['kube']['reduce_job']['paths']['dump']  # this is the dft-volumes pvc
+        path_dump = params['kube']['reduce_job']['paths']['dump']  # this is the dft-volumes pvc
         exclude = ['current_logs', 'slices', 'volumes']
         include = [val for val in range(0,1501)]
         include = [str(val).zfill(4) for val in include]
