@@ -2,9 +2,11 @@ import meep as mp
 from meep_utils import geometries, sources, field_monitors
 
 
-def build_sim(params, radii = None, heights = None):
+def build_sim(params, radii = None, heights = None, epsilons=None):
 
-    geometry, pml_layers, monitor_volume, params = geometries.build_andy_metasurface_neighborhood(params, radii, heights)
+    geometry, pml_layers, monitor_volume, params = geometries.build_andy_metasurface_neighborhood(
+        params, radii, heights, epsilons
+    )
     source, params = sources.build_andy_source(params)
     k_point = mp.Vector3(0,0,0)
 

@@ -3,7 +3,7 @@
 #    Define deployment mode - 0: Running locally, 1: kubernetes
 #----------------------------------------------------------
 
-task : 1
+task : 0
 deployment_mode : 1
 idx : 1
 res :
@@ -64,11 +64,13 @@ geometry:
 
   atom_type: 'cylinder'
   material_index_meta_atom : 3.48 #amorphous silica
+  material_index_min : 2.0
+  material_index_max : 4.0
   unit_cell_size: 0.68
   height_pillar: 1.02
   height_min: 0.75
   height_max: 1.25
-  radius_pillar:
+  radius_pillar: 0.2
   radius_min: 0.075
   radius_max: 0.250
 
@@ -139,7 +141,7 @@ fps : 20
 
 kube :
   namespace: gpn-mizzou-muem
-  pvc_name: nfe-data
+  pvc_name: refidx-data
 
   datagen_job :
     paths :
@@ -183,5 +185,5 @@ kube :
     num_cpus: 32
     num_parallel_ops : 2
     kill_tag: reduce
-    pvc_data: nfe-data
+    pvc_data: refidx-data
     pvc_results: dft-volumes-refidx

@@ -12,20 +12,26 @@ from loguru import logger
 # logging purposes at least.
 ##############################################################################
 
-def build_cylinder(loc:list, axis:list, height:float, radius:float, material_index:float) -> mp.Cylinder:
+def build_cylinder(loc:list, axis:list, height:float, radius:float, material_index:float, epsilon:float=None) -> mp.Cylinder:
     #logger.info("Building a MEEP cylinder")
 
     #logger.info("Creating cylinder material. Index = {}".format(material_index))
-    material = mp.Medium(index = material_index)
+    if epsilon is not None:
+        # Use epsilon directly if provided
+        material = mp.Medium(epsilon_diag=mp.Vector3(epsilon, epsilon, epsilon))
+    else:
+        # Otherwise use refractive index
+        material = mp.Medium(index=material_index)
+        
     center = mp.Vector3(loc[0], loc[1], loc[2])
     axis = mp.Vector3(axis[0], axis[1], axis[2])
 
-    return mp.Cylinder( radius = radius,
-                        height = height,
-                        axis = axis,
-                        center = center,
-                        material = material )
-
+    return mp.Cylinder(radius=radius,
+                      height=height,
+                      axis=axis,
+                      center=center,
+                      material=material)
+    
 def build_block(size:list, loc:list, material_index:float) -> mp.Block:
     #logger.info("Building a MEEP block")
 
@@ -250,7 +256,7 @@ def get_substrate_params(params):
 
     return params
 
-def build_andy_metasurface_neighborhood(params, radii = None, heights = None):
+def build_andy_metasurface_neighborhood(params, radii = None, heights = None, epsilons = None):
 
     '''
     This is basically the same code as the parameter manager's calculate_dependencies
@@ -291,12 +297,26 @@ def build_andy_metasurface_neighborhood(params, radii = None, heights = None):
             loc_y_pillar = round((unit_cell_size * ny) + 0.5 * unit_cell_size - 0.5 * size_y_cell, 4) + offset_y_buffer
             params['geometry']['loc_x_pillar_{}'.format(count)] = loc_x_pillar
             params['geometry']['loc_y_pillar_{}'.format(count)] = loc_y_pillar
-            metasurface.append(build_cylinder(loc = mp.Vector3(loc_x_pillar, loc_y_pillar, loc_z_pillar),
-                                              axis = mp.Vector3(0,0,1),
-                                              height = heights[count],
-                                              radius = radii[count],
-                                              material_index = material_index_pillars))
-
+            
+            # Use epsilon if provided, otherwise use material_index
+            if epsilons is not None:
+                cylinder = build_cylinder(
+                    loc=mp.Vector3(loc_x_pillar, loc_y_pillar, loc_z_pillar),
+                    axis=mp.Vector3(0,0,1),
+                    height=heights[count],
+                    radius=radii[count],
+                    epsilon=epsilons[count]
+                )
+            else:
+                cylinder = build_cylinder(
+                    loc=mp.Vector3(loc_x_pillar, loc_y_pillar, loc_z_pillar),
+                    axis=mp.Vector3(0,0,1),
+                    height=heights[count],
+                    radius=radii[count],
+                    material_index=material_index_pillars
+                )
+            
+            metasurface.append(cylinder)
             count += 1
 
     #Now for the pml layers

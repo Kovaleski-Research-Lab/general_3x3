@@ -51,6 +51,7 @@ def run(params):
         heights = np.array(heights).reshape(3,3)
         heights = np.flip(heights,axis=0).flatten()
         heights = list(heights)
+        epsilons = None
     
         # This is how we are arranging the raddi:
     
@@ -62,25 +63,59 @@ def run(params):
         #         0.16552, 0.19670, 0.13635,
         #         0.20876, 0.10517, 0.09009]
         #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+    
+    
     elif params['grid_size'] == 1 and params['geometry']['neighborhood_size'] == [1,1]:
         print("assigning geometries for single pillar sim...")
         radii = [0.15]
-        heights = [0.35]    
+        heights = [0.35]
+        epsilons = None
+         
     elif params['grid_size'] == 2 and params['geometry']['neighborhood_size'] == [2,2]:
-        print("assigning geometries for single pillar sim...")
-        radii = [0.18664, 0.09511, 0.13333, 0.16552]
+        print("assigning refractive indices for 2x2 metasurface...")
+        # Fixed radius for all pillars
+        radius = params['geometry']['radius_pillar']
+        radii = [radius] * 4  # 4 pillars for 2x2 grid
+        
+        # Generate random refractive indices
+        n_min = params['geometry']['material_index_min']
+        n_max = params['geometry']['material_index_max']
+        n_indices = np.random.uniform(n_min, n_max, size=4)
+        
+        # Convert n to epsilon (ε = n²)
+        epsilons = n_indices ** 2
+        
+        # Reshape and flip
         radii = np.array(radii).reshape(2,2)
         radii = np.flip(radii,axis=0).flatten()
         radii = list(radii)
-        heights = [1.02, 1.02, 1.02, 1.02]
+        
+        height = params['geometry']['height_pillar']
+        heights = [height] * 4
+        heights = np.array(heights).reshape(2,2)
         heights = np.flip(heights,axis=0).flatten()
         heights = list(heights)
+        
+        # Save the refractive indices for later reference
+        n_indices_info = {
+            'n_indices': n_indices.tolist(),
+            'epsilons': epsilons.tolist()
+        }
+        with open(os.path.join(path_data, f'n_indices_{str(idx).zfill(5)}.pkl'), 'wb') as f:
+            pickle.dump(n_indices_info, f)
+            
+        epsilons = epsilons.tolist()
     else:
         raise NotImplementedError("Check your config for grid_size and neighborhood_size")
     
     print("building sim...")
-    sim, dft_obj, flux_obj, params = simulation.build_sim(params, radii = radii, heights = heights)
-
+    sim, dft_obj, flux_obj, params = simulation.build_sim(
+        params, 
+        radii=radii, 
+        heights=heights,
+        epsilons=epsilons
+    )
+    
     start_time = time.time()
     
     #sim = get_vis(params,until,sim,path_results,idx,animation=True,image=True)
