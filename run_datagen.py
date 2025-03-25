@@ -38,29 +38,36 @@ def run(params):
     ## folder for dumping metadata (.pkl file) and dft data (.h5 file)
     path_data = os.path.join(path_data, folder_name)
     
-    print("loading in neighbors library...")
-    neighbors_library = pickle.load(open(path_library,"rb"))
-       
-    print(f"assigning neighborhood for idx {idx}...")
-    radii = list(neighbors_library[idx])
-    heights = list(neighbors_library[idx])
-    radii = np.array(radii).reshape(3,3)
-    radii = np.flip(radii,axis=0).flatten()
-    radii = list(radii)
-    heights = np.array(heights).reshape(3,3)
-    heights = np.flip(heights,axis=0).flatten()
-    heights = list(heights)
-   
-    # This is how we are arranging the raddi:
- 
-    #6 7 8  -->  0 1 2
-    #3 4 5       3 4 5
-    #0 1 2       6 7 8
+    if params['grid_size'] == 3 and params['geometry']['neighborhood_size'] == [3,3]:
+        print("loading in neighbors library...")
+        neighbors_library = pickle.load(open(path_library,"rb"))
+        
+        print(f"assigning neighborhood for idx {idx}...")
+        radii = list(neighbors_library[idx])
+        heights = list(neighbors_library[idx])
+        radii = np.array(radii).reshape(3,3)
+        radii = np.flip(radii,axis=0).flatten()
+        radii = list(radii)
+        heights = np.array(heights).reshape(3,3)
+        heights = np.flip(heights,axis=0).flatten()
+        heights = list(heights)
+    
+        # This is how we are arranging the raddi:
+    
+        #6 7 8  -->  0 1 2
+        #3 4 5       3 4 5
+        #0 1 2       6 7 8
 
-    #radii = [0.18664, 0.09511, 0.13333,
-    #         0.16552, 0.19670, 0.13635,
-    #         0.20876, 0.10517, 0.09009]
-    #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+        #radii = [0.18664, 0.09511, 0.13333,
+        #         0.16552, 0.19670, 0.13635,
+        #         0.20876, 0.10517, 0.09009]
+        #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
+    elif params['grid_size'] == 1 and params['geometry']['neighborhood_size'] == [1,1]:
+        print("assigning geometries for single pillar sim...")
+        radii = [0.15]
+        heights = [0.35]
+    else:
+        raise NotImplementedError("Check your config for grid_size and neighborhood_size")
     
     print("building sim...")
     sim, dft_obj, flux_obj, params = simulation.build_sim(params, radii = radii, heights = heights)

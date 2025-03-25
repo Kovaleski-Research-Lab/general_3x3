@@ -3,8 +3,8 @@
 #    Define deployment mode - 0: Running locally, 1: kubernetes
 #----------------------------------------------------------
 
-task : 1
-deployment_mode : 0
+task : 0
+deployment_mode : 1
 idx : 0
 res :
 
@@ -13,9 +13,9 @@ res :
 #-----------------------------------
 
 paths :
-  data : /develop/data/nfe-data
-  dump : /develop/data/nfe-data/volumes
-  library : /develop/code/general_3x3/radii/neighbors_library_allrandom.pkl 
+  data : develop/data/nfe-data
+  dump : develop/data/nfe-data/volumes
+  library : develop/code/general_3x3/radii/neighbors_library_allrandom.pkl 
 #------------------------
 #   General Parameters
 #-------------------------
@@ -24,7 +24,7 @@ cell_x :
 cell_y : 
 cell_z :
 
-grid_size : 3
+grid_size : 1
 
 #------------------------
 #   Geometry Parameters
@@ -60,7 +60,7 @@ geometry:
   size_z_buffer: 1.5
 
   #Metasurface
-  neighborhood_size: [3,3] #nx,ny
+  neighborhood_size: [1,1] #nx,ny
 
   atom_type: 'cylinder'
   material_index_meta_atom : 3.48 #amorphous silica
@@ -144,7 +144,7 @@ kube :
   datagen_job :
     paths :
       data : /develop/results
-      image: docker.io/kovaleskilab/meep_ml:launcher
+      image: docker.io/kovaleskilab/meep:v3_lightning
       template: /develop/code/general_3x3/kubernetes/gen_data/kube_files/templates/job.txt
       simulations: /develop/results
       logs: /develop/results/current_logs
@@ -153,7 +153,7 @@ kube :
 
     num_mem_lim: 200G
     num_mem_req: 200G
-    num_cpus: 32 
+    num_cpus: 16 
     num_parallel_ops : 2
 
     kill_time_min: 30
