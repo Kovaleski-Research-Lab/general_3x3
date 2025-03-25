@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: monitor-dataset
+  name: monitor-dataset-volume
 spec:
   containers:
-    - name: monitor-dataset
+    - name: monitor-dataset-volume
       image: docker.io/kovaleskilab/meep:v3_lightning      
       stdin: True
       tty: True
@@ -16,12 +16,12 @@ spec:
           memory: 4G
           cpu: 2
       volumeMounts:
-        - name: nfe-data
+        - name: dft-volumes
           mountPath: /develop/results
   volumes:
-    - name: nfe-data
+    - name: dft-volumes
       persistentVolumeClaim:
-        claimName: nfe-data
+        claimName: dft-volumes
 
   restartPolicy: Never
 
