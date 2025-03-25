@@ -24,7 +24,7 @@ cell_x :
 cell_y : 
 cell_z :
 
-grid_size : 1
+grid_size : 2
 
 #------------------------
 #   Geometry Parameters
@@ -60,7 +60,7 @@ geometry:
   size_z_buffer: 1.5
 
   #Metasurface
-  neighborhood_size: [1,1] #nx,ny
+  neighborhood_size: [2,2] #nx,ny
 
   atom_type: 'cylinder'
   material_index_meta_atom : 3.48 #amorphous silica
@@ -160,7 +160,7 @@ kube :
     kill_tag: datagen 
 
     num_sims: 1
-    start_group_id: 0
+    start_group_id: 1
 
   copy_job :
     paths :
