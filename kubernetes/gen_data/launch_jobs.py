@@ -36,7 +36,7 @@ def launch_datagen(params):
  
     current_group = []
 
-    include_list = [0]
+    #include_list = [0]
 
     while(counter < params['kube']['datagen_job']['num_sims']):
 
@@ -47,28 +47,27 @@ def launch_datagen(params):
 
             for i in range(counter, counter + num_to_launch):
 
-                if counter in include_list:
-                    job_name = "%s-%s" % (params['kube']['datagen_job']['kill_tag'], str(counter).zfill(4))
+                job_name = "%s-%s" % (params['kube']['datagen_job']['kill_tag'], str(counter).zfill(4))
 
-                    current_group.append(job_name)
-                        
-                    template_info = {"job_name": job_name, 
-                                     "n_index": str(counter),
-                                     "num_cpus": str(params['kube']['datagen_job']['num_cpus']),
-                                     "num_mem_lim": str(params['kube']['datagen_job']['num_mem_lim']),
-                                     "num_mem_req": str(params['kube']['datagen_job']['num_mem_req']),
-                                     "pvc_name": str(params['kube']['pvc_name']),
-                                     "path_out_sims": params['kube']['datagen_job']['paths']['simulations'],
-                                     "path_image": params['kube']['datagen_job']['paths']['image'],
-                                     "path_logs": params['kube']['datagen_job']['paths']['logs']}
+                current_group.append(job_name)
+                    
+                template_info = {"job_name": job_name, 
+                                    "n_index": str(counter),
+                                    "num_cpus": str(params['kube']['datagen_job']['num_cpus']),
+                                    "num_mem_lim": str(params['kube']['datagen_job']['num_mem_lim']),
+                                    "num_mem_req": str(params['kube']['datagen_job']['num_mem_req']),
+                                    "pvc_name": str(params['kube']['pvc_name']),
+                                    "path_out_sims": params['kube']['datagen_job']['paths']['simulations'],
+                                    "path_image": params['kube']['datagen_job']['paths']['image'],
+                                    "path_logs": params['kube']['datagen_job']['paths']['logs']}
 
-                    filled_template = template.render(template_info)
+                filled_template = template.render(template_info)
 
-                    path_job = os.path.join(params['kube']['datagen_job']['paths']['job_files'], job_name + ".yaml") 
+                path_job = os.path.join(params['kube']['datagen_job']['paths']['job_files'], job_name + ".yaml") 
 
-                    save_file(path_job, filled_template)
+                save_file(path_job, filled_template)
 
-                    subprocess.run(["kubectl", "apply", "-f", path_job])
+                subprocess.run(["kubectl", "apply", "-f", path_job])
 
                 counter += 1 
         # -- Wait for a processes to finish
