@@ -155,14 +155,14 @@ kube :
 
     num_mem_lim: 200G
     num_mem_req: 200G
-    num_cpus: 32 
+    num_cpus: 16 
     num_parallel_ops : 2
 
     kill_time_min: 30
     kill_tag: datagen 
 
     num_sims: 1000
-    start_group_id: 10
+    start_group_id: 18
 
   copy_job :
     paths :

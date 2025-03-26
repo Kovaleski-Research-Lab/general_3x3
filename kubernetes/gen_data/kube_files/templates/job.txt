@@ -22,7 +22,7 @@ spec:
                 git checkout nfe_branch;
                 mkdir -p /develop/results/current_logs;
                 echo checkout out branch successfully for job {{job_name}} >> {{path_logs}}/test.log;
-                mpirun --allow-run-as-root --oversubscribe -np {{num_cpus}} python3 main.py -config configs/config.yaml -idx {{n_index}} >> {{path_logs}}/{{n_index}}.log"]
+                mpirun --allow-run-as-root -np {{num_cpus}} python3 main.py -config configs/config.yaml -idx {{n_index}} >> {{path_logs}}/{{n_index}}.log"]
           resources:
             limits:
               memory: {{num_mem_lim}}
