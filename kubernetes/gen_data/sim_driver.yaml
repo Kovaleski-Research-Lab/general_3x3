@@ -23,14 +23,15 @@ spec:
             - |
               mkdir -p /develop/code /develop/results /develop/data
               cd /develop/code
+              pip install kubernetes;
               git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git
               cd general_3x3
               git checkout nfe_branch
               python3 kubernetes/gen_data/launch_jobs.py -config configs/config.yaml
           resources:
             requests:
-              memory: "1Gi"
+              memory: "2Gi"
               cpu: "1"
             limits:
               memory: "2Gi"
-              cpu: "2"
+              cpu: "1"
