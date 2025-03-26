@@ -1,0 +1,36 @@
+# a handler for working through the datagen jobs
+
+
+apiVersion: batch/v1
+kind: Job 
+metadata:
+  name: datagen-handler
+  namespace: gpn-mizzou-muem 
+spec:
+  completions: 1
+  backoffLimit: 0
+  template:
+    metadata:
+      name: datagen-handler
+      namespace: gpn-mizzou-muem
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: datagen-handler
+          image: docker.io/kovaleskilab/meep_ml:launcher
+          command: ["/bin/sh", "-c"]
+          args: 
+            - |
+              mkdir -p /develop/code /develop/results /develop/data
+              cd /develop/code
+              git clone https://github.com/Kovaleski-Research-Lab/general_3x3.git
+              cd general_3x3
+              git checkout nfe_branch
+              python3 kubernetes/gen_data/launch_jobs.py -config configs/config.yaml
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1"
+            limits:
+              memory: "2Gi"
+              cpu: "2"
