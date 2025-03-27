@@ -24,44 +24,68 @@ def exit_handler(params,job): # always run this script after this file ends.
 
 # Create: Results Folders
 def create_folder(path):
+    """
+    Create a folder if it doesn't exist
+    
+    Parameters
+    ----------
+        path: Path to create
+    """
+    # Adjust path if running locally
+    base_path = os.getenv('PROJECT_BASE_PATH', '')
+    if base_path and path.startswith('/develop'):
+        path = os.path.join(base_path, path[1:])
 
     if not os.path.exists(path):
         os.makedirs(path)
-
     else:
         print(f"path {path} already exists.")
 
 
 # Save: Template File
-
 def save_file(path, data):
+    """
+    Save data to a file with path adjustment
+    
+    Parameters
+    ----------
+        path: Path to save to
+        data: Data to save
+    """
+    # Adjust path if running locally
+    base_path = os.getenv('PROJECT_BASE_PATH', '')
+    if base_path and path.startswith('/develop'):
+        path = os.path.join(base_path, path[1:])
 
     try:
         with open(path, "w") as data_file:
-
             data_file.write(data) 
-            data_file.close()
             print(f"File saved at {path}.\n")
-
     except IOError as e:
         print(f"Error saving the file: {e}")
     except Exception as e:
         print(f"Unexpected error while saving file.")
 
 # Load: Template File
-
 def load_file(path):
-
-    data_file = open(path, "r")
+    """
+    Load file content with path adjustment
     
-    info = ""
+    Parameters
+    ----------
+        path: Path to the file to load
+        
+    Returns
+    -------
+        content: Content of the file as string
+    """
+    # Adjust path if running locally
+    base_path = os.getenv('PROJECT_BASE_PATH', '')
+    if base_path and path.startswith('/develop'):
+        path = os.path.join(base_path, path[1:])
 
-    for line in data_file:
-        info += line
-
-    data_file.close()
-
-    return info
+    with open(path, "r") as data_file:
+        return data_file.read()
 
 def keep_val(val):
 
