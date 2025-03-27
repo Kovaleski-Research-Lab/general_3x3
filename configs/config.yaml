@@ -155,7 +155,7 @@ kube :
 
     num_mem_lim: 200G
     num_mem_req: 200G
-    num_cpus: 16
+    num_cpus: 32
     num_parallel_ops : 1
 
     kill_time_min: 30
