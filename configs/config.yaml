@@ -161,8 +161,8 @@ kube :
     kill_time_min: 30
     kill_tag: datagen 
 
-    num_sims: 1000
-    start_group_id: 754
+    num_sims: 21
+    start_group_id: 20
 
   copy_job :
     paths :
