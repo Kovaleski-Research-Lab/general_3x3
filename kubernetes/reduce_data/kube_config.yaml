@@ -23,5 +23,5 @@ kill_tag: reduce
 #num_sims: 1000 # this is the ending index
 #start_group_id: 247 
 
-pvc_data: meep-dataset-v2
-pvc_results: dft-volumes 
+pvc_data: refidx-data
+pvc_results: dft-volumes-refidx
