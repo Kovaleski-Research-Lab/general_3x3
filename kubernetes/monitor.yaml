@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: monitor-data
+  name: monitor-volumes
 spec:
   containers:
-    - name: monitor-data
+    - name: dft-volumes-volumes
       image: docker.io/kovaleskilab/ml_basic:v4-kube    
       stdin: True
       tty: True
@@ -16,12 +16,12 @@ spec:
           memory: 4G
           cpu: 2
       volumeMounts:
-        - name: refidx-data
+        - name: dft-volumes-refidx
           mountPath: /develop/results
   volumes:
-    - name: refidx-data
+    - name: dft-volumes-refidx
       persistentVolumeClaim:
-        claimName: refidx-data
+        claimName: dft-volumes-refidx
 
   restartPolicy: Never
 

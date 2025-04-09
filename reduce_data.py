@@ -78,6 +78,48 @@ def dump_volumes(volumes,idx,dump_path):
     with open(os.path.join(dump_path,filename),'wb') as f:
         pickle.dump(volumes, f)
         print(f"{filename} dumped successfully.", flush=True)
+        
+def compile_refidx(path_data, path_dump):
+    """
+    Scans directory for numbered subdirs and collects pkl data into a dictionary.
+    Currently configured for use with the refractive index experiment.
+    
+    Parameters
+    ----------
+        path_data: Path to root directory (path with the raw data)
+        path_dump: Path to where volumes are stored
+    """
+    # Initialize result dictionary
+    result = {}
+    
+    # Get all subdirectories matching pattern '0XXX'
+    pattern = re.compile(r'^0\d{3}$')
+    
+    # Walk through directories
+    for dir_name in os.listdir(path_data):
+        # Check if directory matches pattern
+        if pattern.match(dir_name):
+            dir_path = os.path.join(path_data, dir_name)
+            
+            if os.path.isdir(dir_path):
+                # Construct expected pkl filename
+                pkl_name = f"n_indices_0{dir_name}.pkl"
+                pkl_path = os.path.join(dir_path, pkl_name)
+                
+                # Check if pkl file exists
+                if os.path.exists(pkl_path):
+                    try:
+                        with open(pkl_path, 'rb') as f:
+                            # Load pkl data and store with directory name as key
+                            result[dir_name] = pickle.load(f)
+                    except Exception as e:
+                        print(f"Error loading {pkl_path}: {e}")
+                else:
+                    print(f"Warning: Expected pkl file not found in {dir_path}")
+    
+    with open(os.path.join(path_dump, 'library_refidx'),'wb') as f:
+        pickle.dump(result, f)
+        print("Refractive index library dumped successfully.", flush=True)
 
 def run(params):    
 
@@ -136,3 +178,6 @@ def run(params):
                                     print("pickle error")
                     volumes = get_volumes(params,pkl_file,h5_file)
                     dump_volumes(volumes,idx,path_dump)
+                   
+    if params['geometry']['material_index_min'] < params['geometry']['material_index_max']:
+        compile_refidx(path_data)
