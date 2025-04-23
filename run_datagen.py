@@ -80,11 +80,11 @@ def run(params):
         # Generate random refractive indices
         n_min = params['geometry']['material_index_min']
         n_max = params['geometry']['material_index_max']
-        n_indices = np.random.uniform(n_min, n_max, size=1)
+        n_indices = np.random.uniform(n_min, n_max, size=4)
         
         # Convert n to epsilon (ε = n²)
-        epsilon = n_indices ** 2
-        epsilons = np.full(4, epsilon[0])
+        epsilons = n_indices ** 2
+        #epsilons = np.full(4, epsilon[0])
         
         # Reshape and flip
         radii = np.array(radii).reshape(2,2)
