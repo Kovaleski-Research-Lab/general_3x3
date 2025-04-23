@@ -3,7 +3,7 @@
 #    Define deployment mode - 0: Running locally, 1: kubernetes
 #----------------------------------------------------------
 
-task : 1
+task : 0
 deployment_mode : 1
 idx : 1
 res :
@@ -161,8 +161,8 @@ kube :
     kill_time_min: 30
     kill_tag: datagen 
 
-    num_sims: 21
-    start_group_id: 20
+    num_sims: 200
+    start_group_id: 0
 
   copy_job :
     paths :
