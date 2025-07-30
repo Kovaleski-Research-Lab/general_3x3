@@ -1,11 +1,13 @@
 import meep as mp
 from loguru import logger
 import geometries, sources, field_monitors
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 def build_sim(params, radii = None):
 
-    geometry, pml_layers, monitor_volume = geometries.build_andy_metasurface_neighborhood(params, radii)
+    geometry, Abs_layers, monitor_volume = geometries.build_andy_metasurface_neighborhood(params, radii)
     source = sources.build_andy_source(params)
     k_point = mp.Vector3(0,0,0)
 
@@ -31,7 +33,7 @@ def build_sim(params, radii = None):
                          geometry = geometry,
                          sources = source,
                          k_point = k_point,
-                         boundary_layers = pml_layers,
+                         boundary_layers = Abs_layers,
                          resolution = resolution,
                          symmetries=None)
     
@@ -48,6 +50,8 @@ if __name__ == "__main__":
     params = yaml.load(open("config.yaml"), Loader = yaml.FullLoader)
     params_simulation = params['simulation']
     sim, dft_obj, flux_obj = build_sim(params)
+    sim.run(until=0)  # or sim.init_sim()
+
 
 
     center_mon_z = round(params['cell_z'] / 2, 4)
@@ -63,6 +67,12 @@ if __name__ == "__main__":
 
     plot_plane = mp.Volume( center = mp.Vector3(center_x, center_y, center_z), 
                             size=mp.Vector3(cell_x, 0, cell_z))
+
+    eps_data = sim.get_array(center=mp.Vector3(0,0,0), size=mp.Vector3(cell_x,0,cell_z), component=mp.Dielectric)
+    plt.figure()
+    plt.imshow(eps_data.transpose(), interpolation='spline36', cmap='hsv')
+    plt.savefig('/home/mpmbkc/results/3x3_random(seed=42)_roundpillar/geometry.png', dpi=600)
+    plt.show()
 
     #decay_rate : 0.0001
     #dt : 50
@@ -80,16 +90,16 @@ if __name__ == "__main__":
     #                                                            decay_by = decay_rate))
     #
 
-    logger.info("Plotting geometry")
-    sim.plot2D(output_plane = plot_plane)
-    plt.savefig("geometry.png")
-    plt.close('all')
+    #logger.info("Plotting geometry")
+    #sim.plot2D(output_plane = plot_plane)
+    #plt.savefig("geometry.png")
+    #plt.close('all')
 
 
-    sim.run(until=200)
-    dft_fields, flux, eps_data = field_monitors.collect_fields(params, sim, flux_obj, dft_obj)
+    #sim.run(until=200)
+    #dft_fields, flux, eps_data = field_monitors.collect_fields(params, sim, flux_obj, dft_obj)
 
 
-    pickle.dump(dft_fields, open('test_dft_fields.pkl', 'wb'))
-    pickle.dump(flux, open('test_flux.pkl', 'wb'))
-    pickle.dump(eps_data, open('test_eps_data.pkl', 'wb'))
+    #pickle.dump(dft_fields, open('test_dft_fields.pkl', 'wb'))
+    #pickle.dump(flux, open('test_flux.pkl', 'wb'))
+    #pickle.dump(eps_data, open('test_eps_data.pkl', 'wb'))

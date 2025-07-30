@@ -132,7 +132,7 @@ def build_andy_source(params):
     source_params = params['source']
     substrate_params = params['substrate_params']
     geometry_params = params['geometry']
-    thickness_pml = geometry_params['thickness_pml']
+    thickness_Abs = geometry_params['thickness_Abs']
     size_z_fused_silica = substrate_params['size_z_fused_silica']
 
     source_params['component'] = mp.Ey
@@ -141,7 +141,7 @@ def build_andy_source(params):
     #source_params['loc_y_source'] = round(params['cell_y'] / 2, 4)
     source_params['loc_x_source'] = 0
     source_params['loc_y_source'] = 0
-    source_params['loc_z_source'] = round(thickness_pml + ((size_z_fused_silica-thickness_pml) * 0.2) - params['cell_z'] / 2, 4)
+    source_params['loc_z_source'] = round(thickness_Abs + ((size_z_fused_silica-thickness_Abs) * 0.2) - params['cell_z'] / 2, 4)
 
     source_params['size_x_source'] = params['cell_x']
     source_params['size_y_source'] = params['cell_y']
@@ -157,7 +157,7 @@ def build_andy_source(params):
 if __name__ == "__main__":
 
     params = yaml.load(open('config.yaml'), Loader = yaml.FullLoader)
-    geo,pml,mon_vol = geometries.build_andy_metasurface_neighborhood(params)
+    geo,Abs,mon_vol = geometries.build_andy_metasurface_neighborhood(params)
     source = build_andy_source(params)
     from IPython import embed; embed();
 

@@ -118,9 +118,9 @@ def build_timedep_monitor(params, sim):
 if __name__ == "__main__":
 
     params = yaml.load(open("config.yaml"), Loader = yaml.FullLoader)
-    geometry, pml_layer, monitor_volume = geometries.build_andy_metasurface_neighborhood(params)
+    geometry, Abs_layer, monitor_volume = geometries.build_andy_metasurface_neighborhood(params)
     source = sources.build_andy_source(params)
-    sim = simulation.build_sim(params)
+    sim, garbage1, garbage2 = simulation.build_sim(params)
     dft_obj = build_dft_monitor(params, sim, monitor_volume)
     flux_obj = build_timedep_monitor(params, sim)
 

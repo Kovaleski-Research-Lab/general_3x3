@@ -10,6 +10,8 @@ cell_x :
 cell_y : 
 cell_z :
 
+seed: 42          #Seed for random pillar generation
+
 #------------------------
 #   Geometry Parameters
 #-------------------------
@@ -27,18 +29,29 @@ geometry:
   material_index_fused_silica: 1.44
 
   #PDMS
-  loc_x_pdms:
-  loc_y_pdms:
-  loc_z_pdms:
+  #loc_x_pdms:
+  #loc_y_pdms:
+  #loc_z_pdms:
   
-  size_x_pdms:
-  size_y_pdms:
-  size_z_pdms: 1.56
+  #size_x_pdms:
+  #size_y_pdms:
+  #size_z_pdms: 1.56
 
-  material_index_pdms: 1.4
+  #material_index_pdms: 1.4
+
+  #AIR
+  loc_x_air:
+  loc_y_air:
+  loc_z_air:
+  
+  size_x_air:
+  size_y_air:
+  size_z_air: 1.56
+
+  material_index_air: 1.0
 
   #Buffer
-  substrate_buffer: True
+  substrate_buffer: False       #USED TO BE TRUE!!!
   size_x_buffer: 3
   size_y_buffer: 3
   size_z_buffer: 4
@@ -46,17 +59,18 @@ geometry:
   #Metasurface
   neighborhood_size: [3,3] #nx,ny
 
-  atom_type: 'cylinder'
+  atom_type: 'cylinder'   ###WAS cylinder!!!
   material_index_meta_atom : 3.48 #amorphous silica
   unit_cell_size: 0.68
   height_pillar: 1.02
-  radius_pillar:
+  radius_pillar:  0.250
   radius_min: 0.075
   radius_max: 0.250
+  random_pil: True
 
 
   #Boundaries
-  thickness_pml: 0.78
+  thickness_Abs: 0.78
 
 #-----------------------
 #   Source Parameters
@@ -85,14 +99,14 @@ monitor:
   fcen:
   freq_list:
   wavelenth_center: 1.55
-  wavelength_list: [2.881, 1.650, 1.550, 1.300, 1.060]
+  wavelength_list: [1.550]        #USED TO BE 2.881, 1.650, 1.550, 1.300, 1.060
 
 dft_slice_monitor:
   components_dft_monitor: 'all'
   fcen:
   freq_list:
   wavelenth_center: 1.55
-  wavelength_list: [2.881, 1.650, 1.550, 1.300, 1.060]
+  wavelength_list: [1.550]    #USED TO BE 2.881, 1.650, 1.550, 1.300, 1.060
   loc_z: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4.0]
 
 #------------------------
@@ -111,3 +125,6 @@ simulation:
 
 plot_plane :
 fps : 20
+
+
+#TODO: FIND RANDOM PILLARS

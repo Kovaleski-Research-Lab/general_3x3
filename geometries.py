@@ -3,6 +3,7 @@
 ###################
 import meep as mp
 from loguru import logger
+import random
 
 
 ##############################################################################
@@ -43,12 +44,12 @@ def build_block(size:list, loc:list, material_index:float) -> mp.Block:
 # structures, i.e., a metasurface.
 ##############################################################################
 
-def build_silica_pdms_substrate(params:dict) -> list:
+def build_silica_air_substrate(params:dict) -> list:
 
-    logger.info("Building silica + PDMS substrate.")
+    logger.info("Building silica + air substrate.")
     ##################################
     #     _____________________
-    #    |        PDMS         |
+    #    |         AIR         |
     #    |_____________________|
     #    |    FUSED SILICA     |
     #    |_____________________|
@@ -82,34 +83,34 @@ def build_silica_pdms_substrate(params:dict) -> list:
     logger.info("Fused silica size: {}".format(fused_silica.size))
     logger.info("Fused silica center: {}".format(fused_silica.center))
 
-    logger.info("Reading PDMS parameters")
-    loc_x_pdms = params['loc_x_pdms'] + offset_x_buffer
-    loc_y_pdms = params['loc_y_pdms'] + offset_y_buffer
-    loc_z_pdms = params['loc_z_pdms']
+    logger.info("Reading air parameters")
+    loc_x_air = params['loc_x_air'] + offset_x_buffer
+    loc_y_air = params['loc_y_air'] + offset_y_buffer
+    loc_z_air = params['loc_z_air']
     
-    size_x_pdms = params['size_x_pdms'] + size_x_buffer
-    size_y_pdms = params['size_y_pdms'] + size_y_buffer
-    size_z_pdms = params['size_z_pdms']
+    size_x_air = params['size_x_air'] + size_x_buffer
+    size_y_air = params['size_y_air'] + size_y_buffer
+    size_z_air = params['size_z_air']
 
-    material_index_pdms = params['material_index_pdms']
+    material_index_air = params['material_index_air']
 
     logger.info("Creating fused silica material. Index = {}".format(material_index_fused_silica))
 
-    pdms = build_block( size = [size_x_pdms, size_y_pdms, size_z_pdms],
-                        loc = [loc_x_pdms, loc_y_pdms, loc_z_pdms],
-                        material_index = material_index_pdms )
+    air = build_block( size = [size_x_air, size_y_air, size_z_air],
+                        loc = [loc_x_air, loc_y_air, loc_z_air],
+                        material_index = material_index_air )
 
-    logger.info("PDMS size : {}".format(pdms.size))
-    logger.info("PDMS loc : {}".format(pdms.center))
+    logger.info("air size : {}".format(air.size))
+    logger.info("air loc : {}".format(air.center))
     
-    return [fused_silica, pdms]
+    return [fused_silica, air]
 
 def build_andy_metasurface_neighborhood(params, radii = None):
     '''
     This is basically the same code as the parameter manager's calculate_dependencies
     from the surrogate model code. Just with additional comments and different
     organization.
-    Builds a fused silica + pdms substrate with a Nx x Ny pillar neighborhood.
+    Builds a fused silica + air substrate with a Nx x Ny pillar neighborhood.
     '''
     geometry_params = params['geometry']
     Nx, Ny = geometry_params['neighborhood_size']
@@ -145,15 +146,15 @@ def build_andy_metasurface_neighborhood(params, radii = None):
         offset_z_buffer = 0
     
     #Define the z stack size
-    thickness_pml = geometry_params['thickness_pml']
+    thickness_Abs = geometry_params['thickness_Abs']
     height_pillar = geometry_params['height_pillar']
-    size_z_pdms = round(geometry_params['size_z_pdms'] + height_pillar + thickness_pml + size_z_buffer, 4)
-    size_z_fused_silica = geometry_params['size_z_fused_silica'] + thickness_pml
-    params['geometry']['size_z_pdms'] = size_z_pdms
+    size_z_air = round(geometry_params['size_z_air'] + height_pillar + thickness_Abs + size_z_buffer, 4)
+    size_z_fused_silica = geometry_params['size_z_fused_silica'] + thickness_Abs
+    params['geometry']['size_z_air'] = size_z_air
 
     #Add all of the z sizes together to get the total z size
-    #I added the PML first above, so they are not included here.
-    size_z_cell = round(size_z_fused_silica + size_z_pdms, 4)
+    #I added the Abs first above, so they are not included here.
+    size_z_cell = round(size_z_fused_silica + size_z_air, 4)
     #Multiply the unit cell size by the numer of unit cells to get the x and y sizes
     size_x_cell = round(unit_cell_size * Nx, 4) + size_x_buffer
     size_y_cell = round(unit_cell_size * Ny, 4) + size_y_buffer
@@ -174,26 +175,26 @@ def build_andy_metasurface_neighborhood(params, radii = None):
 
     loc_z_fused_silica = round(0.5 * size_z_fused_silica - 0.5 * size_z_cell,4)
     logger.info("Center Z of fused silica : {} [um]".format(loc_z_fused_silica))
-    loc_z_pdms = round(size_z_fused_silica + 0.5 * size_z_pdms - 0.5 * size_z_cell, 4)
-    logger.info("Center Z of pdms : {} [um]".format(loc_z_pdms))
+    loc_z_air = round(size_z_fused_silica + 0.5 * size_z_air - 0.5 * size_z_cell, 4)
+    logger.info("Center Z of air : {} [um]".format(loc_z_air))
     loc_z_pillar = round(size_z_fused_silica + 0.5 * height_pillar - 0.5 * size_z_cell, 4)
 
     logger.info("Center Z of pillars : {} [um]".format(loc_z_pillar))
 
     params['geometry']['loc_z_fused_silica'] = loc_z_fused_silica
-    params['geometry']['loc_z_pdms'] = loc_z_pdms
+    params['geometry']['loc_z_air'] = loc_z_air
     params['geometry']['loc_z_pillar'] = loc_z_pillar
 
     loc_top_fused_silica = round(size_z_fused_silica - 0.5 * size_z_cell, 4)
     logger.info("Top of the fused silica : {} [um]".format(loc_top_fused_silica))
 
-    #The top of the pdms - the whole size minus the amount in the PML
-    loc_top_pdms = round(size_z_fused_silica + (size_z_pdms - thickness_pml) - 0.5 * size_z_cell, 4)
-    logger.info("Top of the pdms : {} [um]".format(loc_top_pdms))
+    #The top of the air - the whole size minus the amount in the Abs
+    loc_top_air = round(size_z_fused_silica + (size_z_air - thickness_Abs) - 0.5 * size_z_cell, 4)
+    logger.info("Top of the air : {} [um]".format(loc_top_air))
 
     logger.info("Updating params with calculated locations")
     params['geometry']['loc_top_fused_silica'] = loc_top_fused_silica
-    params['geometry']['loc_top_pdms'] = loc_top_pdms
+    params['geometry']['loc_top_air'] = loc_top_air
 
     #Get the center of the simulation cell
     loc_z_center_cell = 0
@@ -203,14 +204,14 @@ def build_andy_metasurface_neighborhood(params, radii = None):
     logger.info("Center of the simulation cell : {}".format(center_sim_cell))
     params['geometry']['center_sim_cell'] = center_sim_cell
 
-    #Get the size of the non pml region
-    size_z_non_pml = size_z_fused_silica + size_z_pdms - 2*thickness_pml
-    logger.info("Size of the non PML volume : {}".format(size_z_non_pml))
-    params['geometry']['size_z_non_pml'] = size_z_non_pml
+    #Get the size of the non Abs region
+    size_z_non_Abs = size_z_fused_silica + size_z_air - 2*thickness_Abs
+    logger.info("Size of the non Abs volume : {}".format(size_z_non_Abs))
+    params['geometry']['size_z_non_Abs'] = size_z_non_Abs
 
 
     material_index_fused_silica = geometry_params['material_index_fused_silica']
-    material_index_pdms = geometry_params['material_index_pdms']
+    material_index_air = geometry_params['material_index_air']
 
     substrate_params = {
             'size_x_fused_silica': mp.inf,
@@ -220,13 +221,13 @@ def build_andy_metasurface_neighborhood(params, radii = None):
             'loc_y_fused_silica': 0,
             'loc_z_fused_silica': loc_z_fused_silica,
             'material_index_fused_silica': material_index_fused_silica,
-            'size_x_pdms': mp.inf,
-            'size_y_pdms': mp.inf,
-            'size_z_pdms': size_z_pdms,
-            'loc_x_pdms': 0,
-            'loc_y_pdms': 0,
-            'loc_z_pdms': loc_z_pdms,
-            'material_index_pdms': material_index_pdms,
+            'size_x_air': mp.inf,
+            'size_y_air': mp.inf,
+            'size_z_air': size_z_air,
+            'loc_x_air': 0,
+            'loc_y_air': 0,
+            'loc_z_air': loc_z_air,
+            'material_index_air': material_index_air,
             'substrate_buffer': geometry_params['substrate_buffer'],
             'size_x_buffer': size_x_buffer,
             'size_y_buffer': size_y_buffer,
@@ -238,48 +239,74 @@ def build_andy_metasurface_neighborhood(params, radii = None):
 
     params['substrate_params'] = substrate_params
 
-    substrate = build_silica_pdms_substrate(substrate_params)
+    substrate = build_silica_air_substrate(substrate_params)
 
     metasurface = [i for i in substrate]
 
     #Now for the pillars
     material_index_pillars = geometry_params['material_index_meta_atom']
+    random_pil = params['geometry']['random_pil']
+    radius_min = params['geometry']['radius_min']
+    radius_max = params['geometry']['radius_max']
+    seed = params['seed']
 
     if radii == None:
-        radii = [0.2 for _ in range(0,Nx*Ny)]
+        if random_pil == False:
+            radius = params['geometry']['radius_pillar']                            #####ADDED IN TO FACILITATE UNIFORM PILLAR RADIUS NEIGHBORHOOD
+            radii = [radius for _ in range(0,Nx*Ny)]                              
+        else:
+            radii = []
+            random.seed(seed)
+            for i in range(0,Nx*Ny):
+                num = random.uniform(radius_min, radius_max)
+                radii.append(num)
 
     logger.info("Radii of the pillars : {}".format(radii))
     count = 0
-    for ny in range(0,Ny):
-        for nx in range(0,Nx):
-            loc_x_pillar = round((unit_cell_size * nx) + 0.5 * unit_cell_size - 0.5 * size_x_cell, 4) + offset_x_buffer
-            loc_y_pillar = round((unit_cell_size * ny) + 0.5 * unit_cell_size - 0.5 * size_y_cell, 4) + offset_y_buffer
-            params['geometry']['loc_x_pillar_{}'.format(count)] = loc_x_pillar
-            params['geometry']['loc_y_pillar_{}'.format(count)] = loc_y_pillar
-            metasurface.append(build_cylinder(loc = mp.Vector3(loc_x_pillar, loc_y_pillar, loc_z_pillar),
-                                              axis = mp.Vector3(0,0,1),
-                                              height = height_pillar,
-                                              radius = radii[count],
-                                              material_index = material_index_pillars))
 
-            count += 1
+    if(atom_type == 'cylinder'):
+        for ny in range(0,Ny):
+            for nx in range(0,Nx):
+                loc_x_pillar = round((unit_cell_size * nx) + 0.5 * unit_cell_size - 0.5 * size_x_cell, 4) + offset_x_buffer
+                loc_y_pillar = round((unit_cell_size * ny) + 0.5 * unit_cell_size - 0.5 * size_y_cell, 4) + offset_y_buffer
+                params['geometry']['loc_x_pillar_{}'.format(count)] = loc_x_pillar
+                params['geometry']['loc_y_pillar_{}'.format(count)] = loc_y_pillar
+                metasurface.append(build_cylinder(loc = mp.Vector3(loc_x_pillar, loc_y_pillar, loc_z_pillar),
+                                                axis = mp.Vector3(0,0,1),
+                                                height = height_pillar,
+                                                radius = radii[count],
+                                                material_index = material_index_pillars))
 
-    #Now for the pml layers
-    pml_layers = [mp.PML(thickness = thickness_pml, direction = mp.Z)]
+                count += 1
 
-    params['geometry']['pml_layers'] = pml_layers
-    #pml_layers = []
+    else:
+        for ny in range(0,Ny):
+            for nx in range(0,Nx):
+                loc_x_pillar = round((unit_cell_size * nx) + 0.5 * unit_cell_size - 0.5 * size_x_cell, 4) + offset_x_buffer
+                loc_y_pillar = round((unit_cell_size * ny) + 0.5 * unit_cell_size - 0.5 * size_y_cell, 4) + offset_y_buffer
+                params['geometry']['loc_x_pillar_{}'.format(count)] = loc_x_pillar
+                params['geometry']['loc_y_pillar_{}'.format(count)] = loc_y_pillar
+                metasurface.append(build_block( size = mp.Vector3(radii[count]*2, radii[count]*2, height_pillar),
+                                                loc = mp.Vector3(loc_x_pillar, loc_y_pillar, loc_z_pillar),
+                                                material_index = material_index_pillars))
 
-    #Get the volume not in the PML for the monitors
+                count += 1
+
+    #Now for the Abs layers
+    Abs_layers = [mp.Absorber(thickness = thickness_Abs, direction = mp.Z)]
+
+    params['geometry']['Abs_layers'] = Abs_layers
+    #Abs_layers = []
+
+    #Get the volume not in the Abs for the monitors
     monitor_volume = mp.Volume(center = center_sim_cell,
-                               size = mp.Vector3(size_x_cell, size_y_cell, size_z_non_pml))
+                               size = mp.Vector3(size_x_cell, size_y_cell, size_z_non_Abs))
     
     params['geometry']['monitor_volume'] = monitor_volume
-    return metasurface, pml_layers, monitor_volume
+    return metasurface, Abs_layers, monitor_volume
 
 if __name__ == "__main__":
     import yaml
     params = yaml.load(open('config.yaml'), Loader = yaml.FullLoader)
-    metasurface, pml, monitor_volume = build_andy_metasurface_neighborhood(params)
-    from IPython import embed; embed()
+    metasurface, Abs, monitor_volume = build_andy_metasurface_neighborhood(params)
 
