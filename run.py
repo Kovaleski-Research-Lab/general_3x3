@@ -41,6 +41,7 @@ if __name__ == "__main__":
     #source = args.source
     #params['source']['type'] = source
     for i in range(1500):
+        params = yaml.load(open("config.yaml", 'r'), Loader = yaml.FullLoader)
         path_results = ("/develop/results/{:04d}").format(i)
         os.makedirs(path_results, exist_ok=True)
 
