@@ -49,7 +49,7 @@ if __name__ == "__main__":
     import yaml
     params = yaml.load(open("config.yaml"), Loader = yaml.FullLoader)
     params_simulation = params['simulation']
-    radiusfile = pickle.load(open("/develop/code/neighbors_library_allrandom.pkl", "rb"))
+    radiusfile = pickle.load(open("/develop/code/general_3x3/neighbors_library_allrandom.pkl", "rb"))
     radii = radiusfile[0]
     sim, dft_obj, flux_obj = build_sim(params, radii)
     sim.run(until=0)  # or sim.init_sim()
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     plot_plane = mp.Volume( center = mp.Vector3(center_x, center_y, center_z), 
                             size=mp.Vector3(cell_x, cell_y, 0))
 
-    eps_data = sim.get_array(center=mp.Vector3(0,0,(cell_z)/2), size=mp.Vector3(cell_x,cell_y,0), component=mp.Dielectric)
+    eps_data = sim.get_array(center=mp.Vector3(0,0,(cell_z)/3), size=mp.Vector3(cell_x,cell_y,0), component=mp.Dielectric)
     plt.figure()
     plt.imshow(eps_data.transpose(), interpolation='spline36', cmap='hsv')
     plt.savefig('/develop/results/0000/geometry.png', dpi=600)

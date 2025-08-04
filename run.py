@@ -27,7 +27,7 @@ def mod_axes(ax):
 if __name__ == "__main__":
 
     params = yaml.load(open("config.yaml", 'r'), Loader = yaml.FullLoader)
-    radiusfile = pickle.load(open("/develop/code/neighbors_library_allrandom.pkl", "rb"))
+    radiusfile = pickle.load(open("/develop/code/general_3x3/neighbors_library_allrandom.pkl", "rb"))
 
     #parser = argparse.ArgumentParser()
     #parser.add_argument("-lateral_buffer", help="Buffer for the x-y dimensions")
