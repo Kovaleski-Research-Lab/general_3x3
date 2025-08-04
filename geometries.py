@@ -105,7 +105,7 @@ def build_silica_air_substrate(params:dict) -> list:
     
     return [fused_silica, air]
 
-def build_andy_metasurface_neighborhood(params, radii = None):
+def build_andy_metasurface_neighborhood(params, radii):
     '''
     This is basically the same code as the parameter manager's calculate_dependencies
     from the surrogate model code. Just with additional comments and different

@@ -52,9 +52,9 @@ geometry:
 
   #Buffer
   substrate_buffer: False       #USED TO BE TRUE!!!
-  size_x_buffer: 3
-  size_y_buffer: 3
-  size_z_buffer: 4
+  size_x_buffer: 0
+  size_y_buffer: 0
+  size_z_buffer: 0
 
   #Metasurface
   neighborhood_size: [3,3] #nx,ny
@@ -77,7 +77,7 @@ geometry:
 #-----------------------
 
 source:
-  type: 'continuous'
+  type: 'gaussian'          #WAS continuous for initial test, gaussian for kubernetes recreate meep-dataset-v2 except no buffer
   frequency:
   wavelength: 1.55
   loc_x_source:
@@ -86,9 +86,10 @@ source:
   size_x_source: 
   size_y_source:
   size_z_source: 0 
-  fwidth: 1.2
+  fwidth:           #WAS 1.2
   fcen:
   component: mp.Ey
+  wavelength_list: [2.881, 1.650, 1.550, 1.300, 1.060]
 
 #-----------------------
 #   Monitor Parameters
@@ -99,14 +100,14 @@ monitor:
   fcen:
   freq_list:
   wavelenth_center: 1.55
-  wavelength_list: [1.550]        #USED TO BE 2.881, 1.650, 1.550, 1.300, 1.060
+  wavelength_list: [2.881, 1.650, 1.550, 1.300, 1.060]        #USED TO BE 2.881, 1.650, 1.550, 1.300, 1.060
 
 dft_slice_monitor:
   components_dft_monitor: 'all'
   fcen:
   freq_list:
   wavelenth_center: 1.55
-  wavelength_list: [1.550]    #USED TO BE 2.881, 1.650, 1.550, 1.300, 1.060
+  wavelength_list: [2.881, 1.650, 1.550, 1.300, 1.060]    #USED TO BE 2.881, 1.650, 1.550, 1.300, 1.060
   loc_z: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4.0]
 
 #------------------------
@@ -125,6 +126,3 @@ simulation:
 
 plot_plane :
 fps : 20
-
-
-#TODO: FIND RANDOM PILLARS

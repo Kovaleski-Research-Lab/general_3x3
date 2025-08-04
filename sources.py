@@ -59,27 +59,32 @@ def continuous_source(params):
 def gaussian_source(params):
 
     fcen = params['fcen']
-    fwidth = params['fwidth']
+    #fwidth = params['fwidth']
+    wavelength_list = params['wavelength_list']
     wavelength = params['wavelength']
     component = params['component']
 
     if fcen is None and wavelength is None:
-        logger.error("Either fcen or wavelength need to be specified")
+        #logger.error("Either fcen or wavelength need to be specified")
+        raise NotImplementedError
         exit()
 
     if component is None:
-        logger.error("The component of the source needs to be specified")
+        #logger.error("The component of the source needs to be specified")
+        raise NotImplementedError
         exit()
 
-    if fwidth is None:
-        logger.error("You need to specify the width of the gaussian source")
-        exit()
+    #if fwidth is None:
+    #    logger.error("You need to specify the width of the gaussian source")
+    #    exit()
 
     if fcen is None and wavelength is not None:
-        logger.info("Calculating frequency from given wavelength")
+        #logger.info("Calculating frequency from given wavelength")
         fcen = 1 / wavelength
 
-    fwidth = fwidth * fcen
+    fmax = 1 / min(wavelength_list)
+    fmin = 1 / max(wavelength_list)
+    fwidth = fmax - fmin
 
     loc_x_source = params['loc_x_source']
     loc_y_source = params['loc_y_source']
@@ -92,11 +97,12 @@ def gaussian_source(params):
     center = mp.Vector3(loc_x_source, loc_y_source, loc_z_source)
     size = mp.Vector3(size_x_source, size_y_source, size_z_source)
     if None in center:
-        logger.error("Failed to specify center")
+        #logger.error("Failed to specify center")
+        raise NotImplementedError
         exit()
 
     if None in size:
-        logger.info("Setting default source size from component : {}".format(component))
+        #logger.info("Setting default source size from component : {}".format(component))
         if component is mp.Ez:
             size = [params['cell_x'], params['cell_y'], 0]
         elif component is mp.Ex:
@@ -104,7 +110,8 @@ def gaussian_source(params):
         elif component is mp.Ey:
             size = [params['cell_x'], 0, params['cell_z']]
         else:
-            logger.error("Failed to specify default size")
+            #logger.error("Failed to specify default size")
+            raise NotImplementedError
             exit()
 
     return [mp.Source(mp.GaussianSource(fcen,

@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def build_sim(params, radii = None):
+def build_sim(params, radii):
 
     geometry, Abs_layers, monitor_volume = geometries.build_andy_metasurface_neighborhood(params, radii)
     source = sources.build_andy_source(params)
@@ -49,7 +49,9 @@ if __name__ == "__main__":
     import yaml
     params = yaml.load(open("config.yaml"), Loader = yaml.FullLoader)
     params_simulation = params['simulation']
-    sim, dft_obj, flux_obj = build_sim(params)
+    radiusfile = pickle.load(open("/develop/code/neighbors_library_allrandom.pkl", "rb"))
+    radii = radiusfile[0]
+    sim, dft_obj, flux_obj = build_sim(params, radii)
     sim.run(until=0)  # or sim.init_sim()
 
 
@@ -66,12 +68,12 @@ if __name__ == "__main__":
     center_z = round(cell_z / 2, 4)
 
     plot_plane = mp.Volume( center = mp.Vector3(center_x, center_y, center_z), 
-                            size=mp.Vector3(cell_x, 0, cell_z))
+                            size=mp.Vector3(cell_x, cell_y, 0))
 
-    eps_data = sim.get_array(center=mp.Vector3(0,0,0), size=mp.Vector3(cell_x,0,cell_z), component=mp.Dielectric)
+    eps_data = sim.get_array(center=mp.Vector3(0,0,(cell_z)/2), size=mp.Vector3(cell_x,cell_y,0), component=mp.Dielectric)
     plt.figure()
     plt.imshow(eps_data.transpose(), interpolation='spline36', cmap='hsv')
-    plt.savefig('/home/mpmbkc/results/3x3_random(seed=42)_roundpillar/geometry.png', dpi=600)
+    plt.savefig('/develop/results/0000/geometry.png', dpi=600)
     plt.show()
 
     #decay_rate : 0.0001
