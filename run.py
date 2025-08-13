@@ -12,6 +12,7 @@ import simulation
 import field_monitors
 
 import argparse
+import gc
 
 font = {
     'family': 'sans-serif',
@@ -53,6 +54,9 @@ if __name__ == "__main__":
         #         0.20876, 0.10517, 0.09009]
         #radii = [0.20876, 0.10517, 0.09009, 0.16552, 0.19670, 0.13635, 0.18664, 0.09511, 0.13333]
         radii = radiusfile[i]
+        radii = np.array(radii).reshape(3,3)
+        radii = np.flip(radii,axis=0).flatten()
+        radii = list(radii)
         sim, dft_obj, flux_obj = simulation.build_sim(params, radii = radii)
 
         #print("\n\n\n\n\n\n\n\n\n\n" + str(type(dft_obj)) + "\n\n\n\n\n\n\n\n\n")
@@ -93,7 +97,10 @@ if __name__ == "__main__":
         #pickle.dump(eps_data, open(os.path.join(path_results, '{}_epsdata_with_buffer_{:.03f}.pkl'.format(source,buffer)), 'wb'))
         Animate.to_mp4(20, os.path.join(path_results, 'animation_with_buffer.mp4'))
 
-        f#ig,ax = plt.subplots(1,1,figsize = (5,5))
+
+        del params, radii, sim, dft_obj, flux_obj plot_plane, f, Animate, meta_data, eps_data
+        gc.collect()
+        #fig,ax = plt.subplots(1,1,figsize = (5,5))
         #sim.plot2D(output_plane = plot_plane, ax=ax)
         #fig.savefig(os.path.join(path_results, 'plot2D.png'))
 
