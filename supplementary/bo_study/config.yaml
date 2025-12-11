@@ -1,0 +1,55 @@
+# opt_config.yaml
+
+# ---------------------------------------------------------
+#   Optimization Constraints & Goals
+# ---------------------------------------------------------
+optimization:
+  n_iterations: 50
+  target_metric: "focusing" # or 'steering', 'broadband_efficiency'
+  
+  # The Target Focal Point (relative to center of cell)
+  target_point: [0, 0, 2.0] # x, y, z (microns)
+
+  # Search Space Definitions
+  # The controller will map these to the physics engine
+  parameters:
+    - name: "radius"
+      type: "range"
+      bounds: [0.075, 0.250]
+    
+    - name: "height"
+      type: "range"
+      bounds: [0.75, 1.25]
+      
+    - name: "index"
+      type: "range"
+      bounds: [2.0, 4.0] # Refractive Index
+
+# ---------------------------------------------------------
+#   Physics / MEEP Parameters
+# ---------------------------------------------------------
+grid_size: 1 # Start small: 1x1 pillar
+neighborhood_size: [1,1]
+
+geometry:
+  # Static geometry details
+  substrate_buffer: True
+  thickness_pml: 0.78
+  unit_cell_size: 0.68
+  
+  # Substrate Materials
+  material_index_fused_silica: 1.44
+  size_z_fused_silica: 0.78
+  size_z_pdms: 1.56
+  size_x_buffer: 4
+  size_y_buffer: 4
+  size_z_buffer: 1.5
+
+source:
+  wavelength: 1.55
+  wavelength_list: [1.55] # Optimize for center wavelength first
+  fwidth: 0.5 
+
+simulation:
+  resolution: 30 # Lower resolution for fast optimization loops
+  until: 200     # Ensure fields decay

@@ -8,3 +8,5 @@
 
 4. `core_study` : Determines the optimal number of cores at which to run the simulation
 
+5. `bo_study` : Bayesian Optimization autonomous workflow wrapping simulations
+
