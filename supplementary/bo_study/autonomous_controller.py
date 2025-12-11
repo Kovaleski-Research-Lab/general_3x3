@@ -203,6 +203,6 @@ class AutonomousController:
                 torch.save({'x': train_x, 'y': train_y}, 'bo_checkpoint.pt')
 
 if __name__ == "__main__":
-    controller = AutonomousController("config.yaml")
+    controller = AutonomousController("supplementary/bo_study/config.yaml")
     controller.initialize_data(n_init=3) # Start with 3 random
     controller.run_optimization_loop()
