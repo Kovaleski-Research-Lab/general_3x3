@@ -5,9 +5,7 @@ metadata:
 spec:
   containers:
     - name: monitor-data
-      image: docker.io/kovaleskilab/meep:v3_lightning      
-    - name: dft-volumes-volumes
-      image: docker.io/kovaleskilab/ml_basic:v4-kube    
+      image: docker.io/kovaleskilab/meep:v3_lightning     
       stdin: True
       tty: True
       resources:
