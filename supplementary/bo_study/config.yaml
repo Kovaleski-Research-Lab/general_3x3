@@ -1,13 +1,20 @@
 # opt_config.yaml
 
+plot: False
+
 # ---------------------------------------------------------
 #   Optimization Constraints & Goals
 # ---------------------------------------------------------
 optimization:
-  method: 'sobol' # or 'random-search' or 'bo'
-  n_init: 0 # initial randoms (bo)
-  n_iterations: 35 #50
-  target_metric: "focusing" # or 'steering', 'broadband_efficiency'
+  #method: 'sobol'
+  method: 'bo'
+  #method: 'random-search'
+  n_init: 5 # initial randoms (bo)
+  n_iterations: 30 #50
+  target_metric: "contrast" # "contrast" # or "phase-matching" or 'broadbandA', 'broadbandB"
+  kernel: 'matern' # 'matern' or 'rbf'
+  acqf_func: 'ei' # 'ei' or 'ucb'
+  matern_nu: 2.5
   
   # The Target Focal Point (relative to center of cell)
   target_point: [0, 0, 2.0] # x, y, z (microns)
@@ -25,7 +32,7 @@ optimization:
       
     - name: "index"
       type: "range"
-      bounds: [2.0, 4.0] # Refractive Index
+      bounds: [3.48, 3.48] #[2.0, 4.0] # Refractive Index
 
 # ---------------------------------------------------------
 #   Physics / MEEP Parameters

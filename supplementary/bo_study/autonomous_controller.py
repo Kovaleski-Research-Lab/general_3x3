@@ -9,16 +9,75 @@ import shutil
 import csv
 import datetime
 from torch.quasirandom import SobolEngine
+import gc
+import multiprocessing
 
 # Optimization Libraries
 from botorch.models import SingleTaskGP
 from botorch.fit import fit_gpytorch_mll
-from botorch.acquisition import LogExpectedImprovement
+from botorch.acquisition import LogExpectedImprovement, UpperConfidenceBound
 from botorch.optim import optimize_acqf
+from botorch.models.transforms import Standardize
 from gpytorch.mlls import ExactMarginalLogLikelihood
+from gpytorch.constraints import GreaterThan
+from gpytorch.kernels import MaternKernel, ScaleKernel, RBFKernel
 
 # CUSTOM LIBRARIES
 from meep_utils import simulation
+from utils.plotting import OptimizationAnimator
+from utils.attention import AcquisitionTracker
+
+# =============================================================================
+#   HELPER: WORKER FOR MULTIPROCESSING
+# =============================================================================
+def run_meep_worker(config, params, queue):
+    """
+    This function runs in a completely separate process.
+    It builds the sim, runs it, calculates the score, puts it in the queue, and DIES.
+    """
+    try:
+        # Import inside worker to ensure clean state
+        from meep_utils import simulation
+        
+        # Unpack parameters
+        radius, height, n_index = params
+        radii, heights, epsilons = [radius], [height], [n_index**2]
+
+        # Build Sim
+        sim, dft_obj, flux_obj, _ = simulation.build_sim(
+            config, 
+            radii=radii, 
+            heights=heights, 
+            epsilons=epsilons
+        )
+        
+        # Run Sim
+        sim.run(until=config['simulation']['until'])
+        
+        # Extract Data
+        # (Assuming we are doing the "Contrast Score" logic)
+        ex = sim.get_dft_array(dft_obj, mp.Ex, 0)
+        ey = sim.get_dft_array(dft_obj, mp.Ey, 0)
+        ez = sim.get_dft_array(dft_obj, mp.Ez, 0)
+        
+        # Calculate Score
+        intensity = np.abs(ex)**2 + np.abs(ey)**2 + np.abs(ez)**2
+        nz = intensity.shape[2]
+        center_idx = nz // 2
+        slice_plane = intensity[:, :, center_idx]
+        
+        max_val = np.max(slice_plane)
+        mean_val = np.mean(slice_plane)
+        
+        score = 0.0
+        if mean_val != 0:
+            score = (max_val / mean_val) - 1.0
+            
+        # Send result back to main process
+        queue.put(float(score))
+        
+    except Exception as e:
+        queue.put(e) # Send error back if something crashes
 
 # =============================================================================
 #   HELPER: DIRECTORY MANAGEMENT
@@ -56,9 +115,10 @@ class MeepOracle:
     """
     The Bridge between the abstract Optimizer and the Physics Engine.
     """
-    def __init__(self, config, sims_dir):
+    def __init__(self, config, sims_dir, animator=None):
         self.config = config
         self.sims_dir = sims_dir
+        self.animator = animator
         self.sim_count = 0
         
         if not os.path.exists("debug_plots"):
@@ -83,7 +143,7 @@ class MeepOracle:
         
         return float(r), float(h), float(n)
 
-    def run_sim_and_score(self, x_in):
+    '''def run_sim_and_score(self, x_in):
         """
         1. Builds Sim
         2. Runs Sim
@@ -117,32 +177,124 @@ class MeepOracle:
         # Using a simple condition for now
         sim.run(until=self.config['simulation']['until'])
         
-        # 4. In-Memory Data Extraction (The Efficiency Hack)
-        # Instead of writing H5, we pull the arrays directly.
-        # Note: MEEP returns data as complex numbers if fields are complex
+        if "broadband" in self.config["optimization"]["target_metric"]:
         
-        # We only grab the center wavelength for optimization speed
-        target_wl = self.config['source']['wavelength']
-        # Find index of target_wl in the flux object (assuming center freq)
-        freq_idx = 0 
-        
-        # Extract fields directly to RAM
-        # Shape: [x, y, z] complex128
-        ex = sim.get_dft_array(dft_obj, mp.Ex, freq_idx)
-        ey = sim.get_dft_array(dft_obj, mp.Ey, freq_idx)
-        ez = sim.get_dft_array(dft_obj, mp.Ez, freq_idx)
-        
-        # Clean up MEEP object to free memory immediately
-        sim.reset_meep()
-        del sim
+            scores = []
+            
+            # Let's say we have 3 points: 1.65, 1.55, 1.3
+            # We iterate through them
+            for freq_idx in range(3): 
+                
+                # Extract fields for this specific frequency
+                ex = sim.get_dft_array(dft_obj, mp.Ex, freq_idx)
+                ey = sim.get_dft_array(dft_obj, mp.Ey, freq_idx)
+                ez = sim.get_dft_array(dft_obj, mp.Ez, freq_idx)
+                
+                # Calculate scalar contrast for this wavelength
+                # (Reusing your existing contrast logic)
+                s = self._calculate_contrast_score_raw(ex, ey, ez)
+                scores.append(s)
+                
+            sim.reset_meep()
+            del sim
+            gc.collect()
 
-        # Compute Figure of Merit (Score)
-        #score = self._calculate_focusing_score(ex, ey, ez)
-        #print(f"Result: Score = {score:.5f}")
-        #return score
+            # --- AGGREGATION STRATEGY ---
+            
+            if self.config["optimization"]["target_metric"] == "broadbandA":
+                # Strategy A: Broadband Performance (Average)
+                final_score = np.mean(scores)
+            elif self.config["optimization"]["target_metric"] == "broadbandB":
+                # Strategy B: Filter (Maximize Center, Penalize Sides)
+                # Assuming index 1 is center (1.55)
+                final_score = scores[1] - 0.5 * (scores[0] + scores[2])
+            
+            print(f"   [Spectral] 1.65um: {scores[0]:.3f} | 1.55um: {scores[1]:.3f} | 1.3um: {scores[2]:.3f}")
+            print(f"   [Result] Aggregated Score: {final_score:.4f}")
+            
+            return float(final_score)
         
-        # Calculate Score (Contrast Ratio)
-        return self._calculate_contrast_score(ex, ey, ez, radius, height, n_index)
+        elif self.config["optimization"]["target_metric"] == "contrast":
+            # 4. In-Memory Data Extraction (The Efficiency Hack)
+            
+            # We only grab the center wavelength for optimization speed
+            target_wl = self.config['source']['wavelength']
+            # Find index of target_wl in the flux object (assuming center freq)
+            freq_idx = 0
+            #freq_idx = 1
+            
+            # Extract fields directly to RAM
+            # Shape: [x, y, z] complex128
+            ex = sim.get_dft_array(dft_obj, mp.Ex, freq_idx)
+            ey = sim.get_dft_array(dft_obj, mp.Ey, freq_idx)
+            ez = sim.get_dft_array(dft_obj, mp.Ez, freq_idx)
+            
+            # Clean up MEEP object to free memory immediately
+            sim.reset_meep()
+            del sim
+            gc.collect()
+
+            # Compute Figure of Merit (Score)
+            #score = self._calculate_focusing_score(ex, ey, ez)
+            #print(f"Result: Score = {score:.5f}")
+            #return score
+            
+            # Calculate Score (Contrast Ratio)
+            return self._calculate_contrast_score(ex, ey, ez, radius, height, n_index)
+        
+        elif self.config["optimization"]["target_metric"] == "phase-matching":
+            ey = sim.get_dft_array(dft_obj, mp.Ey, 1)
+            
+            # Clean up MEEP object to free memory immediately
+            sim.reset_meep()
+            del sim
+            gc.collect()
+            
+            return self._score_phase_matching(ey)'''
+            
+    def run_sim_and_score(self, x_in):
+        self.sim_count += 1
+        print(f"\n--- Starting Sim #{self.sim_count} (In Isolated Process) ---")
+        
+        # 1. Map Parameters
+        real_params = self._parameter_mapper(x_in)
+        print(f"Params: Radius={real_params[0]:.3f}, Height={real_params[1]:.3f}, Index={real_params[2]:.3f}")
+
+        # 2. Setup Multiprocessing
+        # We use 'spawn' context to ensure a clean start, compatible with MEEP/MPI
+        ctx = multiprocessing.get_context('spawn')
+        queue = ctx.Queue()
+        
+        # 3. Launch the Worker
+        p = ctx.Process(target=run_meep_worker, args=(self.config, real_params, queue))
+        p.start()
+        
+        # 4. Wait for Result
+        result = queue.get() # Blocks until worker puts data
+        p.join() # Clean up the process handle
+        
+        # 5. Handle Result
+        if isinstance(result, Exception):
+            print(f"Simulation Failed: {result}")
+            return 0.0
+            
+        print(f"Result: Score = {result:.5f}")
+        return result
+        
+    def _score_phase_matching(self, ey, target_phase_rad=3.14159):
+        # 1. Get the complex field averaged over the center (to avoid edge noise)
+        # Using Ey assuming source is y-polarized
+        complex_field = np.mean(ey) 
+        
+        # 2. Define target as a complex unit vector
+        target_vector = np.exp(1j * target_phase_rad)
+        
+        # 3. Project simulated field onto target
+        # This maximizes BOTH transmission magnitude AND phase alignment.
+        # Score is high only if transmission is high AND phase is correct.
+        score = np.real(complex_field * np.conjugate(target_vector))
+        
+        return float(score)
 
     def _calculate_contrast_score(self, ex, ey, ez, r, h, n):
         intensity = np.abs(ex)**2 + np.abs(ey)**2 + np.abs(ez)**2
@@ -162,15 +314,34 @@ class MeepOracle:
         score = (max_val / mean_val) - 1.0
         
         # Save Visualization
-        plt.figure(figsize=(5, 4))
-        plt.imshow(slice_plane, cmap='inferno')
-        plt.colorbar(label='Intensity')
-        plt.title(f"Sim #{self.sim_count}\nR={r:.2f} H={h:.2f} n={n:.2f}\nScore: {score:.3f}")
-        plt.tight_layout()
-        plt.savefig(os.path.join(self.sims_dir, f"sim_{self.sim_count:03d}.png"))
-        plt.close()
+        if self.config['plot']:
+            fig = plt.figure(figsize=(5, 4))
+            plt.imshow(slice_plane, cmap='inferno')
+            plt.colorbar(label='Intensity')
+            plt.title(f"Sim #{self.sim_count}\nR={r:.2f} H={h:.2f} n={n:.2f}\nScore: {score:.3f}")
+            plt.tight_layout()
+            #plt.savefig(os.path.join(self.sims_dir, f"sim_{self.sim_count:03d}.png"))
+            #plt.close()
+            if self.animator:
+                self.animator.add_current_figure(fig)
+            plt.close(fig)
         
         return float(score)
+    
+    def _calculate_contrast_score_raw(self, ex, ey, ez):
+            """
+            Helper method that just does the math (no plotting)
+            """
+            intensity = np.abs(ex)**2 + np.abs(ey)**2 + np.abs(ez)**2
+            nz = intensity.shape[2]
+            center_idx = nz // 2
+            slice_plane = intensity[:, :, center_idx]
+            
+            max_val = np.max(slice_plane)
+            mean_val = np.mean(slice_plane)
+            
+            if mean_val == 0: return 0.0
+            return (max_val / mean_val) - 1.0
 
     def _calculate_focusing_score(self, ex, ey, ez):
         """
@@ -210,7 +381,12 @@ class AutonomousController:
         # Setup Logging
         self.run_dir, self.plots_dir, self.sims_dir, self.csv_path = setup_run_directory(config_path=config_path)
         
-        self.oracle = MeepOracle(self.config, self.sims_dir)
+        if self.config["plot"] == True:
+            self.animator = OptimizationAnimator(self.sims_dir, filename="evolution.mp4", fps=5)
+        else:
+            self.animator = None
+        
+        self.oracle = MeepOracle(self.config, self.sims_dir, self.animator)
         self.n_params = len(self.config['optimization']['parameters'])
         self.n_init = self.config['optimization']['n_init']
         self.method = self.config['optimization']['method']
@@ -263,7 +439,10 @@ class AutonomousController:
             if self.method == 'sobol': # quasi-random
                 sobol = SobolEngine(dimension=self.n_params, scramble=True)
                 sobol_samples = sobol.draw(n_iters).to(dtype=torch.double)
-            
+        
+        # initialize the tracker
+        tracker = AcquisitionTracker(self.config, self.plots_dir)
+        
         for i in range(n_iters):
             iteration_id = len(self.history_best)
             print(f"\n=== Optimization Iteration {i+1}/{n_iters} ===")
@@ -271,13 +450,29 @@ class AutonomousController:
             
             if self.method == 'bo': # bayesian optimization
                 
+                # setup kernel
+                if self.config['optimization']['kernel'] == 'matern':
+                    kernel = MaternKernel(nu=self.config['optimization']['matern_nu'], ard_num_dims=self.n_params)
+                elif self.config['optimization']['kernel'] == 'rbf':
+                    kernel = RBFKernel(ard_num_dims=3)
+
+                covar_module = ScaleKernel(kernel)
+                
                 # 1. Fit Gaussian Process
-                gp = SingleTaskGP(train_x, train_y)
+                gp = SingleTaskGP(
+                    train_x, 
+                    train_y, 
+                    covar_module=covar_module
+                )
+                #gp.likelihood.noise_covar.register_constraint("raw_noise", GreaterThan(1e-5))
                 mll = ExactMarginalLogLikelihood(gp.likelihood, gp)
                 fit_gpytorch_mll(mll)
                 
                 # 2. Optimize Acquisition Function (Expected Improvement)
-                EI = LogExpectedImprovement(gp, best_f=best_value)
+                if self.config['optimization']['acqf_func'] == 'ei':
+                    acqf_func = LogExpectedImprovement(gp, best_f=best_value)
+                elif self.config['optimization']['acqf_func'] == 'ucb':
+                    acqf_func = UpperConfidenceBound(model=gp, beta=20.0)
                 
                 # Find the best new point to try
                 # bounds are [0,1] because we normalized inside the Oracle
@@ -286,11 +481,21 @@ class AutonomousController:
                     torch.ones(self.n_params, dtype=torch.double)
                 ])
                 new_x, _ = optimize_acqf(
-                    EI, bounds=bounds, q=1, num_restarts=5, raw_samples=20
+                    acqf_func, bounds=bounds, q=1, num_restarts=5, raw_samples=20
                 )
+                #new_x, _ = optimize_acqf(
+                #    EI, bounds=bounds, q=1, num_restarts=40, raw_samples=2048
+                #)
                 
-                # VISUALIZE ACQUISITION
-                self._plot_acquisition_slice(gp, EI, new_x[0], iteration_id)
+                best_idx = train_y.argmax()
+                best_x_norm = train_x[best_idx]
+                tracker.log_step(gp, acqf_func, best_x_norm)
+                
+                if self.config["plot"]:
+                    # VISUALIZE ACQUISITION
+                    self._plot_acquisition_slice(gp, acqf_func, new_x[0], iteration_id)
+                    # VISUALIZE UNCERTAINTY
+                    self._plot_brain_scan(gp, acqf_func, new_x[0], train_x, iteration_id)
                 
                 new_x = new_x[0]
                 
@@ -312,13 +517,16 @@ class AutonomousController:
             self.history_best.append(current_best)
             self._log_to_csv(iteration_id, new_y_val, new_x.numpy(), current_best)
             
-            # update Performance Plots
-            self._plot_performance_trace()
+            if self.config["plot"]:
+                # update Performance Plots
+                self._plot_performance_trace()
 
             # Save Checkpoint
             if i % 5 == 0:
                 save_path = os.path.join(self.run_dir, 'checkpoint.pt')
                 torch.save({'x': train_x, 'y': train_y}, save_path)
+                
+        tracker.plot_timeline()
 
     def _plot_performance_trace(self):
         """Plots the history of Score and Best Score."""
@@ -339,7 +547,7 @@ class AutonomousController:
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.savefig(os.path.join(self.plots_dir, "trace_score.png"))
-        plt.close()
+        plt.close('all')
 
     def _plot_acquisition_slice(self, gp, acq_func, candidate, iter_id):
         """
@@ -378,7 +586,100 @@ class AutonomousController:
         plt.title(f'Decision Surface (Iter {iter_id})\nSlice at Norm. Index = {fixed_index:.2f}')
         plt.legend()
         plt.savefig(os.path.join(self.plots_dir, f"acq_func_iter_{iter_id:03d}.png"))
-        plt.close()
+        plt.close('all')
+        
+    def _plot_brain_scan(self, gp, acq_func, candidate, train_x, iteration):
+        """
+        Generates a 3-panel diagnostic plot: GP Mean, GP Uncertainty, and Acquisition Function.
+        Takes a slice through the parameter space at the 'Index' of the candidate point.
+        """
+        import matplotlib.pyplot as plt
+        import torch
+
+        # 1. Setup the Slice Grid
+        # We will plot Radius (X) vs Height (Y), holding Index (Z) constant at the candidate's value.
+        # This assumes the param order is [Radius, Height, Index]
+        
+        n_grid = 50
+        x = torch.linspace(0, 1, n_grid, dtype=torch.double) # Normalized Radius
+        y = torch.linspace(0, 1, n_grid, dtype=torch.double) # Normalized Height
+        X, Y = torch.meshgrid(x, y, indexing='xy')
+        
+        # Fixed Index value (from the candidate)
+        fixed_index = candidate[2].item()
+        
+        # Create the grid of test points [Radius, Height, Fixed_Index]
+        # Shape: (2500, 3)
+        grid_flat = torch.stack([
+            X.flatten(), 
+            Y.flatten(), 
+            torch.full_like(X.flatten(), fixed_index)
+        ], dim=1)
+
+        # 2. Evaluate the Model (GP)
+        gp.eval() # Set to evaluation mode
+        with torch.no_grad():
+            posterior = gp.posterior(grid_flat)
+            mean = posterior.mean.squeeze().reshape(n_grid, n_grid).numpy()
+            sigma = posterior.variance.sqrt().squeeze().reshape(n_grid, n_grid).numpy()
+            
+            # Evaluate Acquisition Function
+            # Acqf expects input shape (N, 1, d) -> (2500, 1, 3)
+            acq_values = acq_func(grid_flat.unsqueeze(1))
+            acq = acq_values.reshape(n_grid, n_grid).numpy()
+
+        # 3. Filter Training Points for Overlay
+        # We only want to plot previous samples that are "nearby" in terms of Refractive Index
+        # otherwise the plot gets cluttered with points that are actually far away in 3D space.
+        train_x_np = train_x.numpy()
+        # Find points where Index is within +/- 0.1 (normalized) of the slice
+        mask = np.abs(train_x_np[:, 2] - fixed_index) < 0.1
+        nearby_points = train_x_np[mask]
+
+        # 4. Generate the Plot
+        fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+        
+        # Common plotting kwargs
+        extent = [0, 1, 0, 1]
+        origin = 'lower'
+        
+        # --- Panel A: GP Mean (The "Map") ---
+        im1 = axes[0].imshow(mean, extent=extent, origin=origin, cmap='viridis')
+        axes[0].set_title('GP Posterior Mean (Predicted Score)')
+        fig.colorbar(im1, ax=axes[0])
+        
+        # --- Panel B: GP Uncertainty (The "Fog") ---
+        im2 = axes[1].imshow(sigma, extent=extent, origin=origin, cmap='plasma')
+        axes[1].set_title('GP Uncertainty (Sigma)')
+        fig.colorbar(im2, ax=axes[1])
+        
+        # --- Panel C: Acquisition Function (The "Decision") ---
+        im3 = axes[2].imshow(acq, extent=extent, origin=origin, cmap='inferno')
+        axes[2].set_title('Acquisition Function (Exp. Improvement)')
+        fig.colorbar(im3, ax=axes[2])
+
+        # 5. Overlays (Context)
+        for ax in axes:
+            ax.set_xlabel('Normalized Radius')
+            ax.set_ylabel('Normalized Height')
+            
+            # Plot historical points (Black dots)
+            if len(nearby_points) > 0:
+                ax.scatter(nearby_points[:, 0], nearby_points[:, 1], c='k', s=20, alpha=0.5, label='History')
+            
+            # Plot the NEW candidate (Red Star)
+            ax.scatter(candidate[0], candidate[1], c='r', marker='*', s=200, edgecolors='w', label='Next Sim')
+
+        # Add legend only to the last plot to save space
+        axes[2].legend(loc='upper right')
+        
+        plt.suptitle(f"Brain Scan Iteration {iteration} | Slice at Norm. Index = {fixed_index:.2f}", fontsize=14)
+        plt.tight_layout()
+        
+        # Save
+        filename = os.path.join(self.plots_dir, f"brain_scan_iter_{iteration:03d}.png")
+        plt.savefig(filename)
+        plt.close('all')
 
 if __name__ == "__main__":
     controller = AutonomousController("supplementary/bo_study/config.yaml")
