@@ -4,7 +4,9 @@
 #   Optimization Constraints & Goals
 # ---------------------------------------------------------
 optimization:
-  n_iterations: 50
+  method: 'sobol' # or 'random-search' or 'bo'
+  n_init: 0 # initial randoms (bo)
+  n_iterations: 35 #50
   target_metric: "focusing" # or 'steering', 'broadband_efficiency'
   
   # The Target Focal Point (relative to center of cell)
@@ -29,13 +31,16 @@ optimization:
 #   Physics / MEEP Parameters
 # ---------------------------------------------------------
 grid_size: 1 # Start small: 1x1 pillar
-neighborhood_size: [1,1]
 
 geometry:
   # Static geometry details
-  substrate_buffer: True
+  substrate_buffer: False #True
   thickness_pml: 0.78
   unit_cell_size: 0.68
+
+  # PDMS
+  size_z_pdms: 1.56
+  material_index_pdms: 1.4
   
   # Substrate Materials
   material_index_fused_silica: 1.44
@@ -45,11 +50,40 @@ geometry:
   size_y_buffer: 4
   size_z_buffer: 1.5
 
+  # metasurface
+  neighborhood_size: [1,1] #Nx, Ny
+  atom_type: 'cylinder'
+  material_index_meta_atom: 3.48 #amorphous silica
+  height_pillar: 1.02
+  radius_pillar: 0.2
+
 source:
+  type: 'gaussian'
   wavelength: 1.55
-  wavelength_list: [1.55] # Optimize for center wavelength first
+  wavelength_list: [1.650, 1.550, 1.300] # Optimize for center wavelength first
   fwidth: 0.5 
 
 simulation:
-  resolution: 30 # Lower resolution for fast optimization loops
-  until: 200     # Ensure fields decay
+  resolution: 30 #40
+  until: 50 #18
+  decay_rate: 0.0015
+  dt: 50
+
+#-----------------------
+#   Monitor Parameters
+#-----------------------
+
+monitor:
+  components_dft_monitor: 'all'
+  fcen:
+  freq_list:
+  wavelenth_center: 1.55
+  wavelength_list: [1.650, 1.550, 1.300]
+
+dft_slice_monitor:
+  components_dft_monitor: 'all'
+  fcen:
+  freq_list:
+  wavelenth_center: 1.55
+  wavelength_list: [1.650, 1.550, 1.300]
+  loc_z: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4.0]

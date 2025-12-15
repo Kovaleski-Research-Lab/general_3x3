@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meep-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: meep-dev
+  template:
+    metadata:
+      labels:
+        app: meep-dev
+    spec:
+
+      volumes:
+      - name: meep-auto
+        persistentVolumeClaim:
+          claimName: meep-auto
+      - name: dshm
+        emptyDir:
+          medium: Memory
+
+      containers:
+      - name: meep-dev-container
+        image: docker.io/kovaleskilab/meep:v3_lightning
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+          - "tail -f /dev/null"
+
+        volumeMounts:
+        - name: meep-auto
+          mountPath: /develop
+        - name: dshm
+          mountPath: /dev/shm
+
+        resources:
+          limits:
+            memory: 200Gi
+            cpu: 24
+          requests:
+            memory: 200Gi
+            cpu: 24

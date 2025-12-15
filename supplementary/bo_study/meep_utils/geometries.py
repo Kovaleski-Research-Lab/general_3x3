@@ -210,7 +210,7 @@ def get_substrate_params(params):
     #logger.info("Center of the simulation cell : {}".format(center_sim_cell))
     params['geometry']['center_sim_cell'] = center_sim_cell
 
-    size_z_non_pml 
+    #size_z_non_pml 
     #Get the size of the nonbuffer region
     size_x_non_buffer = params['geometry']['unit_cell_size'] * params['grid_size']
     size_y_non_buffer = params['geometry']['unit_cell_size'] * params['grid_size']
