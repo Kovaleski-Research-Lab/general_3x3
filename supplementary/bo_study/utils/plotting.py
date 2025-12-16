@@ -380,15 +380,17 @@ if __name__ == "__main__":
         "../../results/run_20251215_223117/optimization_log.csv",
         "../../results/run_20251215_224426/optimization_log.csv",
         "../../results/run_20251215_225215/optimization_log.csv",
+        "../../results/run_20251215_234303/optimization_log.csv",
         "../../results/run_20251212_205037/optimization_log.csv",
         "../../results/run_20251212_214348/optimization_log.csv",
     ]
     
     custom_labels = [
-        "Bayesian Optimization (Matern, EI)",
+        "Bayesian Optimization (Matern 1.5, UCB)",
+        "Bayesian Optimization (Matern 2.5, UCB)",
+        "Bayesian Optimization (Matern 2.5, EI)",
         "Bayesian Optimization (RBF, EI)",
-        "Bayesian Optimization (Matern, UCB (Greedy))",
-        "Bayesian Optimization (Matern, UCB (Curious))",
+        "Bayesian Optimization (No ARD)",
         "Random Search",
         "Quasi-Random Search (Sobol)"
     ]

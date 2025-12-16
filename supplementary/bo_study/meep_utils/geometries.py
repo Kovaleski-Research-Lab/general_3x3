@@ -12,7 +12,7 @@ from loguru import logger
 # logging purposes at least.
 ##############################################################################
 
-def build_cylinder(loc:list, axis:list, height:float, radius:float, material_index:float=None, epsilon:float=None) -> mp.Cylinder:
+def build_cylinder(loc:list, axis:list, height:float, radius:float, material_index:float=None, k_loss:float=None, epsilon:float=None) -> mp.Cylinder:
     #logger.info("Building a MEEP cylinder")
 
     #logger.info("Creating cylinder material. Index = {}".format(material_index))
@@ -21,7 +21,7 @@ def build_cylinder(loc:list, axis:list, height:float, radius:float, material_ind
         material = mp.Medium(epsilon_diag=mp.Vector3(epsilon, epsilon, epsilon))
     else:
         # Otherwise use refractive index
-        material = mp.Medium(index=material_index)
+        material = mp.Medium(index=material_index, D_conductivity=k_loss)
         
     center = mp.Vector3(loc[0], loc[1], loc[2])
     axis = mp.Vector3(axis[0], axis[1], axis[2])
@@ -256,7 +256,7 @@ def get_substrate_params(params):
 
     return params
 
-def build_andy_metasurface_neighborhood(params, radii = None, heights = None, epsilons = None):
+def build_andy_metasurface_neighborhood(params, radii = None, heights = None, indices=None, losses=None, epsilons = None):
 
     '''
     This is basically the same code as the parameter manager's calculate_dependencies
@@ -288,6 +288,12 @@ def build_andy_metasurface_neighborhood(params, radii = None, heights = None, ep
         
     if heights == None:
         heights = [1.02 for _ in range(0,Nx*Ny)]
+        
+    if indices == None:
+        indices = [3.48 for _ in range(0,Nx*Ny)]
+        
+    if losses == None:
+        losses = [0.0 for _ in range(0,Nx*Ny)]
 
     #logger.info("Radii of the pillars : {}".format(radii))
     count = 0
@@ -313,7 +319,8 @@ def build_andy_metasurface_neighborhood(params, radii = None, heights = None, ep
                     axis=mp.Vector3(0,0,1),
                     height=heights[count],
                     radius=radii[count],
-                    material_index=material_index_pillars
+                    material_index=indices[count],
+                    k_loss=losses[count]
                 )
             
             metasurface.append(cylinder)

@@ -4,6 +4,35 @@ import yaml
 from loguru import logger
 from meep_utils import geometries, sources, simulation
 
+def build_output_plane_monitor(params, sim):
+    """
+    Builds a lightweight 2D monitor exactly where we need to measure.
+    """
+    monitor_params = params['monitor']
+    
+    # 1. Define the geometric slice (2D Plane)
+    # We want it above the pillar (e.g., in the Fused Silica or Air)
+    loc_z = params['geometry']['loc_top_fused_silica'] + \
+        params['geometry']['height_pillar'] + \
+        0.775
+    
+    center = mp.Vector3(0, 0, loc_z)
+    size = mp.Vector3(params['cell_x'], params['cell_y'], 0) # Z-size is 0!
+    
+    where = mp.Volume(center=center, size=size)
+
+    # 2. Components (Ex, Ey, Ez)
+    components = [mp.Ex, mp.Ey, mp.Ez]
+
+    # 3. Frequencies
+    freq_list = monitor_params['freq_list']
+    if freq_list is None:
+        freq_list = [1/wl for wl in monitor_params['wavelength_list']]
+
+    # 4. Add the lightweight monitor
+    dft_obj = sim.add_dft_fields(components, freq_list, where=where)
+    
+    return dft_obj
 
 def collect_fields(params, sim, flux_obj = None, dft_obj = None):
 

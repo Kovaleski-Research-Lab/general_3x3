@@ -1,6 +1,6 @@
 import meep as mp
 from meep_utils import geometries
-
+import yaml
 
 
 def continuous_source(params):

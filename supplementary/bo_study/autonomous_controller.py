@@ -11,6 +11,7 @@ import datetime
 from torch.quasirandom import SobolEngine
 import gc
 import multiprocessing
+import cmath
 
 # Optimization Libraries
 from botorch.models import SingleTaskGP
@@ -51,27 +52,124 @@ def run_meep_worker(config, params, queue):
             epsilons=epsilons
         )
         
+        '''radius, height, n_index, loss = params
+        radii, heights, indices, losses = [radius], [height], [n_index], [loss]
+
+        # Build Sim
+        sim, dft_obj, flux_obj, _ = simulation.build_sim(
+            config, 
+            radii=radii, 
+            heights=heights, 
+            indices=indices,
+            losses=losses
+        )'''
+        
         # Run Sim
-        sim.run(until=config['simulation']['until'])
-        
-        # Extract Data
-        # (Assuming we are doing the "Contrast Score" logic)
-        ex = sim.get_dft_array(dft_obj, mp.Ex, 0)
-        ey = sim.get_dft_array(dft_obj, mp.Ey, 0)
-        ez = sim.get_dft_array(dft_obj, mp.Ez, 0)
-        
+        check_pt = mp.Vector3(0, 0, 0)
+        sim.run(
+            mp.stop_when_fields_decayed(50, mp.Ey, check_pt, 1e-3),
+            until=config['simulation']['until']
+        )
+        #sim.run(until=config['simulation']['until'])
+    
         # Calculate Score
-        intensity = np.abs(ex)**2 + np.abs(ey)**2 + np.abs(ez)**2
-        nz = intensity.shape[2]
-        center_idx = nz // 2
-        slice_plane = intensity[:, :, center_idx]
-        
-        max_val = np.max(slice_plane)
-        mean_val = np.mean(slice_plane)
-        
-        score = 0.0
-        if mean_val != 0:
-            score = (max_val / mean_val) - 1.0
+        if config['optimization']['target_metric'] == "contrast":
+            # (Assuming we are doing the "Contrast Score" logic)
+            ex = sim.get_dft_array(dft_obj, mp.Ex, 1)
+            ey = sim.get_dft_array(dft_obj, mp.Ey, 1)
+            ez = sim.get_dft_array(dft_obj, mp.Ez, 1)
+            intensity = np.abs(ex)**2 + np.abs(ey)**2 + np.abs(ez)**2
+            nz = intensity.shape[2]
+            center_idx = nz // 2
+            #slice_plane = intensity[:, :, center_idx]
+            slice_plane = intensity
+            
+            max_val = np.max(slice_plane)
+            mean_val = np.mean(slice_plane)
+            
+            score = 0.0
+            if mean_val != 0:
+                score = (max_val / mean_val) - 1.0
+        elif config['optimization']['target_metric'] == "goldilocks":
+            # 1. Get COMPLEX fields (Do not use abs() yet!)
+            # We focus on Ey because the source is Ey-polarized.
+            # Index 1 assumes you want the center frequency.
+            ey_complex = sim.get_dft_array(dft_obj, mp.Ey, 1)
+            
+            # 2. Calculate Transmission (Intensity Proxy)
+            # We average the intensity over the slice.
+            # (Ideally, normalize by input intensity, assuming ~1.0 here for relative scoring)
+            intensity_map = np.abs(ey_complex)**2
+            mean_transmission = np.mean(intensity_map)
+            
+            # 3. Calculate Phase
+            # We average the complex field *vector* first, then take the angle.
+            # This gives the "coherent mean phase" of the wavefront.
+            avg_complex_field = np.mean(ey_complex)
+            sim_phase = np.angle(avg_complex_field) # Returns value in [-pi, pi]
+            
+            # 4. The "Goldilocks" Score
+            # Target Phase: Pi (3.14159)
+            # We use a Cosine metric: 1.0 if phase matches exactly, 0.0 if 90 deg off.
+            target_phase = np.pi
+            
+            # Phase Score: Goes from 0.0 to 1.0
+            # cos((sim - target)/2)^2 is a smooth bell curve peaking at target
+            phase_alignment = np.cos((sim_phase - target_phase) / 2)**2
+            
+            # Transmission Score: We want T to be high (e.g., closer to 1.0 is better)
+            # We clip it to avoid rewarding super-focusing artifacts
+            trans_score = np.clip(mean_transmission, 0, 1.5) / 1.5 
+            
+            # COMBINED SCORE
+            # High Score means: Good Transmission AND Correct Phase
+            score = trans_score * phase_alignment
+        elif config['optimization']['target_metric'] == "bandpass":
+            # flux_obj is a Meep Flux object. 
+            # mp.get_fluxes(flux_obj) returns a list of powers for each frequency
+            flux_data = mp.get_fluxes(flux_obj)
+            
+            # Mapping indices based on your config's [1.65, 1.55, 1.30]
+            # Meep sorts frequencies Low->High.
+            # Lambda: [1.65, 1.55, 1.30] -> Freq: [0.60, 0.64, 0.77]
+            # So Index 0 is 1.65um, Index 1 is 1.55um, Index 2 is 1.30um
+            
+            power_155 = flux_data[1] # Signal
+            power_130 = flux_data[2] # Noise
+            
+            # 3. NORMALIZE (Optional but good practice)
+            # Ideally, you run a "normalization run" (no pillar) to get input power.
+            # For now, we assume input is roughly constant across small bandwidths.
+            
+            # 4. SCORING: Log Contrast
+            # We want 1.55 to be HIGH and 1.30 to be LOW.
+            # A simple ratio is unstable if 1.30 is near zero.
+            # Log10 makes the score manageable (e.g., 100x contrast = 2.0).
+            
+            epsilon = 1e-9 # Prevent divide by zero
+            ratio = (power_155 + epsilon) / (power_130 + epsilon)
+            
+            score = np.log10(ratio)
+            
+            # Penalize if the "Pass" band is actually dark (Transmission < 10%)
+            # (We don't want a filter that blocks everything)
+            # Assuming max flux ~ 1.0 (relative)
+            if power_155 < 0.1: 
+                score -= 5.0 # Heavy penalty
+        elif config['optimization']['target_metric'] == "notch-filter":
+            # Get Flux at 1.55um (Index 1)
+            flux_data = mp.get_fluxes(flux_obj)
+            power_155 = flux_data[1] 
+            
+            # --- THE METRIC ---
+            # We want Power -> 0.
+            # BO wants to MAXIMIZE score.
+            # Score = -1 * Log10(Power)
+            # If T=1.0 (Transparent) -> Score = 0
+            # If T=0.01 (Blocked)    -> Score = 2
+            
+            # Add epsilon to avoid log(0)
+            score = -1.0 * np.log10(power_155 + 1e-6)
             
         # Send result back to main process
         queue.put(float(score))
@@ -142,6 +240,27 @@ class MeepOracle:
         n = x_normalized[2] * (n_max - n_min) + n_min
         
         return float(r), float(h), float(n)
+    
+    def _parameter_mapper_2x(self, x_normalized):
+        """
+        Maps the optimizer's input vector (0-1 range) to physical units.
+        Assumes x is [radius, height, index]
+        """
+        bounds = self.config['optimization']['parameters']
+        
+        # Unpack bounds
+        r_min, r_max = bounds[0]['bounds']
+        h_min, h_max = bounds[1]['bounds']
+        n_min, n_max = bounds[2]['bounds']
+        k_min, k_max = bounds[3]['bounds']
+        
+        # De-normalize
+        r = x_normalized[0] * (r_max - r_min) + r_min
+        h = x_normalized[1] * (h_max - h_min) + h_min
+        n = x_normalized[2] * (n_max - n_min) + n_min
+        k = x_normalized[3] * (k_max - k_min) + k_min
+        
+        return float(r), float(h), float(n), float(k)
 
     '''def run_sim_and_score(self, x_in):
         """
@@ -259,6 +378,7 @@ class MeepOracle:
         # 1. Map Parameters
         real_params = self._parameter_mapper(x_in)
         print(f"Params: Radius={real_params[0]:.3f}, Height={real_params[1]:.3f}, Index={real_params[2]:.3f}")
+
 
         # 2. Setup Multiprocessing
         # We use 'spawn' context to ensure a clean start, compatible with MEEP/MPI
@@ -398,6 +518,7 @@ class AutonomousController:
     def _log_to_csv(self, iteration, score, params, best_so_far):
         # Map normalized params back to real units for readable logs
         real_params = self.oracle._parameter_mapper(params)
+        print(f'real_params: {real_params}')
         with open(self.csv_path, 'a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([iteration, score, *real_params, best_so_far])
@@ -409,6 +530,7 @@ class AutonomousController:
         print(f"Initializing with {self.n_init} random simulations...")
         for i in range(self.n_init):
             # Generate random normalized parameters [0, 1]
+            print(f'num_params: {self.n_params}')
             x_rand = torch.rand(self.n_params, dtype=torch.double)
             y_val = self.oracle.run_sim_and_score(x_rand.numpy())
             
@@ -449,12 +571,15 @@ class AutonomousController:
             print(f"Current Best Score: {best_value:.5f}")
             
             if self.method == 'bo': # bayesian optimization
-                
+                if self.config['optimization']['ard'] == True:
+                    ard_setting = self.n_params
+                else:
+                    ard_setting=None
                 # setup kernel
                 if self.config['optimization']['kernel'] == 'matern':
-                    kernel = MaternKernel(nu=self.config['optimization']['matern_nu'], ard_num_dims=self.n_params)
+                    kernel = MaternKernel(nu=self.config['optimization']['matern_nu'], ard_num_dims=ard_setting)
                 elif self.config['optimization']['kernel'] == 'rbf':
-                    kernel = RBFKernel(ard_num_dims=3)
+                    kernel = RBFKernel(ard_num_dims=ard_setting)
 
                 covar_module = ScaleKernel(kernel)
                 
@@ -472,7 +597,7 @@ class AutonomousController:
                 if self.config['optimization']['acqf_func'] == 'ei':
                     acqf_func = LogExpectedImprovement(gp, best_f=best_value)
                 elif self.config['optimization']['acqf_func'] == 'ucb':
-                    acqf_func = UpperConfidenceBound(model=gp, beta=20.0)
+                    acqf_func = UpperConfidenceBound(model=gp, beta=self.config['optimization']['ucb_beta'])
                 
                 # Find the best new point to try
                 # bounds are [0,1] because we normalized inside the Oracle
@@ -481,7 +606,9 @@ class AutonomousController:
                     torch.ones(self.n_params, dtype=torch.double)
                 ])
                 new_x, _ = optimize_acqf(
-                    acqf_func, bounds=bounds, q=1, num_restarts=5, raw_samples=20
+                    acqf_func, bounds=bounds, q=1, 
+                    num_restarts=self.config["optimization"]["num_restarts"], 
+                    raw_samples=self.config["optimization"]["raw_samples"]
                 )
                 #new_x, _ = optimize_acqf(
                 #    EI, bounds=bounds, q=1, num_restarts=40, raw_samples=2048
@@ -493,8 +620,8 @@ class AutonomousController:
                 
                 if self.config["plot"]:
                     # VISUALIZE ACQUISITION
-                    self._plot_acquisition_slice(gp, acqf_func, new_x[0], iteration_id)
-                    # VISUALIZE UNCERTAINTY
+                    #self._plot_acquisition_slice(gp, acqf_func, new_x[0], iteration_id)
+                    # VISUALIZE ACQUISITION and UNCERTAINTY
                     self._plot_brain_scan(gp, acqf_func, new_x[0], train_x, iteration_id)
                 
                 new_x = new_x[0]

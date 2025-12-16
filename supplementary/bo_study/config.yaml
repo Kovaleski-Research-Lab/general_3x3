@@ -1,6 +1,6 @@
 # opt_config.yaml
 
-plot: False
+plot: True
 
 # ---------------------------------------------------------
 #   Optimization Constraints & Goals
@@ -10,11 +10,15 @@ optimization:
   method: 'bo'
   #method: 'random-search'
   n_init: 5 # initial randoms (bo)
-  n_iterations: 30 #50
-  target_metric: "contrast" # "contrast" # or "phase-matching" or 'broadbandA', 'broadbandB"
+  n_iterations: 35 #50
+  target_metric: "notch-filter" # "contrast" # or "phase-matching" or 'broadbandA', 'broadbandB"
   kernel: 'matern' # 'matern' or 'rbf'
   acqf_func: 'ei' # 'ei' or 'ucb'
+  ard: True
   matern_nu: 2.5
+  ucb_beta: 10.0
+  raw_samples: 2048 # 20
+  num_restarts: 40 # 5
   
   # The Target Focal Point (relative to center of cell)
   target_point: [0, 0, 2.0] # x, y, z (microns)
@@ -24,15 +28,19 @@ optimization:
   parameters:
     - name: "radius"
       type: "range"
-      bounds: [0.075, 0.250]
+      bounds: [0.2, 0.4] #[0.2, 0.45] #[0.075, 0.250]
     
     - name: "height"
       type: "range"
-      bounds: [0.75, 1.25]
+      bounds: [1.0, 1.5] #[0.75, 1.25] #[0.75, 1.25]
       
     - name: "index"
       type: "range"
-      bounds: [3.48, 3.48] #[2.0, 4.0] # Refractive Index
+      bounds: [3.4, 3.6] # Refractive Index
+
+    #- name: "k_loss"
+    #  type: "range"
+    #  bounds: [0.0, 0.05]
 
 # ---------------------------------------------------------
 #   Physics / MEEP Parameters
@@ -53,9 +61,9 @@ geometry:
   material_index_fused_silica: 1.44
   size_z_fused_silica: 0.78
   size_z_pdms: 1.56
-  size_x_buffer: 4
-  size_y_buffer: 4
-  size_z_buffer: 1.5
+  size_x_buffer: 0 #4
+  size_y_buffer: 0 #4
+  size_z_buffer: 0.75 #1.5
 
   # metasurface
   neighborhood_size: [1,1] #Nx, Ny
@@ -71,8 +79,8 @@ source:
   fwidth: 0.5 
 
 simulation:
-  resolution: 30 #40
-  until: 50 #18
+  resolution: 30 #60 #40
+  until: 200 #200 #18
   decay_rate: 0.0015
   dt: 50
 

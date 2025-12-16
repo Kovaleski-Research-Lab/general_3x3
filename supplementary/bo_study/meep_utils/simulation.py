@@ -2,10 +2,10 @@ import meep as mp
 from meep_utils import geometries, sources, field_monitors
 
 
-def build_sim(params, radii = None, heights = None, epsilons=None):
+def build_sim(params, radii = None, heights = None, indices=None, losses=None, epsilons=None):
 
     geometry, pml_layers, monitor_volume, params = geometries.build_andy_metasurface_neighborhood(
-        params, radii, heights, epsilons
+        params, radii, heights, indices, losses, epsilons
     )
     source, params = sources.build_andy_source(params)
     k_point = mp.Vector3(0,0,0)
@@ -22,24 +22,36 @@ def build_sim(params, radii = None, heights = None, epsilons=None):
     center_x_cell = 0
     center_y_cell = 0
     center_z_cell = 0
+    
+    cell_size = mp.Vector3(
+        params['geometry']['unit_cell_size'],
+        params['geometry']['unit_cell_size'],
+        size_z_cell # (calculated from stack + z_buffer + z_pml)
+    )
+    pml_layers = [mp.PML(thickness=params['geometry']['thickness_pml'], direction=mp.Z)]
 
     center_cell = mp.Vector3(center_x_cell, center_y_cell, center_z_cell)
     resolution = int(params['simulation']['resolution'])
+    
+    symmetries = [
+            mp.Mirror(mp.X, phase=+1),
+            mp.Mirror(mp.Y, phase=-1)
+    ]
 
     sim = mp.Simulation( 
-                         geometry_center = center_cell,
-                         cell_size = size_cell,
-                         geometry = geometry,
-                         sources = source,
-                         k_point = k_point,
-                         boundary_layers = pml_layers,
-                         resolution = resolution,
-                         symmetries=None)
+         geometry_center = center_cell,
+         cell_size = cell_size,
+         geometry = geometry,
+         sources = source,
+         k_point = k_point,
+         boundary_layers = pml_layers,
+         resolution = resolution,
+         symmetries=symmetries # <--- CHANGED from None
+    )
 
-    dft_slice_objs = field_monitors.build_dft_slice_monitor(params, sim, monitor_volume)
+    dft_obj = field_monitors.build_output_plane_monitor(params, sim)
     
-    dft_obj = field_monitors.build_dft_monitor(params, sim, monitor_volume)
-    flux_obj,params = field_monitors.build_timedep_monitor(params, sim)
+    flux_obj, params = field_monitors.build_timedep_monitor(params, sim)
 
     return sim, dft_obj, flux_obj, params
 
